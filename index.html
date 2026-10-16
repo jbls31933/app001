@@ -1,154 +1,880 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task & Diary PWA</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        h1 {
-            font-size: 1.5rem;
-        }
-        .card {
-            background: #fff;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COACH（コーチ）</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #e8f1f8;
+      color: #333333;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      background-color: #e8f1f8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 共通ヘッダー（高さと位置を完全に固定し、ズレを一切排除） */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background-color: #e8f1f8;
+      min-height: 60px;
+    }
+
+    .top-nav-link {
+      font-size: 13px;
+      color: #1e40af;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      font-size: 24px;
+    }
+
+    .app-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .app-title span {
+      font-size: 14px;
+      font-weight: normal;
+      color: #4b5563;
+    }
+
+    .btn-add-project {
+      background-color: #ffffff;
+      border: 1.5px solid #2563eb;
+      color: #1e40af;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: auto;
+    }
+
+    .btn-delete {
+      background-color: #dc2626;
+      border: none;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: auto;
+    }
+
+    /* タブナビゲーション */
+    .tab-nav {
+      display: flex;
+      padding: 0 16px;
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: bold;
+      background-color: #cbd5e1;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .tab-item:first-child {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    .tab-item:last-child {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .tab-item.active {
+      background-color: #0f4c81;
+      color: #ffffff;
+    }
+
+    /* メインエリア */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+
+    .status-group {
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      border: 1px solid transparent;
+    }
+
+    .status-header {
+      padding: 8px 12px;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-body {
+      background-color: #ffffff;
+      padding: 8px 12px;
+    }
+
+    .empty-msg {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 4px 0;
+    }
+
+    .group-expired { border-color: #f87171; }
+    .group-expired .status-header { background-color: #dc2626; }
+
+    .group-today-due { border-color: #fbbf24; }
+    .group-today-due .status-header { background-color: #d97706; }
+
+    .group-today-plan { border-color: #60a5fa; }
+    .group-today-plan .status-header { background-color: #0284c7; }
+
+    .group-completed { border-color: #4ade80; }
+    .group-completed .status-header { background-color: #16a34a; }
+
+    .project-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2563eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .label-text {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .task-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #334155;
+      background-color: #f8fafc;
+      outline: none;
+    }
+
+    .task-input:focus {
+      border-color: #2563eb;
+      background-color: #ffffff;
+    }
+
+    .status-buttons {
+      display: flex;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .status-btn {
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 20px;
+      border: none;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .status-btn.completed { background-color: #16a34a; color: #ffffff; }
+    .status-btn.uncompleted { background-color: #ffffff; border: 1px solid #cbd5e1; color: #475569; }
+    .status-btn.pending { background-color: #d97706; color: #ffffff; }
+
+    .datetime-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .datetime-label {
+      font-weight: bold;
+      width: 70px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-box, .time-box {
+      background-color: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .memo-card-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #1e293b;
+    }
+
+    .memo-textarea {
+      width: 100%;
+      height: 90px;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      background-color: #f8fafc;
+    }
+
+    .memo-help {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .tree-card {
+      border: 1px solid #93c5fd;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .tree-header {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tree-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+    }
+
+    .footer-nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 8px;
+      background-color: #e8f1f8;
+      border-top: 1px solid #cbd5e1;
+    }
+
+    .footer-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 22%;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .footer-icon-box {
+      width: 44px;
+      height: 44px;
+      background-color: #94a3b8;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .footer-text {
+      font-size: 10px;
+      color: #334155;
+      line-height: 1.2;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <div id="app">
-        <h1>Task & Diary</h1>
-        <div class="card">
-            <h2>新規レコード追加</h2>
-            <form id="record-form">
-                <input type="text" id="title-input" placeholder="タイトルを入力" required style="padding: 8px; width: 60%; margin-right: 8px;">
-                <button type="submit" style="padding: 8px 16px;">追加</button>
-            </form>
+
+  <div class="app-container">
+    
+    <!-- 共通固定ヘッダー -->
+    <header class="header">
+      <!-- トップページでは「COACHロゴ」、それ以外では「トップへ戻る」を表示 -->
+      <div id="header-left-area">
+        <span id="global-back-btn" class="top-nav-link hidden" onclick="navigateToTop()">‹ トップへ戻る</span>
+        <div id="global-logo" class="logo-area">
+          <span class="logo-icon">🗼</span>
+          <h1 class="app-title">COACH <span>(コーチ)</span></h1>
         </div>
-        <div class="card">
-            <h2>登録一覧</h2>
-            <div id="record-list"></div>
-        </div>
+      </div>
+      
+      <!-- 右側ボタンエリア -->
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="global-add-proj-btn" class="btn-add-project hidden" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
+        <button id="global-delete-btn" class="btn-delete hidden" onclick="deleteCurrentTask()">削除</button>
+      </div>
+    </header>
+
+    <!-- トップページ専用タブナビゲーション -->
+    <div id="top-tab-nav-container">
+      <nav class="tab-nav">
+        <div class="tab-item active" id="tab-btn-task" onclick="switchMainTab('task')">タスク</div>
+        <div class="tab-item" id="tab-btn-calendar" onclick="switchMainTab('calendar')">カレンダー</div>
+        <div class="tab-item" id="tab-btn-project" onclick="switchMainTab('project')">プロジェクト</div>
+        <div class="tab-item" id="tab-btn-diary" onclick="switchMainTab('diary')">日記</div>
+      </nav>
     </div>
 
-    <script type="module">
-        import { db, runCatchUpProcessing } from './database.js';
+    <!-- メインコンテンツ領域 -->
+    <main class="main-content">
+      <!-- 1. タスク -->
+      <div id="view-task">
+        <div class="card">
+          <h2 class="section-title">本日のクイックステータス</h2>
+          <div class="status-group group-expired">
+            <div class="status-header"><span>⏰</span> 期限切れ (<span id="count-expired">0</span>件)</div>
+            <div class="status-body" id="list-expired"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-today-due">
+            <div class="status-header"><span>❗</span> 今日期限 (<span id="count-today-due">0</span>件)</div>
+            <div class="status-body" id="list-today-due"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-today-plan">
+            <div class="status-header"><span>📅</span> 今日完了予定 (<span id="count-today-plan">0</span>件)</div>
+            <div class="status-body" id="list-today-plan"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-completed">
+            <div class="status-header"><span>✔</span> 完了済み (<span id="count-completed">0</span>件)</div>
+            <div class="status-body" id="list-completed"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+        </div>
+      </div>
 
-        async function renderRecords() {
-            const listContainer = document.getElementById('record-list');
-            const records = await db.records.toArray();
-            listContainer.innerHTML = '';
-            
-            if (records.length === 0) {
-                listContainer.innerHTML = '<p>データがありません。</p>';
-                return;
-            }
+      <!-- 2. カレンダー -->
+      <div id="view-calendar" class="hidden">
+        <div class="card"><h2 class="section-title">📅 カレンダー</h2><div class="empty-msg">カレンダーの予定はありません</div></div>
+      </div>
 
-            records.forEach(record => {
-                const item = document.createElement('div');
-                item.style.padding = '8px 0';
-                item.style.borderBottom = '1px solid #eee';
-                item.textContent = `${record.title} (ステータス: ${record.status})`;
-                listContainer.appendChild(item);
-            });
+      <!-- 3. プロジェクト -->
+      <div id="view-project" class="hidden">
+        <div class="card">
+          <h2 class="section-title">📁 プロジェクト管理</h2>
+          <div id="top-project-list" class="space-y-3"><div class="empty-msg">プロジェクトがありません</div></div>
+        </div>
+      </div>
+
+      <!-- 4. 日記 -->
+      <div id="view-diary" class="hidden">
+        <div class="card"><h2 class="section-title">📖 日記</h2><div class="empty-msg">日記の記録はありません</div></div>
+      </div>
+
+      <!-- フッター機能画面 -->
+      <div id="view-nice" class="hidden">
+        <div class="card">
+          <h2 class="section-title">💡 今日じゃなくてもやっといた方がいいこと</h2>
+          <div id="list-nice" class="space-y-2"><div class="empty-msg">該当する項目はありません</div></div>
+        </div>
+      </div>
+
+      <div id="view-pending" class="hidden">
+        <div class="card">
+          <h2 class="section-title">⏸ 保留一覧</h2>
+          <div id="list-pending" class="space-y-2"><div class="empty-msg">保留中の項目はありません</div></div>
+        </div>
+      </div>
+
+      <div id="view-all" class="hidden">
+        <div class="card">
+          <h2 class="section-title">≡ すべてのプロジェクトとタスクを見る</h2>
+          <div id="list-all-tasks" class="space-y-2"><div class="empty-msg">タスクはありません</div></div>
+        </div>
+      </div>
+
+      <div id="view-trash" class="hidden">
+        <div class="card">
+          <h2 class="section-title">🗑 最近削除した項目</h2>
+          <div id="list-trash" class="space-y-2"><div class="empty-msg">削除された項目はありません</div></div>
+        </div>
+      </div>
+
+      <!-- 詳細・編集画面（タスクページ） -->
+      <div id="view-detail" class="hidden">
+        <div class="card">
+          <div class="form-group">
+            <span class="label-text">タイトル：</span>
+            <input type="text" id="detail-title-input" class="task-input" placeholder="ここに名称を入力..." oninput="updateCurrentTaskField('title', this.value)">
+          </div>
+
+          <div class="form-group" style="margin-top: 8px;">
+            <span class="label-text" id="detail-project-label">所属プロジェクト：[-]</span>
+          </div>
+
+          <div class="status-buttons">
+            <button class="status-btn completed" onclick="updateCurrentTaskStatus('completed')">✓ 完了</button>
+            <button class="status-btn uncompleted" onclick="updateCurrentTaskStatus('uncompleted')">□ 未完了</button>
+            <button class="status-btn pending" onclick="updateCurrentTaskStatus('pending')">⏸ 保留</button>
+          </div>
+
+          <div class="form-group">
+            <span class="label-text" style="color: #475569;">🎨 カテゴリ：[一般]</span>
+          </div>
+
+          <div class="datetime-row">
+            <div class="datetime-label"><span>⏰</span> 期限</div>
+            <div class="date-box">2026/10/15 📅</div>
+            <div class="time-box">18:00 ▲</div>
+          </div>
+
+          <div class="datetime-row">
+            <div class="datetime-label"><span>📅</span> 対応予定日</div>
+            <div class="date-box">2026/10/14 📅</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="memo-card-title"><span>📄</span> Memo & Details</div>
+          <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('memo', this.value)"></textarea>
+          <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ ❓</div>
+        </div>
+
+        <div class="tree-card">
+          <div class="tree-header"><span>≡</span> 同一プロジェクトの全項目 (ツリー形式)</div>
+          <div id="detail-tree-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 下部フッターナビゲーション -->
+    <footer class="footer-nav">
+      <div class="footer-item" onclick="switchView('nice')">
+        <div class="footer-icon-box">💡</div>
+        <div class="footer-text">今日じゃなくても<br>やっといた方が<br>いいこと</div>
+      </div>
+      <div class="footer-item" onclick="switchView('pending')">
+        <div class="footer-icon-box">⏸</div>
+        <div class="footer-text">保留一覧</div>
+      </div>
+      <div class="footer-item" onclick="switchView('all')">
+        <div class="footer-icon-box">≡</div>
+        <div class="footer-text">すべての<br>プロジェクトと<br>タスクを見る</div>
+      </div>
+      <div class="footer-item" onclick="switchView('trash')">
+        <div class="footer-icon-box">🗑</div>
+        <div class="footer-text">最近削除し<br>た項目</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    let tasks = [];
+    let trashTasks = [];
+    let nextIdCounter = 1;
+    let currentEditingTaskId = null;
+    let currentActiveView = 'task';
+
+    const ALL_VIEWS = ['task', 'calendar', 'project', 'diary', 'nice', 'pending', 'all', 'trash', 'detail'];
+
+    function switchView(targetView) {
+      currentActiveView = targetView;
+
+      // 1. 全表示エリアを一旦非表示にし、対象のみ表示
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+      });
+
+      const targetEl = document.getElementById('view-' + targetView);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      // 2. 「トップページ専用タブ」の制御（トップ4画面のときのみ表示）
+      const isTopGroup = ['task', 'calendar', 'project', 'diary'].includes(targetView);
+      const tabNav = document.getElementById('top-tab-nav-container');
+      if (isTopGroup) {
+        tabNav.classList.remove('hidden');
+        ['task', 'calendar', 'project', 'diary'].forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
+        });
+      } else {
+        tabNav.classList.add('hidden');
+      }
+
+      // 3. ヘッダー左側の制御：トップページならロゴ、それ以外なら「トップへ戻る」
+      const backBtn = document.getElementById('global-back-btn');
+      const logo = document.getElementById('global-logo');
+      if (isTopGroup) {
+        backBtn.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else {
+        backBtn.classList.remove('hidden');
+        logo.classList.add('hidden');
+      }
+
+      // 4. 「＋ 新規プロジェクト追加」ボタンの制御：
+      // タスクページ（詳細画面=detail）と削除ページ(trash)でのみ非表示、それ以外（トップページの4タブ＋その他のフッター画面）では表示
+      const addBtn = document.getElementById('global-add-proj-btn');
+      const hideAddBtnViews = ['detail', 'trash'];
+      if (hideAddBtnViews.includes(targetView)) {
+        addBtn.classList.add('hidden');
+      } else {
+        addBtn.classList.remove('hidden');
+      }
+
+      // 5. 「削除」ボタンの制御（詳細画面でのみ表示）
+      const deleteBtn = document.getElementById('global-delete-btn');
+      if (targetView === 'detail') {
+        deleteBtn.classList.remove('hidden');
+      } else {
+        deleteBtn.classList.add('hidden');
+      }
+
+      renderApp();
+    }
+
+    function switchMainTab(tabName) {
+      switchView(tabName);
+    }
+
+    function navigateToTop() {
+      switchView('task');
+    }
+
+    function getRootParentId(taskId, taskList) {
+      const current = taskList.find(t => t.id === taskId);
+      if (!current) return null;
+      if (current.parentId === null) return current.id;
+      return getRootParentId(current.parentId, taskList);
+    }
+
+    function getFlattenedTree(parentId, taskList, depth = 0, result = []) {
+      const children = taskList.filter(t => t.parentId === parentId);
+      children.forEach(child => {
+        result.push({ ...child, depth: depth });
+        getFlattenedTree(child.id, taskList, depth + 1, result);
+      });
+      return result;
+    }
+
+    function renderApp() {
+      renderQuickStatus();
+      renderTopProjectTab();
+      renderFooterPages();
+    }
+
+    function renderQuickStatus() {
+      const expiredContainer = document.getElementById('list-expired');
+      const todayDueContainer = document.getElementById('list-today-due');
+      const todayPlanContainer = document.getElementById('list-today-plan');
+      const completedContainer = document.getElementById('list-completed');
+
+      expiredContainer.innerHTML = '';
+      todayDueContainer.innerHTML = '';
+      todayPlanContainer.innerHTML = '';
+      completedContainer.innerHTML = '';
+
+      let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
+
+      tasks.forEach(task => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'flex items-center justify-between py-1 text-xs text-slate-700 border-b border-slate-100 cursor-pointer';
+        itemDiv.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <input type="checkbox" ${task.status === 'completed' ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
+            <span class="truncate">${task.title} (ID:${task.id})</span>
+          </div>
+          <button onclick="event.stopPropagation(); openDetailView(${task.id})" class="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">詳細</button>
+        `;
+        itemDiv.onclick = () => openDetailView(task.id);
+
+        if (task.status === 'completed') {
+          completedCount++;
+          completedContainer.appendChild(itemDiv);
+        } else {
+          todayPlanCount++;
+          todayPlanContainer.appendChild(itemDiv);
         }
+      });
 
-        document.getElementById('record-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('title-input');
-            const title = input.value.trim();
-            if (!title) return;
+      if (expiredCount === 0) expiredContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayDueCount === 0) todayDueContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayPlanCount === 0) todayPlanContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (completedCount === 0) completedContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
 
-            await db.records.add({
-                uuid: crypto.randomUUID(),
-                type: 'task',
-                title: title,
-                description: '',
-                status: 'pending',
-                priority: 'normal',
-                category: 'general',
-                tags: [],
-                dueDate: new Date(Date.now() + 86400000).toISOString(),
-                reminderDate: null,
-                completedAt: null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                repeatInterval: null,
-                repeatPattern: null,
-                repeatEndDate: null,
-                parentId: null,
-                sortOrder: 0,
-                estimatedMinutes: 0,
-                actualMinutes: 0,
-                difficulty: 1,
-                energyLevel: 3,
-                mood: 3,
-                weather: 'fine',
-                location: '',
-                cost: 0,
-                currency: 'JPY',
-                rating: 0,
-                isArchived: false,
-                isDeleted: false,
-                customField1: '',
-                customField2: '',
-                customField3: '',
-                customField4: '',
-                customField5: '',
-                syncStatus: 'synced',
-                lastSyncedAt: new Date().toISOString(),
-                versionNumber: 1,
-                deviceId: 'device-01',
-                userId: 'user-01',
-                sourceApp: 'pwa',
-                targetGoalId: '',
-                projectCode: '',
-                clientName: '',
-                invoiceStatus: 'none',
-                paymentStatus: 'none',
-                approvalStatus: 'none',
-                riskLevel: 'low',
-                impactLevel: 'low',
-                stakeholderList: [],
-                attachmentCount: 0,
-                totalFileSize: 0,
-                checksumValue: '',
-                signatureData: '',
-                auditLog: '',
-                metadataJson: '{}',
-                extensionData1: '',
-                extensionData2: '',
-                extensionData3: '',
-                extensionData4: '',
-                extensionData5: ''
-            });
+      document.getElementById('count-expired').innerText = expiredCount;
+      document.getElementById('count-today-due').innerText = todayDueCount;
+      document.getElementById('count-today-plan').innerText = todayPlanCount;
+      document.getElementById('count-completed').innerText = completedCount;
+    }
 
-            input.value = '';
-            await renderRecords();
+    function renderTopProjectTab() {
+      const container = document.getElementById('top-project-list');
+      container.innerHTML = '';
+      const projects = tasks.filter(t => t.parentId === null);
+
+      if (projects.length === 0) {
+        container.innerHTML = '<div class="empty-msg text-center py-4">プロジェクトがありません。「＋ 新規プロジェクト追加」から作成してください。</div>';
+        return;
+      }
+
+      projects.forEach(proj => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-sm text-blue-900">📁 ${proj.title} (ID:${proj.id})</span>
+            <div class="flex gap-1">
+              <button onclick="openSubTaskCreateForm(${proj.id})" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">＋子タスク</button>
+              <button onclick="openDetailView(${proj.id})" class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderFooterPages() {
+      document.getElementById('list-nice').innerHTML = '<div class="empty-msg">項目はありません</div>';
+
+      const pendingContainer = document.getElementById('list-pending');
+      pendingContainer.innerHTML = '';
+      const pendingTasks = tasks.filter(t => t.status === 'pending');
+      if (pendingTasks.length > 0) {
+        pendingTasks.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span>${t.title} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          pendingContainer.appendChild(div);
         });
+      } else {
+        pendingContainer.innerHTML = '<div class="empty-msg">保留中の項目はありません</div>';
+      }
 
-        window.addEventListener('load', async () => {
-            if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('sw.js');
-                } catch (error) {
-                    console.error('ServiceWorker registration failed', error);
-                }
-            }
-
-            await runCatchUpProcessing();
-            await renderRecords();
+      const allContainer = document.getElementById('list-all-tasks');
+      allContainer.innerHTML = '';
+      if (tasks.length > 0) {
+        tasks.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span>[ID:${t.id}] ${t.title} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          allContainer.appendChild(div);
         });
-    </script>
+      } else {
+        allContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      }
+
+      const trashContainer = document.getElementById('list-trash');
+      trashContainer.innerHTML = '';
+      if (trashTasks.length > 0) {
+        trashTasks.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-red-50 rounded text-xs text-red-700';
+          div.innerHTML = `<span>${t.title} (ID:${t.id})</span><button onclick="restoreTask(${t.id})" class="text-[10px] bg-white border border-red-200 px-2 py-0.5 rounded">復元</button>`;
+          trashContainer.appendChild(div);
+        });
+      } else {
+        trashContainer.innerHTML = '<div class="empty-msg">削除された項目はありません</div>';
+      }
+    }
+
+    function openDetailView(taskId) {
+      currentEditingTaskId = taskId;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('detail-title-input').value = task.title;
+      document.getElementById('detail-memo-input').value = task.memo || '';
+      
+      const rootId = getRootParentId(taskId, tasks);
+      const rootTask = tasks.find(t => t.id === rootId);
+      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? rootTask.title : 'なし'}]`;
+
+      const treeContainer = document.getElementById('detail-tree-list');
+      treeContainer.innerHTML = '';
+      
+      let projectTree = [];
+      if (rootId) {
+        const rootNode = tasks.find(t => t.id === rootId);
+        if (rootNode) {
+          projectTree.push({ ...rootNode, depth: 0 });
+          getFlattenedTree(rootId, tasks, 1, projectTree);
+        }
+      }
+
+      projectTree.forEach(item => {
+        const treeItem = document.createElement('div');
+        treeItem.className = 'tree-item';
+        treeItem.innerHTML = `
+          <div class="tree-item-left">
+            <span>≡</span> <span>☑</span> ${item.title} - (ID:${item.id})
+          </div>
+          <input type="checkbox" ${item.status === 'completed' ? 'checked' : ''} onclick="toggleTaskComplete(${item.id})">
+        `;
+        treeContainer.appendChild(treeItem);
+      });
+
+      switchView('detail');
+    }
+
+    function openNewProjectPage() {
+      const newId = nextIdCounter++;
+      const newProj = {
+        id: newId,
+        title: '',
+        parentId: null,
+        childrenIds: [],
+        status: 'uncompleted',
+        memo: ''
+      };
+      tasks.push(newProj);
+      openDetailView(newId);
+    }
+
+    function openSubTaskCreateForm(parentId) {
+      const newId = nextIdCounter++;
+      const parentTask = tasks.find(t => t.id === parentId);
+      const newSub = {
+        id: newId,
+        title: '',
+        parentId: parentId,
+        childrenIds: [],
+        status: 'uncompleted',
+        memo: ''
+      };
+      if (parentTask) parentTask.childrenIds.push(newId);
+      tasks.push(newSub);
+      openDetailView(newId);
+    }
+
+    function updateCurrentTaskField(field, value) {
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task) task[field] = value;
+    }
+
+    function updateCurrentTaskStatus(status) {
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task) {
+        task.status = status;
+        renderApp();
+      }
+    }
+
+    function toggleTaskComplete(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        task.status = task.status === 'completed' ? 'uncompleted' : 'completed';
+        renderApp();
+      }
+    }
+
+    function deleteCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      const target = tasks.find(t => t.id === currentEditingTaskId);
+      if (target) {
+        trashTasks.push(target);
+        tasks = tasks.filter(t => t.id !== currentEditingTaskId && t.parentId !== currentEditingTaskId);
+      }
+      currentEditingTaskId = null;
+      navigateToTop();
+    }
+
+    function restoreTask(taskId) {
+      const target = trashTasks.find(t => t.id === taskId);
+      if (target) {
+        trashTasks = trashTasks.filter(t => t.id !== taskId);
+        tasks.push(target);
+        renderApp();
+      }
+    }
+
+    // 初期起動
+    switchView('task');
+  </script>
 </body>
 </html>

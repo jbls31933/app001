@@ -349,6 +349,26 @@
       font-size: 12px;
     }
 
+    .settings-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 10px;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #334155;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+    }
+
+    .settings-menu-item:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
     .footer-nav {
       display: flex;
       justify-content: space-around;
@@ -443,7 +463,18 @@
       </div>
 
       <div id="view-calendar" class="hidden">
-        <div class="card"><h2 class="section-title">📅 カレンダー</h2><div class="empty-msg">カレンダーの予定はありません</div></div>
+        <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="status-btn completed" id="cal-btn-due" onclick="switchCalendarMode('due')">⏰ 期限で表示</button>
+            <button class="status-btn uncompleted" id="cal-btn-plan" onclick="switchCalendarMode('plan')">📅 完了予定日で表示</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="section-title" id="calendar-title-text">📅 カレンダー (期限)</h2>
+          <div id="calendar-content-list" class="space-y-2">
+            <div class="empty-msg">カレンダーの予定はありません</div>
+          </div>
+        </div>
       </div>
 
       <div id="view-project" class="hidden">
@@ -505,7 +536,15 @@
       <div id="view-settings" class="hidden">
         <div class="card">
           <h2 class="section-title">⚙ 設定</h2>
-          <div class="empty-msg">設定項目はありません</div>
+          <div class="settings-menu-item" onclick="alert('使い方画面は今後実装予定です')">📖 使い方</div>
+          <div class="settings-menu-item" onclick="alert('テーマカラー設定は今後実装予定です')">🎨 テーマカラー設定</div>
+          <div class="settings-menu-item" onclick="alert('カテゴリ設定は今後実装予定です')">🏷️ カテゴリ設定</div>
+          <div class="settings-menu-item" onclick="alert('メール通知設定は今後実装予定です')">📧 メール通知設定</div>
+          <div class="settings-menu-item" onclick="switchView('all')">≡ すべてのプロジェクト・タスク</div>
+          <div class="settings-menu-item" onclick="switchView('diary')">📖 全ての日記</div>
+          <div class="settings-menu-item" onclick="switchView('trash')">🗑 最近削除した項目</div>
+          <div class="settings-menu-item" onclick="alert('データのバックアップ・復元は今後実装予定です')">💾 データのバックアップ・復元</div>
+          <div class="settings-menu-item" onclick="alert('規約画面は今後実装予定です')">📜 規約</div>
         </div>
       </div>
 
@@ -609,6 +648,7 @@
     let currentEditingTaskId = null;
     let currentActiveView = 'task';
     let currentProjectSubview = 'data';
+    let currentCalendarMode = 'due';
 
     const ALL_VIEWS = ['task', 'calendar', 'project', 'nice', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page'];
 
@@ -636,11 +676,10 @@
         tabNav.classList.add('hidden');
       }
 
-      // ヘッダー左側の制御
+      // ヘッダー左側の制御：トップページの3タブ表示時のみロゴを表示し、それ以外の画面（task-page, diary-page, settings, trash, nice, pending等）では「‹ トップへ戻る」ボタンを表示
       const backBtn = document.getElementById('global-back-btn');
       const logo = document.getElementById('global-logo');
-      const isSubPage = ['task-page', 'diary-page', 'trash', 'all'].includes(targetView);
-      if (isTopGroup || ['nice', 'pending', 'diary', 'settings'].includes(targetView)) {
+      if (isTopGroup) {
         backBtn.classList.add('hidden');
         logo.classList.remove('hidden');
       } else {
@@ -692,6 +731,24 @@
       }
     }
 
+    function switchCalendarMode(mode) {
+      currentCalendarMode = mode;
+      const btnDue = document.getElementById('cal-btn-due');
+      const btnPlan = document.getElementById('cal-btn-plan');
+      const titleText = document.getElementById('calendar-title-text');
+
+      if (mode === 'due') {
+        btnDue.className = 'status-btn completed';
+        btnPlan.className = 'status-btn uncompleted';
+        titleText.innerText = '📅 カレンダー (期限)';
+      } else {
+        btnDue.className = 'status-btn uncompleted';
+        btnPlan.className = 'status-btn completed';
+        titleText.innerText = '📅 カレンダー (完了予定日)';
+      }
+      renderCalendar();
+    }
+
     function navigateToTop() {
       switchView('task');
     }
@@ -715,6 +772,7 @@
     function renderApp() {
       renderQuickStatus();
       renderTopProjectTab();
+      renderCalendar();
       renderFooterPages();
     }
 
@@ -761,6 +819,29 @@
       document.getElementById('count-today-due').innerText = todayDueCount;
       document.getElementById('count-today-plan').innerText = todayPlanCount;
       document.getElementById('count-completed').innerText = completedCount;
+    }
+
+    function renderCalendar() {
+      const calendarContainer = document.getElementById('calendar-content-list');
+      calendarContainer.innerHTML = '';
+
+      if (tasks.length === 0) {
+        calendarContainer.innerHTML = `<div class="empty-msg">登録されているタスクはありません (${currentCalendarMode === 'due' ? '期限' : '完了予定日'})</div>`;
+        return;
+      }
+
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-800">${task.title} (ID:${task.id})</span>
+            <div class="text-[10px] text-slate-500 mt-0.5">${currentCalendarMode === 'due' ? '⏰ 期限: 2026/10/15' : '📅 完了予定日: 2026/10/14'}</div>
+          </div>
+          <button onclick="openDetailView(${task.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
+        `;
+        calendarContainer.appendChild(div);
+      });
     }
 
     function renderTopProjectTab() {
@@ -946,6 +1027,7 @@
     // 初期起動
     switchView('task');
     switchProjectSubview('data');
+    switchCalendarMode('due');
   </script>
 </body>
 </html>

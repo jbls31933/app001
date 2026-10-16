@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task & Diary PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            font-size: 1.5rem;
+        }
+        .card {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Task & Diary</h1>
+        <div class="card">
+            <h2>新規レコード追加</h2>
+            <form id="record-form">
+                <input type="text" id="title-input" placeholder="タイトルを入力" required style="padding: 8px; width: 60%; margin-right: 8px;">
+                <button type="submit" style="padding: 8px 16px;">追加</button>
+            </form>
+        </div>
+        <div class="card">
+            <h2>登録一覧</h2>
+            <div id="record-list"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, runCatchUpProcessing } from './database.js';
+
+        async function renderRecords() {
+            const listContainer = document.getElementById('record-list');
+            const records = await db.records.toArray();
+            listContainer.innerHTML = '';
+            
+            if (records.length === 0) {
+                listContainer.innerHTML = '<p>データがありません。</p>';
+                return;
+            }
+
+            records.forEach(record => {
+                const item = document.createElement('div');
+                item.style.padding = '8px 0';
+                item.style.borderBottom = '1px solid #eee';
+                item.textContent = `${record.title} (ステータス: ${record.status})`;
+                listContainer.appendChild(item);
+            });
+        }
+
+        document.getElementById('record-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('title-input');
+            const title = input.value.trim();
+            if (!title) return;
+
+            await db.records.add({
+                uuid: crypto.randomUUID(),
+                type: 'task',
+                title: title,
+                description: '',
+                status: 'pending',
+                priority: 'normal',
+                category: 'general',
+                tags: [],
+                dueDate: new Date(Date.now() + 86400000).toISOString(),
+                reminderDate: null,
+                completedAt: null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                repeatInterval: null,
+                repeatPattern: null,
+                repeatEndDate: null,
+                parentId: null,
+                sortOrder: 0,
+                estimatedMinutes: 0,
+                actualMinutes: 0,
+                difficulty: 1,
+                energyLevel: 3,
+                mood: 3,
+                weather: 'fine',
+                location: '',
+                cost: 0,
+                currency: 'JPY',
+                rating: 0,
+                isArchived: false,
+                isDeleted: false,
+                customField1: '',
+                customField2: '',
+                customField3: '',
+                customField4: '',
+                customField5: '',
+                syncStatus: 'synced',
+                lastSyncedAt: new Date().toISOString(),
+                versionNumber: 1,
+                deviceId: 'device-01',
+                userId: 'user-01',
+                sourceApp: 'pwa',
+                targetGoalId: '',
+                projectCode: '',
+                clientName: '',
+                invoiceStatus: 'none',
+                paymentStatus: 'none',
+                approvalStatus: 'none',
+                riskLevel: 'low',
+                impactLevel: 'low',
+                stakeholderList: [],
+                attachmentCount: 0,
+                totalFileSize: 0,
+                checksumValue: '',
+                signatureData: '',
+                auditLog: '',
+                metadataJson: '{}',
+                extensionData1: '',
+                extensionData2: '',
+                extensionData3: '',
+                extensionData4: '',
+                extensionData5: ''
+            });
+
+            input.value = '';
+            await renderRecords();
+        });
+
+        window.addEventListener('load', async () => {
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('sw.js');
+                } catch (error) {
+                    console.error('ServiceWorker registration failed', error);
+                }
+            }
+
+            await runCatchUpProcessing();
+            await renderRecords();
+        });
+    </script>
+</body>
+</html>

@@ -393,7 +393,6 @@
     
     <!-- 共通固定ヘッダー -->
     <header class="header">
-      <!-- トップページでは「COACHロゴ」、それ以外では「トップへ戻る」を表示 -->
       <div id="header-left-area">
         <span id="global-back-btn" class="top-nav-link hidden" onclick="navigateToTop()">‹ トップへ戻る</span>
         <div id="global-logo" class="logo-area">
@@ -415,13 +414,12 @@
         <div class="tab-item active" id="tab-btn-task" onclick="switchMainTab('task')">タスク</div>
         <div class="tab-item" id="tab-btn-calendar" onclick="switchMainTab('calendar')">カレンダー</div>
         <div class="tab-item" id="tab-btn-project" onclick="switchMainTab('project')">プロジェクト</div>
-        <div class="tab-item" id="tab-btn-diary" onclick="switchMainTab('diary')">日記</div>
       </nav>
     </div>
 
     <!-- メインコンテンツ領域 -->
     <main class="main-content">
-      <!-- 1. タスク -->
+      <!-- 【固定ページ】1. トップページ: タブビュー (task, calendar, project) -->
       <div id="view-task">
         <div class="card">
           <h2 class="section-title">本日のクイックステータス</h2>
@@ -444,25 +442,42 @@
         </div>
       </div>
 
-      <!-- 2. カレンダー -->
       <div id="view-calendar" class="hidden">
         <div class="card"><h2 class="section-title">📅 カレンダー</h2><div class="empty-msg">カレンダーの予定はありません</div></div>
       </div>
 
-      <!-- 3. プロジェクト -->
       <div id="view-project" class="hidden">
-        <div class="card">
-          <h2 class="section-title">📁 プロジェクト管理</h2>
-          <div id="top-project-list" class="space-y-3"><div class="empty-msg">プロジェクトがありません</div></div>
+        <!-- プロジェクトビュー内のサブビュー切替 -->
+        <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="status-btn uncompleted" id="subview-btn-data" onclick="switchProjectSubview('data')">① 進捗データ</button>
+            <button class="status-btn uncompleted" id="subview-btn-list" onclick="switchProjectSubview('list')">② プロジェクト一覧</button>
+          </div>
+        </div>
+
+        <!-- ①プロジェクトごとの進捗データ -->
+        <div id="proj-subview-data" class="card">
+          <h2 class="section-title">📊 プロジェクトごとの進捗データ</h2>
+          <div class="empty-msg">進捗データは今後実装予定です</div>
+        </div>
+
+        <!-- ②プロジェクト一覧 ＆ view-all & view-trash へのリンク -->
+        <div id="proj-subview-list" class="hidden">
+          <div class="card">
+            <h2 class="section-title">📁 登録プロジェクト一覧</h2>
+            <div id="top-project-list" class="space-y-3"><div class="empty-msg">プロジェクトがありません</div></div>
+          </div>
+          <div class="card" style="margin-top: 12px;">
+            <h2 class="section-title">リンク</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button onclick="switchView('all')" style="text-align: left; background: none; border: none; color: #2563eb; font-weight: bold; cursor: pointer;">≡ すべてのプロジェクトとタスクを見る (view-all)</button>
+              <button onclick="switchView('trash')" style="text-align: left; background: none; border: none; color: #dc2626; font-weight: bold; cursor: pointer;">🗑 最近削除した項目 (view-trash)</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 4. 日記 -->
-      <div id="view-diary" class="hidden">
-        <div class="card"><h2 class="section-title">📖 日記</h2><div class="empty-msg">日記の記録はありません</div></div>
-      </div>
-
-      <!-- フッター機能画面 -->
+      <!-- 【固定ページ】2. view-nice -->
       <div id="view-nice" class="hidden">
         <div class="card">
           <h2 class="section-title">💡 今日じゃなくてもやっといた方がいいこと</h2>
@@ -470,6 +485,7 @@
         </div>
       </div>
 
+      <!-- 【固定ページ】3. view-pending -->
       <div id="view-pending" class="hidden">
         <div class="card">
           <h2 class="section-title">⏸ 保留一覧</h2>
@@ -477,13 +493,23 @@
         </div>
       </div>
 
-      <div id="view-all" class="hidden">
+      <!-- 【固定ページ】4. view-diary -->
+      <div id="view-diary" class="hidden">
         <div class="card">
-          <h2 class="section-title">≡ すべてのプロジェクトとタスクを見る</h2>
-          <div id="list-all-tasks" class="space-y-2"><div class="empty-msg">タスクはありません</div></div>
+          <h2 class="section-title">📖 日記一覧</h2>
+          <div id="list-diary" class="empty-msg">日記の記録はありません</div>
         </div>
       </div>
 
+      <!-- 【固定ページ】5. 設定 -->
+      <div id="view-settings" class="hidden">
+        <div class="card">
+          <h2 class="section-title">⚙ 設定</h2>
+          <div class="empty-msg">設定項目はありません</div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】6. view-trash (フッターボタンなし) -->
       <div id="view-trash" class="hidden">
         <div class="card">
           <h2 class="section-title">🗑 最近削除した項目</h2>
@@ -491,8 +517,16 @@
         </div>
       </div>
 
-      <!-- 詳細・編集画面（タスクページ） -->
-      <div id="view-detail" class="hidden">
+      <!-- 内部リンク用 view-all -->
+      <div id="view-all" class="hidden">
+        <div class="card">
+          <h2 class="section-title">≡ すべてのプロジェクトとタスクを見る</h2>
+          <div id="list-all-tasks" class="space-y-2"><div class="empty-msg">タスクはありません</div></div>
+        </div>
+      </div>
+
+      <!-- 【投稿ページ】1. task-page (元 view-detail) -->
+      <div id="view-task-page" class="hidden">
         <div class="card">
           <div class="form-group">
             <span class="label-text">タイトル：</span>
@@ -536,6 +570,14 @@
           <div id="detail-tree-list"></div>
         </div>
       </div>
+
+      <!-- 【投稿ページ】2. diary-page -->
+      <div id="view-diary-page" class="hidden">
+        <div class="card">
+          <h2 class="section-title">📖 日記 詳細・編集ページ</h2>
+          <div class="empty-msg">日記の詳細・編集機能は今後実装予定です</div>
+        </div>
+      </div>
     </main>
 
     <!-- 下部フッターナビゲーション -->
@@ -548,13 +590,13 @@
         <div class="footer-icon-box">⏸</div>
         <div class="footer-text">保留一覧</div>
       </div>
-      <div class="footer-item" onclick="switchView('all')">
-        <div class="footer-icon-box">≡</div>
-        <div class="footer-text">すべての<br>プロジェクトと<br>タスクを見る</div>
+      <div class="footer-item" onclick="switchView('diary')">
+        <div class="footer-icon-box">📖</div>
+        <div class="footer-text">日記一覧</div>
       </div>
-      <div class="footer-item" onclick="switchView('trash')">
-        <div class="footer-icon-box">🗑</div>
-        <div class="footer-text">最近削除し<br>た項目</div>
+      <div class="footer-item" onclick="switchView('settings')">
+        <div class="footer-icon-box">⚙</div>
+        <div class="footer-text">設定</div>
       </div>
     </footer>
 
@@ -566,13 +608,13 @@
     let nextIdCounter = 1;
     let currentEditingTaskId = null;
     let currentActiveView = 'task';
+    let currentProjectSubview = 'data';
 
-    const ALL_VIEWS = ['task', 'calendar', 'project', 'diary', 'nice', 'pending', 'all', 'trash', 'detail'];
+    const ALL_VIEWS = ['task', 'calendar', 'project', 'nice', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page'];
 
     function switchView(targetView) {
       currentActiveView = targetView;
 
-      // 1. 全表示エリアを一旦非表示にし、対象のみ表示
       ALL_VIEWS.forEach(v => {
         const el = document.getElementById('view-' + v);
         if (el) el.classList.add('hidden');
@@ -581,12 +623,12 @@
       const targetEl = document.getElementById('view-' + targetView);
       if (targetEl) targetEl.classList.remove('hidden');
 
-      // 2. 「トップページ専用タブ」の制御（トップ4画面のときのみ表示）
-      const isTopGroup = ['task', 'calendar', 'project', 'diary'].includes(targetView);
+      // トップページ専用タブ（task, calendar, project）の制御
+      const isTopGroup = ['task', 'calendar', 'project'].includes(targetView);
       const tabNav = document.getElementById('top-tab-nav-container');
       if (isTopGroup) {
         tabNav.classList.remove('hidden');
-        ['task', 'calendar', 'project', 'diary'].forEach(name => {
+        ['task', 'calendar', 'project'].forEach(name => {
           const btn = document.getElementById('tab-btn-' + name);
           if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
         });
@@ -594,10 +636,11 @@
         tabNav.classList.add('hidden');
       }
 
-      // 3. ヘッダー左側の制御：トップページならロゴ、それ以外なら「トップへ戻る」
+      // ヘッダー左側の制御
       const backBtn = document.getElementById('global-back-btn');
       const logo = document.getElementById('global-logo');
-      if (isTopGroup) {
+      const isSubPage = ['task-page', 'diary-page', 'trash', 'all'].includes(targetView);
+      if (isTopGroup || ['nice', 'pending', 'diary', 'settings'].includes(targetView)) {
         backBtn.classList.add('hidden');
         logo.classList.remove('hidden');
       } else {
@@ -605,19 +648,18 @@
         logo.classList.add('hidden');
       }
 
-      // 4. 「＋ 新規プロジェクト追加」ボタンの制御：
-      // タスクページ（詳細画面=detail）と削除ページ(trash)でのみ非表示、それ以外（トップページの4タブ＋その他のフッター画面）では表示
+      // 新規プロジェクト追加ボタンの制御
       const addBtn = document.getElementById('global-add-proj-btn');
-      const hideAddBtnViews = ['detail', 'trash'];
+      const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings'];
       if (hideAddBtnViews.includes(targetView)) {
         addBtn.classList.add('hidden');
       } else {
         addBtn.classList.remove('hidden');
       }
 
-      // 5. 「削除」ボタンの制御（詳細画面でのみ表示）
+      // 削除ボタンの制御
       const deleteBtn = document.getElementById('global-delete-btn');
-      if (targetView === 'detail') {
+      if (targetView === 'task-page') {
         deleteBtn.classList.remove('hidden');
       } else {
         deleteBtn.classList.add('hidden');
@@ -628,6 +670,26 @@
 
     function switchMainTab(tabName) {
       switchView(tabName);
+    }
+
+    function switchProjectSubview(subview) {
+      currentProjectSubview = subview;
+      const dataEl = document.getElementById('proj-subview-data');
+      const listEl = document.getElementById('proj-subview-list');
+      const btnData = document.getElementById('subview-btn-data');
+      const btnList = document.getElementById('subview-btn-list');
+
+      if (subview === 'data') {
+        dataEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+        btnData.className = 'status-btn completed';
+        btnList.className = 'status-btn uncompleted';
+      } else {
+        dataEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        btnData.className = 'status-btn uncompleted';
+        btnList.className = 'status-btn completed';
+      }
     }
 
     function navigateToTop() {
@@ -807,7 +869,7 @@
         treeContainer.appendChild(treeItem);
       });
 
-      switchView('detail');
+      switchView('task-page');
     }
 
     function openNewProjectPage() {
@@ -883,6 +945,7 @@
 
     // 初期起動
     switchView('task');
+    switchProjectSubview('data');
   </script>
 </body>
 </html>

@@ -102,7 +102,17 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-left: auto;
+    }
+
+    .btn-save {
+      background-color: #2563eb;
+      border: none;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .btn-delete {
@@ -114,7 +124,6 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-left: auto;
     }
 
     /* タブナビゲーション */
@@ -414,7 +423,6 @@
       font-weight: bold;
     }
 
-    /* 完了時の打ち消し線クラス */
     .completed-title {
       text-decoration: line-through;
       color: #94a3b8;
@@ -438,6 +446,7 @@
       <!-- 右側ボタンエリア -->
       <div style="display: flex; gap: 8px; align-items: center;">
         <button id="global-add-proj-btn" class="btn-add-project hidden" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
+        <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
         <button id="global-delete-btn" class="btn-delete hidden" onclick="deleteCurrentTask()">削除</button>
       </div>
     </header>
@@ -590,6 +599,11 @@
             <span class="label-text" id="detail-project-label">所属プロジェクト：[-]</span>
           </div>
 
+          <!-- 保存済みの場合のみ表示する前回更新日時 -->
+          <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
+            前回更新日時：<span id="detail-updated-at-text">-</span>
+          </div>
+
           <div class="status-buttons">
             <button class="status-btn completed" onclick="updateCurrentTaskStatus('completed')">✓ 完了</button>
             <button class="status-btn uncompleted" onclick="updateCurrentTaskStatus('uncompleted')">□ 未完了</button>
@@ -666,7 +680,49 @@
 
     const ALL_VIEWS = ['task', 'calendar', 'project', 'nice', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page'];
 
+    // ローカルストレージへのデータ保存
+    function saveTasksToStorage() {
+      try {
+        localStorage.setItem('coach_app_tasks', JSON.stringify(tasks));
+        localStorage.setItem('coach_app_trash', JSON.stringify(trashTasks));
+      } catch (e) {
+        console.error('データの保存に失敗しました', e);
+      }
+    }
+
+    // ローカルストレージからのデータ読み込み
+    function loadTasksFromStorage() {
+      try {
+        const savedTasks = localStorage.getItem('coach_app_tasks');
+        const savedTrash = localStorage.getItem('coach_app_trash');
+
+        if (savedTasks) tasks = JSON.parse(savedTasks);
+        if (savedTrash) trashTasks = JSON.parse(savedTrash);
+
+        const allIds = [...tasks, ...trashTasks].map(t => t.id);
+        if (allIds.length > 0) {
+          nextIdCounter = Math.max(...allIds) + 1;
+        } else {
+          nextIdCounter = 1;
+        }
+      } catch (e) {
+        console.error('データの読み込みに失敗しました', e);
+      }
+    }
+
     function switchView(targetView) {
+      // task-pageから他のビューに移動する際、未保存（isSaved === false）であれば破棄する
+      if (currentActiveView === 'task-page' && targetView !== 'task-page') {
+        if (currentEditingTaskId !== null) {
+          const task = tasks.find(t => t.id === currentEditingTaskId);
+          if (task && !task.isSaved) {
+            tasks = tasks.filter(t => t.id !== currentEditingTaskId);
+            saveTasksToStorage();
+          }
+        }
+        currentEditingTaskId = null;
+      }
+
       currentActiveView = targetView;
 
       ALL_VIEWS.forEach(v => {
@@ -677,7 +733,6 @@
       const targetEl = document.getElementById('view-' + targetView);
       if (targetEl) targetEl.classList.remove('hidden');
 
-      // トップページ専用タブ（task, calendar, project）の制御
       const isTopGroup = ['task', 'calendar', 'project'].includes(targetView);
       const tabNav = document.getElementById('top-tab-nav-container');
       if (isTopGroup) {
@@ -690,7 +745,6 @@
         tabNav.classList.add('hidden');
       }
 
-      // ヘッダー左側の制御
       const backBtn = document.getElementById('global-back-btn');
       const logo = document.getElementById('global-logo');
       if (isTopGroup) {
@@ -701,7 +755,6 @@
         logo.classList.add('hidden');
       }
 
-      // 新規プロジェクト追加ボタンの制御
       const addBtn = document.getElementById('global-add-proj-btn');
       const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings'];
       if (hideAddBtnViews.includes(targetView)) {
@@ -710,11 +763,14 @@
         addBtn.classList.remove('hidden');
       }
 
-      // 削除ボタンの制御
+      // 投稿ページ（task-page）専用ボタンの制御
+      const saveBtn = document.getElementById('global-save-btn');
       const deleteBtn = document.getElementById('global-delete-btn');
       if (targetView === 'task-page') {
+        saveBtn.classList.remove('hidden');
         deleteBtn.classList.remove('hidden');
       } else {
+        saveBtn.classList.add('hidden');
         deleteBtn.classList.add('hidden');
       }
 
@@ -803,7 +859,10 @@
 
       let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
 
-      tasks.forEach(task => {
+      // 保存済みのタスクのみホーム画面等に反映させる
+      const validTasks = tasks.filter(t => t.isSaved);
+
+      validTasks.forEach(task => {
         const isCompleted = task.status === 'completed';
         const titleClass = isCompleted ? 'completed-title truncate' : 'truncate';
 
@@ -812,7 +871,7 @@
         itemDiv.innerHTML = `
           <div class="flex items-center gap-2 truncate">
             <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
-            <span class="${titleClass}">${task.title} (ID:${task.id})</span>
+            <span class="${titleClass}">${task.title || '（無題のタスク）'} (ID:${task.id})</span>
           </div>
           <button onclick="event.stopPropagation(); openDetailView(${task.id})" class="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">詳細</button>
         `;
@@ -842,12 +901,13 @@
       const calendarContainer = document.getElementById('calendar-content-list');
       calendarContainer.innerHTML = '';
 
-      if (tasks.length === 0) {
+      const validTasks = tasks.filter(t => t.isSaved);
+      if (validTasks.length === 0) {
         calendarContainer.innerHTML = `<div class="empty-msg">登録されているタスクはありません (${currentCalendarMode === 'due' ? '期限' : '完了予定日'})</div>`;
         return;
       }
 
-      tasks.forEach(task => {
+      validTasks.forEach(task => {
         const isCompleted = task.status === 'completed';
         const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
 
@@ -855,7 +915,7 @@
         div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
         div.innerHTML = `
           <div>
-            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title} (ID:${task.id})</span>
+            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title || '（無題のタスク）'} (ID:${task.id})</span>
             <div class="text-[10px] text-slate-500 mt-0.5">${currentCalendarMode === 'due' ? '⏰ 期限: 2026/10/15' : '📅 完了予定日: 2026/10/14'}</div>
           </div>
           <button onclick="openDetailView(${task.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
@@ -867,7 +927,7 @@
     function renderTopProjectTab() {
       const container = document.getElementById('top-project-list');
       container.innerHTML = '';
-      const projects = tasks.filter(t => t.parentId === null);
+      const projects = tasks.filter(t => t.parentId === null && t.isSaved);
 
       if (projects.length === 0) {
         container.innerHTML = '<div class="empty-msg text-center py-4">プロジェクトがありません。「＋ 新規プロジェクト追加」から作成してください。</div>';
@@ -882,7 +942,7 @@
         card.className = 'project-card';
         card.innerHTML = `
           <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-sm" style="${titleStyle}">📁 ${proj.title} (ID:${proj.id})</span>
+            <span class="font-bold text-sm" style="${titleStyle}">📁 ${proj.title || '（無題のプロジェクト）'} (ID:${proj.id})</span>
             <div class="flex gap-1">
               <button onclick="openSubTaskCreateForm(${proj.id})" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">＋子タスク</button>
               <button onclick="openDetailView(${proj.id})" class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
@@ -898,14 +958,14 @@
 
       const pendingContainer = document.getElementById('list-pending');
       pendingContainer.innerHTML = '';
-      const pendingTasks = tasks.filter(t => t.status === 'pending');
+      const pendingTasks = tasks.filter(t => t.status === 'pending' && t.isSaved);
       if (pendingTasks.length > 0) {
         pendingTasks.forEach(t => {
           const isCompleted = t.status === 'completed';
           const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
-          div.innerHTML = `<span style="${titleStyle}">${t.title} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          div.innerHTML = `<span style="${titleStyle}">${t.title || '（無題）'} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
           pendingContainer.appendChild(div);
         });
       } else {
@@ -914,13 +974,14 @@
 
       const allContainer = document.getElementById('list-all-tasks');
       allContainer.innerHTML = '';
-      if (tasks.length > 0) {
-        tasks.forEach(t => {
+      const validTasks = tasks.filter(t => t.isSaved);
+      if (validTasks.length > 0) {
+        validTasks.forEach(t => {
           const isCompleted = t.status === 'completed';
           const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
-          div.innerHTML = `<span style="${titleStyle}">[ID:${t.id}] ${t.title} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          div.innerHTML = `<span style="${titleStyle}">[ID:${t.id}] ${t.title || '（無題）'} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
           allContainer.appendChild(div);
         });
       } else {
@@ -933,7 +994,7 @@
         trashTasks.forEach(t => {
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-red-50 rounded text-xs text-red-700';
-          div.innerHTML = `<span>${t.title} (ID:${t.id})</span><button onclick="restoreTask(${t.id})" class="text-[10px] bg-white border border-red-200 px-2 py-0.5 rounded">復元</button>`;
+          div.innerHTML = `<span>${t.title || '（無題）'} (ID:${t.id})</span><button onclick="restoreTask(${t.id})" class="text-[10px] bg-white border border-red-200 px-2 py-0.5 rounded">復元</button>`;
           trashContainer.appendChild(div);
         });
       } else {
@@ -951,7 +1012,21 @@
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.id === rootId);
-      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? rootTask.title : 'なし'}]`;
+      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? (rootTask.title || '（無題）') : 'なし'}]`;
+
+      // 保存状態に応じたボタンおよび更新日時の表示制御
+      const saveBtn = document.getElementById('global-save-btn');
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+
+      if (task.isSaved) {
+        saveBtn.innerText = '更新';
+        updatedAtRow.classList.remove('hidden');
+        updatedAtText.innerText = task.updatedAt || '未更新';
+      } else {
+        saveBtn.innerText = '保存';
+        updatedAtRow.classList.add('hidden');
+      }
 
       const treeContainer = document.getElementById('detail-tree-list');
       treeContainer.innerHTML = '';
@@ -973,7 +1048,7 @@
         treeItem.className = 'tree-item';
         treeItem.innerHTML = `
           <div class="tree-item-left" style="${titleStyle}">
-            <span>≡</span> <span>☑</span> ${item.title} - (ID:${item.id})
+            <span>≡</span> <span>☑</span> ${item.title || '（無題）'} - (ID:${item.id})
           </div>
           <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="toggleTaskComplete(${item.id})">
         `;
@@ -991,9 +1066,12 @@
         parentId: null,
         childrenIds: [],
         status: 'uncompleted',
-        memo: ''
+        memo: '',
+        isSaved: false,
+        updatedAt: null
       };
       tasks.push(newProj);
+      saveTasksToStorage();
       openDetailView(newId);
     }
 
@@ -1006,22 +1084,48 @@
         parentId: parentId,
         childrenIds: [],
         status: 'uncompleted',
-        memo: ''
+        memo: '',
+        isSaved: false,
+        updatedAt: null
       };
       if (parentTask) parentTask.childrenIds.push(newId);
       tasks.push(newSub);
+      saveTasksToStorage();
       openDetailView(newId);
+    }
+
+    // 「保存」または「更新」ボタンが押された時の処理
+    function saveOrUpdateCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (!task) return;
+
+      const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      task.isSaved = true;
+      task.updatedAt = nowStr;
+
+      saveTasksToStorage();
+      navigateToTop();
     }
 
     function updateCurrentTaskField(field, value) {
       const task = tasks.find(t => t.id === currentEditingTaskId);
-      if (task) task[field] = value;
+      if (task) {
+        task[field] = value;
+        // 保存済みのものであれば随時ストレージ保存
+        if (task.isSaved) {
+          saveTasksToStorage();
+        }
+      }
     }
 
     function updateCurrentTaskStatus(status) {
       const task = tasks.find(t => t.id === currentEditingTaskId);
       if (task) {
         task.status = status;
+        if (task.isSaved) {
+          saveTasksToStorage();
+        }
         renderApp();
       }
     }
@@ -1030,6 +1134,7 @@
       const task = tasks.find(t => t.id === taskId);
       if (task) {
         task.status = task.status === 'completed' ? 'uncompleted' : 'completed';
+        saveTasksToStorage();
         renderApp();
       }
     }
@@ -1038,8 +1143,12 @@
       if (currentEditingTaskId === null) return;
       const target = tasks.find(t => t.id === currentEditingTaskId);
       if (target) {
-        trashTasks.push(target);
+        // 保存済みデータのみゴミ箱（trashTasks）へ移動。未保存はそのまま完全削除。
+        if (target.isSaved) {
+          trashTasks.push(target);
+        }
         tasks = tasks.filter(t => t.id !== currentEditingTaskId && t.parentId !== currentEditingTaskId);
+        saveTasksToStorage();
       }
       currentEditingTaskId = null;
       navigateToTop();
@@ -1050,11 +1159,13 @@
       if (target) {
         trashTasks = trashTasks.filter(t => t.id !== taskId);
         tasks.push(target);
+        saveTasksToStorage();
         renderApp();
       }
     }
 
-    // 初期起動
+    // 初期起動時の読み込みと初期化
+    loadTasksFromStorage();
     switchView('task');
     switchProjectSubview('data');
     switchCalendarMode('due');

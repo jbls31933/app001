@@ -294,21 +294,20 @@
 
     .datetime-label {
       font-weight: bold;
-      width: 70px;
+      width: 90px;
       display: flex;
       align-items: center;
       gap: 4px;
     }
 
-    .date-box, .time-box {
+    .date-input-field {
       background-color: #f1f5f9;
       border: 1px solid #cbd5e1;
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      color: #334155;
+      outline: none;
     }
 
     .memo-card-title {
@@ -696,13 +695,12 @@
 
           <div class="datetime-row">
             <div class="datetime-label"><span>⏰</span> 期限</div>
-            <div class="date-box">2026/10/15 📅</div>
-            <div class="time-box">18:00 ▲</div>
+            <input type="date" id="detail-due-date-input" class="date-input-field" onchange="updateCurrentTaskField('dueDate', this.value)">
           </div>
 
           <div class="datetime-row">
             <div class="datetime-label"><span>📅</span> 対応予定日</div>
-            <div class="date-box">2026/10/14 📅</div>
+            <input type="date" id="detail-plan-date-input" class="date-input-field" onchange="updateCurrentTaskField('planDate', this.value)">
           </div>
         </div>
 
@@ -775,5 +773,596 @@
     </div>
   </div>
 
+  <script>
+    let tasks = [];
+    let trashTasks = [];
+    let nextIdCounter = 1;
+    let currentEditingTaskId = null;
+    let currentActiveView = 'task';
+    let currentProjectSubview = 'data';
+    let currentCalendarMode = 'due';
+
+    const ALL_VIEWS = ['task', 'calendar', 'project', 'nice', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page'];
+
+    // ローカルストレージへのデータ保存
+    function saveTasksToStorage() {
+      try {
+        localStorage.setItem('coach_app_tasks', JSON.stringify(tasks));
+        localStorage.setItem('coach_app_trash', JSON.stringify(trashTasks));
+      } catch (e) {
+        console.error('データの保存に失敗しました', e);
+      }
+    }
+
+    // ローカルストレージからのデータ読み込み
+    function loadTasksFromStorage() {
+      try {
+        const savedTasks = localStorage.getItem('coach_app_tasks');
+        const savedTrash = localStorage.getItem('coach_app_trash');
+
+        if (savedTasks) tasks = JSON.parse(savedTasks);
+        if (savedTrash) trashTasks = JSON.parse(savedTrash);
+
+        const allIds = [...tasks, ...trashTasks].map(t => t.id);
+        if (allIds.length > 0) {
+          nextIdCounter = Math.max(...allIds) + 1;
+        } else {
+          nextIdCounter = 1;
+        }
+      } catch (e) {
+        console.error('データの読み込みに失敗しました', e);
+      }
+    }
+
+    function switchView(targetView) {
+      if (currentActiveView === 'task-page' && targetView !== 'task-page') {
+        currentEditingTaskId = null;
+      }
+
+      currentActiveView = targetView;
+
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+      });
+
+      const targetEl = document.getElementById('view-' + targetView);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      const isTopGroup = ['task', 'calendar', 'project'].includes(targetView);
+      const tabNav = document.getElementById('top-tab-nav-container');
+      if (isTopGroup) {
+        tabNav.classList.remove('hidden');
+        ['task', 'calendar', 'project'].forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
+        });
+      } else {
+        tabNav.classList.add('hidden');
+      }
+
+      const backBtn = document.getElementById('global-back-btn');
+      const logo = document.getElementById('global-logo');
+      if (isTopGroup) {
+        backBtn.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else {
+        backBtn.classList.remove('hidden');
+        logo.classList.add('hidden');
+      }
+
+      const addBtn = document.getElementById('global-add-proj-btn');
+      const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings'];
+      if (hideAddBtnViews.includes(targetView)) {
+        addBtn.classList.add('hidden');
+      } else {
+        addBtn.classList.remove('hidden');
+      }
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const deleteBtn = document.getElementById('global-delete-btn');
+      if (targetView === 'task-page') {
+        saveBtn.classList.remove('hidden');
+        deleteBtn.classList.remove('hidden');
+      } else {
+        saveBtn.classList.add('hidden');
+        deleteBtn.classList.add('hidden');
+      }
+
+      renderApp();
+    }
+
+    function switchMainTab(tabName) {
+      switchView(tabName);
+    }
+
+    function switchProjectSubview(subview) {
+      currentProjectSubview = subview;
+      const dataEl = document.getElementById('proj-subview-data');
+      const listEl = document.getElementById('proj-subview-list');
+      const btnData = document.getElementById('subview-btn-data');
+      const btnList = document.getElementById('subview-btn-list');
+
+      if (subview === 'data') {
+        dataEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+        btnData.className = 'status-btn completed';
+        btnList.className = 'status-btn uncompleted';
+      } else {
+        dataEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        btnData.className = 'status-btn uncompleted';
+        btnList.className = 'status-btn completed';
+      }
+    }
+
+    function switchCalendarMode(mode) {
+      currentCalendarMode = mode;
+      const btnDue = document.getElementById('cal-btn-due');
+      const btnPlan = document.getElementById('cal-btn-plan');
+      const titleText = document.getElementById('calendar-title-text');
+
+      if (mode === 'due') {
+        btnDue.className = 'status-btn completed';
+        btnPlan.className = 'status-btn uncompleted';
+        titleText.innerText = '📅 カレンダー (期限)';
+      } else {
+        btnDue.className = 'status-btn uncompleted';
+        btnPlan.className = 'status-btn completed';
+        titleText.innerText = '📅 カレンダー (完了予定日)';
+      }
+      renderCalendar();
+    }
+
+    function navigateToTop() {
+      switchView('task');
+    }
+
+    function getRootParentId(taskId, taskList) {
+      const current = taskList.find(t => t.id === taskId);
+      if (!current) return null;
+      if (current.parentId === null) return current.id;
+      return getRootParentId(current.parentId, taskList);
+    }
+
+    function getFlattenedTree(parentId, taskList, depth = 0, result = []) {
+      const children = taskList.filter(t => t.parentId === parentId);
+      children.forEach(child => {
+        result.push({ ...child, depth: depth });
+        getFlattenedTree(child.id, taskList, depth + 1, result);
+      });
+      return result;
+    }
+
+    // 祖先IDのリストを再帰的に取得するヘルパー関数
+    function getAncestorIds(taskId, taskList, ancestors = []) {
+      const current = taskList.find(t => t.id === taskId);
+      if (!current || current.parentId === null) return ancestors;
+      ancestors.push(current.parentId);
+      return getAncestorIds(current.parentId, taskList, ancestors);
+    }
+
+    function renderApp() {
+      renderQuickStatus();
+      renderTopProjectTab();
+      renderCalendar();
+      renderFooterPages();
+    }
+
+    function renderQuickStatus() {
+      const expiredContainer = document.getElementById('list-expired');
+      const todayDueContainer = document.getElementById('list-today-due');
+      const todayPlanContainer = document.getElementById('list-today-plan');
+      const completedContainer = document.getElementById('list-completed');
+
+      expiredContainer.innerHTML = '';
+      todayDueContainer.innerHTML = '';
+      todayPlanContainer.innerHTML = '';
+      completedContainer.innerHTML = '';
+
+      let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
+      const validTasks = tasks.filter(t => t.isSaved);
+
+      validTasks.forEach(task => {
+        const isCompleted = task.status === 'completed';
+        const titleClass = isCompleted ? 'completed-title truncate' : 'truncate';
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'flex items-center justify-between py-1 text-xs text-slate-700 border-b border-slate-100 cursor-pointer';
+        itemDiv.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
+            <span class="${titleClass}">${task.title || '（無題のタスク）'} (ID:${task.id})</span>
+          </div>
+          <button onclick="event.stopPropagation(); openDetailView(${task.id})" class="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">詳細</button>
+        `;
+        itemDiv.onclick = () => openDetailView(task.id);
+
+        if (isCompleted) {
+          completedCount++;
+          completedContainer.appendChild(itemDiv);
+        } else {
+          todayPlanCount++;
+          todayPlanContainer.appendChild(itemDiv);
+        }
+      });
+
+      if (expiredCount === 0) expiredContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayDueCount === 0) todayDueContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayPlanCount === 0) todayPlanContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (completedCount === 0) completedContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+
+      document.getElementById('count-expired').innerText = expiredCount;
+      document.getElementById('count-today-due').innerText = todayDueCount;
+      document.getElementById('count-today-plan').innerText = todayPlanCount;
+      document.getElementById('count-completed').innerText = completedCount;
+    }
+
+    function renderCalendar() {
+      const calendarContainer = document.getElementById('calendar-content-list');
+      calendarContainer.innerHTML = '';
+
+      const validTasks = tasks.filter(t => t.isSaved);
+      if (validTasks.length === 0) {
+        calendarContainer.innerHTML = `<div class="empty-msg">登録されているタスクはありません (${currentCalendarMode === 'due' ? '期限' : '完了予定日'})</div>`;
+        return;
+      }
+
+      validTasks.forEach(task => {
+        const isCompleted = task.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+        const displayDate = currentCalendarMode === 'due' ? (task.dueDate || '未設定') : (task.planDate || '未設定');
+
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title || '（無題のタスク）'} (ID:${task.id})</span>
+            <div class="text-[10px] text-slate-500 mt-0.5">${currentCalendarMode === 'due' ? '⏰ 期限: ' : '📅 完了予定日: '}${displayDate}</div>
+          </div>
+          <button onclick="openDetailView(${task.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
+        `;
+        calendarContainer.appendChild(div);
+      });
+    }
+
+    function renderTopProjectTab() {
+      const container = document.getElementById('top-project-list');
+      container.innerHTML = '';
+      const projects = tasks.filter(t => t.parentId === null && t.isSaved);
+
+      if (projects.length === 0) {
+        container.innerHTML = '<div class="empty-msg text-center py-4">プロジェクトがありません。「＋ 新規プロジェクト追加」から作成してください。</div>';
+        return;
+      }
+
+      projects.forEach(proj => {
+        const isCompleted = proj.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : 'color: #1e3a8a;';
+
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-sm" style="${titleStyle}">📁 ${proj.title || '（無題のプロジェクト）'} (ID:${proj.id})</span>
+            <div class="flex gap-1">
+              <button onclick="openSubTaskCreateForm(${proj.id})" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">＋子タスク</button>
+              <button onclick="openDetailView(${proj.id})" class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderFooterPages() {
+      document.getElementById('list-nice').innerHTML = '<div class="empty-msg">項目はありません</div>';
+
+      const pendingContainer = document.getElementById('list-pending');
+      pendingContainer.innerHTML = '';
+      const pendingTasks = tasks.filter(t => t.status === 'pending' && t.isSaved);
+      if (pendingTasks.length > 0) {
+        pendingTasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span style="${titleStyle}">${t.title || '（無題）'} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          pendingContainer.appendChild(div);
+        });
+      } else {
+        pendingContainer.innerHTML = '<div class="empty-msg">保留中の項目はありません</div>';
+      }
+
+      const allContainer = document.getElementById('list-all-tasks');
+      allContainer.innerHTML = '';
+      const validTasks = tasks.filter(t => t.isSaved);
+      if (validTasks.length > 0) {
+        validTasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span style="${titleStyle}">[ID:${t.id}] ${t.title || '（無題）'} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          allContainer.appendChild(div);
+        });
+      } else {
+        allContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      }
+
+      const trashContainer = document.getElementById('list-trash');
+      trashContainer.innerHTML = '';
+      if (trashTasks.length > 0) {
+        trashTasks.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-red-50 rounded text-xs text-red-700';
+          div.innerHTML = `<span>${t.title || '（無題）'} (ID:${t.id})</span><button onclick="restoreTask(${t.id})" class="text-[10px] bg-white border border-red-200 px-2 py-0.5 rounded">復元</button>`;
+          trashContainer.appendChild(div);
+        });
+      } else {
+        trashContainer.innerHTML = '<div class="empty-msg">削除された項目はありません</div>';
+      }
+    }
+
+    function openDetailView(taskId) {
+      currentEditingTaskId = taskId;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('detail-title-input').value = task.title || '';
+      document.getElementById('detail-memo-input').value = task.memo || '';
+      document.getElementById('detail-due-date-input').value = task.dueDate || '';
+      document.getElementById('detail-plan-date-input').value = task.planDate || '';
+      
+      const rootId = getRootParentId(taskId, tasks);
+      const rootTask = tasks.find(t => t.id === rootId);
+      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? (rootTask.title || '（無題）') : 'なし'}]`;
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+
+      if (task.isSaved) {
+        saveBtn.innerText = '更新';
+        updatedAtRow.classList.remove('hidden');
+        updatedAtText.innerText = task.updatedAt || '未更新';
+      } else {
+        saveBtn.innerText = '保存';
+        updatedAtRow.classList.add('hidden');
+      }
+
+      const treeContainer = document.getElementById('detail-tree-list');
+      treeContainer.innerHTML = '';
+      
+      let projectTree = [];
+      if (rootId) {
+        const rootNode = tasks.find(t => t.id === rootId);
+        if (rootNode) {
+          projectTree.push({ ...rootNode, depth: 0 });
+          getFlattenedTree(rootId, tasks, 1, projectTree);
+        }
+      }
+
+      projectTree.forEach(item => {
+        const isCompleted = item.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+
+        const treeItem = document.createElement('div');
+        treeItem.className = 'tree-item';
+        treeItem.innerHTML = `
+          <div class="tree-item-left" style="${titleStyle}">
+            <span>≡</span> <span>☑</span> ${item.title || '（無題）'} - (ID:${item.id})
+          </div>
+          <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="toggleTaskComplete(${item.id})">
+        `;
+        treeContainer.appendChild(treeItem);
+      });
+
+      switchView('task-page');
+    }
+
+    function openNewProjectPage() {
+      const newId = nextIdCounter++;
+      const newProj = {
+        id: newId,
+        title: '',
+        parentId: null,
+        childrenIds: [],
+        status: 'uncompleted',
+        memo: '',
+        dueDate: '',
+        planDate: '',
+        isSaved: false,
+        updatedAt: null
+      };
+      tasks.push(newProj);
+      saveTasksToStorage();
+      openDetailView(newId);
+    }
+
+    function openSubTaskCreateForm(parentId) {
+      const newId = nextIdCounter++;
+      const parentTask = tasks.find(t => t.id === parentId);
+      const newSub = {
+        id: newId,
+        title: '',
+        parentId: parentId,
+        childrenIds: [],
+        status: 'uncompleted',
+        memo: '',
+        dueDate: '',
+        planDate: '',
+        isSaved: false,
+        updatedAt: null
+      };
+      if (parentTask) parentTask.childrenIds.push(newId);
+      tasks.push(newSub);
+      saveTasksToStorage();
+      openDetailView(newId);
+    }
+
+    function updateCurrentTaskField(field, value) {
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task) {
+        task[field] = value;
+        if (task.isSaved) {
+          saveTasksToStorage();
+        }
+      }
+    }
+
+    // 祖先の日付前後チェックを行い、矛盾がある祖先のタイトルリストを返す関数
+    function checkDateConflicts(task) {
+      if (!task.parentId) return { invalidDues: [], invalidPlans: [] };
+
+      const ancestorIds = getAncestorIds(task.id, tasks);
+      const invalidDues = [];
+      const invalidPlans = [];
+
+      ancestorIds.forEach(ancestorId => {
+        const ancestor = tasks.find(t => t.id === ancestorId);
+        if (!ancestor) return;
+
+        // 期限の比較（子の方が未来なら矛盾）
+        if (task.dueDate && ancestor.dueDate && task.dueDate > ancestor.dueDate) {
+          invalidDues.push(ancestor.title || '（無題の項目）');
+        }
+
+        // 完了予定日の比較（子の方が未来なら矛盾）
+        if (task.planDate && ancestor.planDate && task.planDate > ancestor.planDate) {
+          invalidPlans.push(ancestor.title || '（無題の項目）');
+        }
+      });
+
+      return { invalidDues, invalidPlans };
+    }
+
+    // 「保存」または「更新」ボタン押下時の処理（日付チェック連携）
+    function saveOrUpdateCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (!task) return;
+
+      // 日付の前後チェックを実行
+      const conflicts = checkDateConflicts(task);
+
+      if (conflicts.invalidDues.length > 0 || conflicts.invalidPlans.length > 0) {
+        // 矛盾が見つかった場合、警告メッセージを組み立ててポップアップを表示
+        let msgParts = [];
+        if (conflicts.invalidDues.length > 0) {
+          msgParts.push(`「${conflicts.invalidDues.join('、')}」より期限が後の日にち`);
+        }
+        if (conflicts.invalidPlans.length > 0) {
+          msgParts.push(`「${conflicts.invalidPlans.join('、')}」より完了予定日が後の日にち`);
+        }
+
+        const warningMsg = `${msgParts.join('、および')}になっていますが、そのまま登録しますか？`;
+        document.getElementById('date-warning-message').innerText = warningMsg;
+        document.getElementById('date-warning-modal').classList.remove('hidden');
+        return; // ポップアップで確認されるまで一旦処理を中断
+      }
+
+      // 問題なければそのまま保存処理へ
+      executeFinalSave(task);
+    }
+
+    // 日付警告ポップアップで「そのまま登録」が押された時の処理
+    function executeSaveWithDateWarning() {
+      document.getElementById('date-warning-modal').classList.add('hidden');
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task) {
+        executeFinalSave(task);
+      }
+    }
+
+    // 日付警告ポップアップで「戻る」が押された時の処理
+    function closeDateWarningModal() {
+      document.getElementById('date-warning-modal').classList.add('hidden');
+    }
+
+    // 実際の保存・更新の確定処理
+    function executeFinalSave(task) {
+      const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const isFirstTime = !task.isSaved;
+      
+      task.isSaved = true;
+      task.updatedAt = nowStr;
+
+      saveTasksToStorage();
+
+      const saveBtn = document.getElementById('global-save-btn');
+      saveBtn.innerText = '更新';
+      
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+      updatedAtRow.classList.remove('hidden');
+      updatedAtText.innerText = task.updatedAt;
+
+      if (isFirstTime) {
+        alert('保存しました。');
+      } else {
+        alert('更新しました。');
+      }
+    }
+
+    function updateCurrentTaskStatus(status) {
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task) {
+        task.status = status;
+        if (task.isSaved) {
+          saveTasksToStorage();
+        }
+        renderApp();
+      }
+    }
+
+    function toggleTaskComplete(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        task.status = task.status === 'completed' ? 'uncompleted' : 'completed';
+        saveTasksToStorage();
+        renderApp();
+      }
+    }
+
+    function confirmDeleteCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-confirm-modal').classList.add('hidden');
+    }
+
+    function executeDeleteCurrentTask() {
+      if (currentEditingTaskId !== null) {
+        const target = tasks.find(t => t.id === currentEditingTaskId);
+        if (target) {
+          trashTasks.push(target);
+          tasks = tasks.filter(t => t.id !== currentEditingTaskId && t.parentId !== currentEditingTaskId);
+          saveTasksToStorage();
+        }
+        currentEditingTaskId = null;
+      }
+      closeDeleteModal();
+      navigateToTop();
+    }
+
+    function restoreTask(taskId) {
+      const target = trashTasks.find(t => t.id === taskId);
+      if (target) {
+        trashTasks = trashTasks.filter(t => t.id !== taskId);
+        tasks.push(target);
+        saveTasksToStorage();
+        renderApp();
+      }
+    }
+
+    // 初期起動時の読み込みと初期化
+    loadTasksFromStorage();
+    switchView('task');
+    switchProjectSubview('data');
+    switchCalendarMode('due');
+  </script>
 </body>
 </html>

@@ -92,7 +92,7 @@
       background-color: #f1f5f9;
     }
 
-    /* メニュー系サブページのタイトル：センター表示＆やや小さく */
+    /* メニューおよびメニュー内項目のタイトル専用：センター表示 ＆ 少し小さく */
     .subpage-title {
       position: absolute;
       left: 0;
@@ -600,7 +600,7 @@
       
       <!-- 右側ボタンエリア -->
       <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 2;">
-        <button id="global-add-proj-btn" class="btn-add-project hidden" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
+        <button id="global-add-proj-btn" class="btn-add-project" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
         <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
         <button id="global-delete-btn" class="btn-delete hidden" onclick="confirmDeleteCurrentTask()">削除</button>
       </div>
@@ -1053,7 +1053,6 @@
         tabNav.classList.add('hidden');
       }
 
-      // フッターの表示切替：メニュー画面('settings')やゴミ箱('trash')では表示、その中の項目サブページでは非表示
       const footerNav = document.getElementById('global-footer');
       if (SETTINGS_SUBPAGES.includes(targetView)) {
         footerNav.classList.add('hidden');
@@ -1082,8 +1081,9 @@
         logo.classList.add('hidden');
       }
 
+      // 「＋ 新規プロジェクト追加」ボタンの表示制御（メニュー、メニュー項目、タスク詳細・日記詳細・ゴミ箱以外では常時表示）
       const addBtn = document.getElementById('global-add-proj-btn');
-      const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings', ...SETTINGS_SUBPAGES];
+      const hideAddBtnViews = ['settings', 'trash', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
       if (hideAddBtnViews.includes(targetView)) {
         addBtn.classList.add('hidden');
       } else {
@@ -1230,7 +1230,7 @@
       }
 
       const addBtn = document.getElementById('global-add-proj-btn');
-      const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings', ...SETTINGS_SUBPAGES];
+      const hideAddBtnViews = ['settings', 'trash', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
       if (hideAddBtnViews.includes(targetView)) {
         addBtn.classList.add('hidden');
       } else {
@@ -1665,6 +1665,7 @@
     }
 
     loadTasksFromStorage();
+    switchView('project');
     switchView('quickstatus');
     switchProjectSubview('data');
     switchCalendarMode('due');

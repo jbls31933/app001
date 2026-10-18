@@ -11,6 +11,15 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    input, textarea {
+      user-select: text;
+      -webkit-user-select: text;
+      font-size: 16px !important;
     }
 
     body {
@@ -25,6 +34,7 @@
       overscroll-behavior: none;
       position: fixed;
       width: 100%;
+      touch-action: manipulation;
     }
 
     .app-container {
@@ -231,7 +241,6 @@
       padding: 8px 10px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
-      font-size: 13px;
       color: #334155;
       background-color: #f8fafc;
       outline: none;
@@ -309,7 +318,6 @@
       padding: 8px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
-      font-size: 13px;
       resize: none;
       outline: none;
       background-color: #f8fafc;
@@ -404,6 +412,12 @@
       color: #334155;
       line-height: 1.2;
       font-weight: bold;
+    }
+
+    /* 完了時の打ち消し線クラス */
+    .completed-title {
+      text-decoration: line-through;
+      color: #94a3b8;
     }
   </style>
 </head>
@@ -676,7 +690,7 @@
         tabNav.classList.add('hidden');
       }
 
-      // ヘッダー左側の制御：トップページの3タブ表示時のみロゴを表示し、それ以外の画面（task-page, diary-page, settings, trash, nice, pending等）では「‹ トップへ戻る」ボタンを表示
+      // ヘッダー左側の制御
       const backBtn = document.getElementById('global-back-btn');
       const logo = document.getElementById('global-logo');
       if (isTopGroup) {
@@ -790,18 +804,21 @@
       let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
 
       tasks.forEach(task => {
+        const isCompleted = task.status === 'completed';
+        const titleClass = isCompleted ? 'completed-title truncate' : 'truncate';
+
         const itemDiv = document.createElement('div');
         itemDiv.className = 'flex items-center justify-between py-1 text-xs text-slate-700 border-b border-slate-100 cursor-pointer';
         itemDiv.innerHTML = `
           <div class="flex items-center gap-2 truncate">
-            <input type="checkbox" ${task.status === 'completed' ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
-            <span class="truncate">${task.title} (ID:${task.id})</span>
+            <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${task.id})">
+            <span class="${titleClass}">${task.title} (ID:${task.id})</span>
           </div>
           <button onclick="event.stopPropagation(); openDetailView(${task.id})" class="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">詳細</button>
         `;
         itemDiv.onclick = () => openDetailView(task.id);
 
-        if (task.status === 'completed') {
+        if (isCompleted) {
           completedCount++;
           completedContainer.appendChild(itemDiv);
         } else {
@@ -831,11 +848,14 @@
       }
 
       tasks.forEach(task => {
+        const isCompleted = task.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+
         const div = document.createElement('div');
         div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
         div.innerHTML = `
           <div>
-            <span class="font-bold text-slate-800">${task.title} (ID:${task.id})</span>
+            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title} (ID:${task.id})</span>
             <div class="text-[10px] text-slate-500 mt-0.5">${currentCalendarMode === 'due' ? '⏰ 期限: 2026/10/15' : '📅 完了予定日: 2026/10/14'}</div>
           </div>
           <button onclick="openDetailView(${task.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
@@ -855,11 +875,14 @@
       }
 
       projects.forEach(proj => {
+        const isCompleted = proj.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : 'color: #1e3a8a;';
+
         const card = document.createElement('div');
         card.className = 'project-card';
         card.innerHTML = `
           <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-sm text-blue-900">📁 ${proj.title} (ID:${proj.id})</span>
+            <span class="font-bold text-sm" style="${titleStyle}">📁 ${proj.title} (ID:${proj.id})</span>
             <div class="flex gap-1">
               <button onclick="openSubTaskCreateForm(${proj.id})" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">＋子タスク</button>
               <button onclick="openDetailView(${proj.id})" class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
@@ -878,9 +901,11 @@
       const pendingTasks = tasks.filter(t => t.status === 'pending');
       if (pendingTasks.length > 0) {
         pendingTasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
-          div.innerHTML = `<span>${t.title} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          div.innerHTML = `<span style="${titleStyle}">${t.title} (ID:${t.id})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
           pendingContainer.appendChild(div);
         });
       } else {
@@ -891,9 +916,11 @@
       allContainer.innerHTML = '';
       if (tasks.length > 0) {
         tasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
-          div.innerHTML = `<span>[ID:${t.id}] ${t.title} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          div.innerHTML = `<span style="${titleStyle}">[ID:${t.id}] ${t.title} (親:${t.parentId ?? 'なし'})</span><button onclick="openDetailView(${t.id})" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
           allContainer.appendChild(div);
         });
       } else {
@@ -939,13 +966,16 @@
       }
 
       projectTree.forEach(item => {
+        const isCompleted = item.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+
         const treeItem = document.createElement('div');
         treeItem.className = 'tree-item';
         treeItem.innerHTML = `
-          <div class="tree-item-left">
+          <div class="tree-item-left" style="${titleStyle}">
             <span>≡</span> <span>☑</span> ${item.title} - (ID:${item.id})
           </div>
-          <input type="checkbox" ${item.status === 'completed' ? 'checked' : ''} onclick="toggleTaskComplete(${item.id})">
+          <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="toggleTaskComplete(${item.id})">
         `;
         treeContainer.appendChild(treeItem);
       });

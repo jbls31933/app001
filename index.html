@@ -61,20 +61,55 @@
       padding: 12px 16px;
       background-color: #e8f1f8;
       min-height: 60px;
+      position: relative;
+    }
+
+    .header-left-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 2;
     }
 
     .top-nav-link {
-      font-size: 13px;
-      color: #1e40af;
+      font-size: 18px;
+      color: #334155;
       font-weight: bold;
       cursor: pointer;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      transition: background-color 0.2s;
+    }
+
+    .top-nav-link:active {
+      background-color: #f1f5f9;
+    }
+
+    /* メニュー系サブページのタイトル：センター表示＆やや小さく */
+    .subpage-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      color: #334155;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .logo-area {
       display: flex;
       align-items: center;
       gap: 8px;
+      z-index: 2;
     }
 
     .logo-icon {
@@ -102,6 +137,7 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
+      z-index: 2;
     }
 
     .btn-save {
@@ -113,6 +149,7 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
+      z-index: 2;
     }
 
     .btn-delete {
@@ -124,6 +161,7 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
+      z-index: 2;
     }
 
     /* タブナビゲーション */
@@ -160,11 +198,28 @@
       color: #ffffff;
     }
 
+    /* スライドイン・アウトのアニメーション定義 */
     @keyframes slideInFromRight {
-      from { transform: translateX(28px); opacity: 0.65; }
+      from { transform: translateX(100%); opacity: 0.9; }
       to { transform: translateX(0); opacity: 1; }
     }
-    .slide-in-right { animation: slideInFromRight 220ms ease-out both; }
+    @keyframes slideOutToRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0.9; }
+    }
+    @keyframes slideInFromLeft {
+      from { transform: translateX(-100%); opacity: 0.9; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutToLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100%); opacity: 0.9; }
+    }
+
+    .slide-in-right { animation: slideInFromRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-out-right { animation: slideOutToRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-out-left { animation: slideOutToLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
 
     /* メインエリア */
     .main-content {
@@ -391,6 +446,12 @@
       border-color: #cbd5e1;
     }
 
+    .menu-item-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .footer-nav {
       display: flex;
       justify-content: space-around;
@@ -520,8 +581,17 @@
     
     <!-- 共通固定ヘッダー -->
     <header class="header">
-      <div id="header-left-area">
-        <span id="global-back-btn" class="top-nav-link hidden" onclick="navigateToTop()">‹ トップへ戻る</span>
+      <div id="header-left-area" style="width: 100%; position: relative; display: flex; align-items: center;">
+        <!-- メニューおよびその中の項目ページ専用ヘッダー（戻るボタン ＋ センターのタイトル） -->
+        <div id="header-menu-sub-group" class="header-left-group hidden" style="width: 100%; position: relative;">
+          <span class="top-nav-link" onclick="goBack()">‹</span>
+          <h2 class="subpage-title" id="header-menu-page-title">メニュー</h2>
+        </div>
+        <!-- その他のサブページ・詳細ページ用ヘッダー -->
+        <div id="header-sub-group" class="header-left-group hidden">
+          <span class="top-nav-link" onclick="goBack()">‹</span>
+        </div>
+        <!-- トップ画面専用のロゴ -->
         <div id="global-logo" class="logo-area">
           <span class="logo-icon">🗼</span>
           <h1 class="app-title">COACH <span>(コーチ)</span></h1>
@@ -529,7 +599,7 @@
       </div>
       
       <!-- 右側ボタンエリア -->
-      <div style="display: flex; gap: 8px; align-items: center;">
+      <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 2;">
         <button id="global-add-proj-btn" class="btn-add-project hidden" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
         <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
         <button id="global-delete-btn" class="btn-delete hidden" onclick="confirmDeleteCurrentTask()">削除</button>
@@ -539,7 +609,7 @@
     <!-- トップページ専用タブナビゲーション -->
     <div id="top-tab-nav-container">
       <nav class="tab-nav">
-        <div class="tab-item active" id="tab-btn-quickstatus" onclick="switchMainTab('quickstatus')">今日のタスク</div>
+        <div class="tab-item active" id="tab-btn-quickstatus" onclick="switchMainTab('quickstatus')">本日のタスク</div>
         <div class="tab-item" id="tab-btn-calendar" onclick="switchMainTab('calendar')">カレンダー</div>
         <div class="tab-item" id="tab-btn-project" onclick="switchMainTab('project')">プロジェクト</div>
       </nav>
@@ -585,21 +655,18 @@
       </div>
 
       <div id="view-project" class="hidden">
-        <!-- プロジェクトビュー内のサブビュー切替 -->
         <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
           <div style="display: flex; gap: 8px;">
-            <button class="status-btn uncompleted" id="subview-btn-data" onclick="switchProjectSubview('data')">① 進捗データ</button>
-            <button class="status-btn uncompleted" id="subview-btn-list" onclick="switchProjectSubview('list')">② プロジェクト一覧</button>
+            <button class="status-btn uncompleted" id="subview-btn-data" onclick="switchProjectSubview('data')">進捗データ</button>
+            <button class="status-btn uncompleted" id="subview-btn-list" onclick="switchProjectSubview('list')">プロジェクト一覧</button>
           </div>
         </div>
 
-        <!-- ①プロジェクトごとの進捗データ -->
         <div id="proj-subview-data" class="card">
           <h2 class="section-title">📊 プロジェクトごとの進捗データ</h2>
           <div class="empty-msg">進捗データは今後実装予定です</div>
         </div>
 
-        <!-- ②プロジェクト一覧 ＆ view-all & view-trash へのリンク -->
         <div id="proj-subview-list" class="hidden">
           <div class="card">
             <h2 class="section-title">📁 登録プロジェクト一覧</h2>
@@ -618,7 +685,6 @@
       <!-- 【固定ページ】2. view-Q2 -->
       <div id="view-Q2" class="hidden">
         <div class="card">
-          <h2 class="section-title">💡 余裕があれば</h2>
           <div id="list-nice" class="space-y-2"><div class="empty-msg">該当する項目はありません</div></div>
         </div>
       </div>
@@ -626,7 +692,6 @@
       <!-- 【固定ページ】3. view-pending -->
       <div id="view-pending" class="hidden">
         <div class="card">
-          <h2 class="section-title">⏸ 保留・下書き一覧</h2>
           <div id="list-pending" class="space-y-2"><div class="empty-msg">保留中の項目はありません</div></div>
         </div>
       </div>
@@ -634,52 +699,72 @@
       <!-- 【固定ページ】4. view-diary -->
       <div id="view-diary" class="hidden">
         <div class="card">
-          <h2 class="section-title">📖 日記一覧</h2>
           <div id="list-diary" class="empty-msg">日記の記録はありません</div>
         </div>
       </div>
 
-      <!-- 【固定ページ】5. 設定 -->
+      <!-- 【固定ページ】5. 設定（メニュー） -->
       <div id="view-settings" class="hidden">
-        <div class="card">
-          <h2 class="section-title">⚙ メニュー</h2>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-help')">📖 使い方 <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-theme')">🎨 テーマカラー設定 <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-category')">🏷️ カテゴリ設定 <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-email')">📧 メール通知設定 <span>›</span></div>
-          <div class="settings-menu-item" onclick="switchView('trash')">🗑 最近削除した項目 <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('action-templates')">🧩 アクションテンプレート <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-backup')">💾 データのバックアップ・復元 <span>›</span></div>
-          <div class="settings-menu-item" onclick="openSettingsPage('settings-terms')">📜 規約 <span>›</span></div>
+        <div class="card" style="padding-top: 4px;">
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-help')">
+            <div class="menu-item-content"><span>📖</span> <span>使い方</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-theme')">
+            <div class="menu-item-content"><span>🎨</span> <span>テーマカラー設定</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-category')">
+            <div class="menu-item-content"><span>🏷️</span> <span>カテゴリ設定</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-email')">
+            <div class="menu-item-content"><span>📧</span> <span>メール通知設定</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="switchView('trash')">
+            <div class="menu-item-content"><span>🗑</span> <span>最近削除した項目</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('action-templates')">
+            <div class="menu-item-content"><span>🧩</span> <span>アクションテンプレート</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-backup')">
+            <div class="menu-item-content"><span>💾</span> <span>データのバックアップ・復元</span></div>
+            <span>›</span>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-terms')">
+            <div class="menu-item-content"><span>📜</span> <span>規約</span></div>
+            <span>›</span>
+          </div>
         </div>
       </div>
 
-      <!-- 【固定ページ】6. view-trash (フッターボタンなし) -->
+      <!-- 【固定ページ】6. view-trash -->
       <div id="view-trash" class="hidden">
         <div class="card">
-          <h2 class="section-title">🗑 最近削除した項目</h2>
           <div id="list-trash" class="space-y-2"><div class="empty-msg">削除された項目はありません</div></div>
         </div>
       </div>
 
       <!-- 設定内の各項目ページ -->
-      <div id="view-settings-help" class="hidden settings-subpage"><div class="card"><h2 class="section-title">📖 使い方</h2><div class="empty-msg">使い方ページ</div></div></div>
-      <div id="view-settings-theme" class="hidden settings-subpage"><div class="card"><h2 class="section-title">🎨 テーマカラー設定</h2><div class="empty-msg">テーマカラー設定</div></div></div>
-      <div id="view-settings-category" class="hidden settings-subpage"><div class="card"><h2 class="section-title">🏷️ カテゴリ設定</h2><div class="empty-msg">カテゴリ設定</div></div></div>
-      <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><h2 class="section-title">📧 メール通知設定</h2><div class="empty-msg">メール通知設定</div></div></div>
-      <div id="view-action-templates" class="hidden settings-subpage"><div class="card"><h2 class="section-title">🧩 アクションテンプレート</h2><div class="empty-msg">アクションテンプレートはまだ登録されていません</div></div></div>
-      <div id="view-settings-backup" class="hidden settings-subpage"><div class="card"><h2 class="section-title">💾 データのバックアップ・復元</h2><div class="empty-msg">データのバックアップ・復元</div></div></div>
-      <div id="view-settings-terms" class="hidden settings-subpage"><div class="card"><h2 class="section-title">📜 規約</h2><div class="empty-msg">規約ページ</div></div></div>
+      <div id="view-settings-help" class="hidden settings-subpage"><div class="card"><div class="empty-msg">使い方ページ</div></div></div>
+      <div id="view-settings-theme" class="hidden settings-subpage"><div class="card"><div class="empty-msg">テーマカラー設定</div></div></div>
+      <div id="view-settings-category" class="hidden settings-subpage"><div class="card"><div class="empty-msg">カテゴリ設定</div></div></div>
+      <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><div class="empty-msg">メール通知設定</div></div></div>
+      <div id="view-action-templates" class="hidden settings-subpage"><div class="card"><div class="empty-msg">アクションテンプレートはまだ登録されていません</div></div></div>
+      <div id="view-settings-backup" class="hidden settings-subpage"><div class="card"><div class="empty-msg">データのバックアップ・復元</div></div></div>
+      <div id="view-settings-terms" class="hidden settings-subpage"><div class="card"><div class="empty-msg">規約ページ</div></div></div>
 
       <!-- 内部リンク用 view-all -->
       <div id="view-all" class="hidden">
         <div class="card">
-          <h2 class="section-title">≡ すべてのプロジェクトとタスクを見る</h2>
           <div id="list-all-tasks" class="space-y-2"><div class="empty-msg">タスクはありません</div></div>
         </div>
       </div>
 
-      <!-- 【投稿ページ】1. task-page (元 view-detail) -->
+      <!-- 【投稿ページ】1. task-page -->
       <div id="view-task-page" class="hidden">
         <div class="card">
           <div class="form-group">
@@ -688,10 +773,9 @@
           </div>
 
           <div class="form-group" style="margin-top: 8px;">
-            <span class="label-text" id="detail-project-label">プロジェクト：- </span>
+            <span class="label-text" id="detail-project-label">所属プロジェクト：[-]</span>
           </div>
 
-          <!-- 保存済みの場合のみ表示する前回更新日時 -->
           <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
             前回更新日時：<span id="detail-updated-at-text">-</span>
           </div>
@@ -732,14 +816,13 @@
       <!-- 【投稿ページ】2. diary-page -->
       <div id="view-diary-page" class="hidden">
         <div class="card">
-          <h2 class="section-title">📖 日記 詳細・編集ページ</h2>
           <div class="empty-msg">日記の詳細・編集機能は今後実装予定です</div>
         </div>
       </div>
     </main>
 
     <!-- 下部フッターナビゲーション -->
-    <footer class="footer-nav">
+    <footer id="global-footer" class="footer-nav">
       <div class="footer-item" onclick="switchView('Q2')">
         <div class="footer-icon-box">💡</div>
         <div class="footer-text">余裕があれば</div>
@@ -760,7 +843,7 @@
 
   </div>
 
-  <!-- 1. 削除確認モーダル（ポップアップ） -->
+  <!-- 1. 削除確認モーダル -->
   <div id="delete-confirm-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-title">項目の削除</div>
@@ -772,13 +855,11 @@
     </div>
   </div>
 
-  <!-- 2. 日付前後矛盾警告モーダル（ポップアップ） -->
+  <!-- 2. 日付前後矛盾警告モーダル -->
   <div id="date-warning-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-title">⚠️ スケジュールの確認</div>
-      <div class="modal-message" id="date-warning-message">
-        <!-- JS側で該当する祖先タイトルを埋め込みます -->
-      </div>
+      <div class="modal-message" id="date-warning-message"></div>
       <div class="modal-buttons">
         <button class="btn-modal-cancel" onclick="closeDateWarningModal()">戻る</button>
         <button class="btn-modal-save" onclick="executeSaveWithDateWarning()">そのまま登録</button>
@@ -791,13 +872,27 @@
     let nextIdCounter = 1;
     let currentEditingTaskId = null;
     let currentActiveView = 'quickstatus';
+    let previousView = 'quickstatus';
     let currentProjectSubview = 'data';
     let currentCalendarMode = 'due';
 
     const SETTINGS_SUBPAGES = ['settings-help', 'settings-theme', 'settings-category', 'settings-email', 'settings-backup', 'settings-terms', 'action-templates'];
     const ALL_VIEWS = ['quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
+    
+    const TOP_TABS = ['quickstatus', 'calendar', 'project'];
 
-    // 正式なデータプロパティを初期化
+    const PAGE_TITLES = {
+      'settings': 'メニュー',
+      'trash': '最近削除した項目',
+      'settings-help': '使い方',
+      'settings-theme': 'テーマカラー設定',
+      'settings-category': 'カテゴリ設定',
+      'settings-email': 'メール通知設定',
+      'action-templates': 'アクションテンプレート',
+      'settings-backup': 'データのバックアップ・復元',
+      'settings-terms': '規約'
+    };
+
     function normalizeRecord(record, fallbackId) {
       const pageID = String(record.pageID ?? record.id ?? fallbackId);
       const parentIDValue = record.parentID ?? record.parentId ?? null;
@@ -829,42 +924,8 @@
         actionDateCheck: Array.isArray(record.actionDateCheck) ? record.actionDateCheck : [],
         deadlineCustomReminderAt: record.deadlineCustomReminderAt ?? '',
         isDeadlineCustomActive: Boolean(record.isDeadlineCustomActive ?? false),
-        isDeadline5MinBefore: Boolean(record.isDeadline5MinBefore ?? false),
-        isDeadline10MinBefore: Boolean(record.isDeadline10MinBefore ?? false),
-        isDeadline20MinBefore: Boolean(record.isDeadline20MinBefore ?? false),
-        isDeadline30MinBefore: Boolean(record.isDeadline30MinBefore ?? false),
-        isDeadline1HourBefore: Boolean(record.isDeadline1HourBefore ?? false),
-        isDeadline2HoursBefore: Boolean(record.isDeadline2HoursBefore ?? false),
-        isDeadline3HoursBefore: Boolean(record.isDeadline3HoursBefore ?? false),
-        isDeadline4HoursBefore: Boolean(record.isDeadline4HoursBefore ?? false),
-        isDeadline5HoursBefore: Boolean(record.isDeadline5HoursBefore ?? false),
-        isDeadline6HoursBefore: Boolean(record.isDeadline6HoursBefore ?? false),
-        isDeadline12HoursBefore: Boolean(record.isDeadline12HoursBefore ?? false),
-        isDeadline1DayBefore: Boolean(record.isDeadline1DayBefore ?? false),
-        isDeadline3DaysBefore: Boolean(record.isDeadline3DaysBefore ?? false),
-        isDeadline5DaysBefore: Boolean(record.isDeadline5DaysBefore ?? false),
-        isDeadline1WeekBefore: Boolean(record.isDeadline1WeekBefore ?? false),
-        isDeadline2WeeksBefore: Boolean(record.isDeadline2WeeksBefore ?? false),
-        isDeadline1MonthBefore: Boolean(record.isDeadline1MonthBefore ?? false),
         actionCustomReminderAt: record.actionCustomReminderAt ?? '',
-        isActionCustomActive: Boolean(record.isActionCustomActive ?? false),
-        isAction5MinBefore: Boolean(record.isAction5MinBefore ?? false),
-        isAction10MinBefore: Boolean(record.isAction10MinBefore ?? false),
-        isAction20MinBefore: Boolean(record.isAction20MinBefore ?? false),
-        isAction30MinBefore: Boolean(record.isAction30MinBefore ?? false),
-        isAction1HourBefore: Boolean(record.isAction1HourBefore ?? false),
-        isAction2HoursBefore: Boolean(record.isAction2HoursBefore ?? false),
-        isAction3HoursBefore: Boolean(record.isAction3HoursBefore ?? false),
-        isAction4HoursBefore: Boolean(record.isAction4HoursBefore ?? false),
-        isAction5HoursBefore: Boolean(record.isAction5HoursBefore ?? false),
-        isAction6HoursBefore: Boolean(record.isAction6HoursBefore ?? false),
-        isAction12HoursBefore: Boolean(record.isAction12HoursBefore ?? false),
-        isAction1DayBefore: Boolean(record.isAction1DayBefore ?? false),
-        isAction3DaysBefore: Boolean(record.isAction3DaysBefore ?? false),
-        isAction5DaysBefore: Boolean(record.isAction5DaysBefore ?? false),
-        isAction1WeekBefore: Boolean(record.isAction1WeekBefore ?? false),
-        isAction2WeeksBefore: Boolean(record.isAction2WeeksBefore ?? false),
-        isAction1MonthBefore: Boolean(record.isAction1MonthBefore ?? false)
+        isActionCustomActive: Boolean(record.isActionCustomActive ?? false)
       };
       return normalized;
     }
@@ -937,32 +998,54 @@
     function openSettingsPage(targetView) { switchView(targetView); }
 
     function switchView(targetView) {
+      if (currentActiveView === targetView) return;
+
       if (currentActiveView === 'task-page' && targetView !== 'task-page') {
         currentEditingTaskId = null;
+      }
+
+      const isTopGroup = TOP_TABS.includes(currentActiveView);
+      const isTargetTopGroup = TOP_TABS.includes(targetView);
+
+      if (!isTopGroup || !isTargetTopGroup) {
+        previousView = currentActiveView;
+      }
+
+      let animClass = 'slide-in-right';
+      if (isTopGroup && isTargetTopGroup) {
+        const currentIndex = TOP_TABS.indexOf(currentActiveView);
+        const targetIndex = TOP_TABS.indexOf(targetView);
+        if (targetIndex < currentIndex) {
+          animClass = 'slide-in-left';
+        }
       }
 
       currentActiveView = targetView;
 
       ALL_VIEWS.forEach(v => {
         const el = document.getElementById('view-' + v);
-        if (el) el.classList.add('hidden');
+        if (el) {
+          el.classList.remove('slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
+          if (v !== targetView) {
+            el.classList.add('hidden');
+          }
+        }
       });
 
       const targetEl = document.getElementById('view-' + targetView);
       if (targetEl) {
         targetEl.classList.remove('hidden');
-        if (SETTINGS_SUBPAGES.includes(targetView) || targetView === 'trash') {
-          targetEl.classList.remove('slide-in-right');
-          void targetEl.offsetWidth;
+        if (isTargetTopGroup && isTopGroup) {
+          targetEl.classList.add(animClass);
+        } else if (!isTargetTopGroup) {
           targetEl.classList.add('slide-in-right');
         }
       }
 
-      const isTopGroup = ['quickstatus', 'calendar', 'project'].includes(targetView);
       const tabNav = document.getElementById('top-tab-nav-container');
-      if (isTopGroup) {
+      if (isTargetTopGroup) {
         tabNav.classList.remove('hidden');
-        ['quickstatus', 'calendar', 'project'].forEach(name => {
+        TOP_TABS.forEach(name => {
           const btn = document.getElementById('tab-btn-' + name);
           if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
         });
@@ -970,13 +1053,32 @@
         tabNav.classList.add('hidden');
       }
 
-      const backBtn = document.getElementById('global-back-btn');
-      const logo = document.getElementById('global-logo');
-      if (isTopGroup) {
-        backBtn.classList.add('hidden');
-        logo.classList.remove('hidden');
+      // フッターの表示切替：メニュー画面('settings')やゴミ箱('trash')では表示、その中の項目サブページでは非表示
+      const footerNav = document.getElementById('global-footer');
+      if (SETTINGS_SUBPAGES.includes(targetView)) {
+        footerNav.classList.add('hidden');
       } else {
-        backBtn.classList.remove('hidden');
+        footerNav.classList.remove('hidden');
+      }
+
+      const menuSubGroup = document.getElementById('header-menu-sub-group');
+      const subGroup = document.getElementById('header-sub-group');
+      const logo = document.getElementById('global-logo');
+
+      const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
+
+      if (isTargetTopGroup) {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else if (isMenuGroup) {
+        menuSubGroup.classList.remove('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.add('hidden');
+        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+      } else {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.remove('hidden');
         logo.classList.add('hidden');
       }
 
@@ -1043,9 +1145,108 @@
       renderCalendar();
     }
 
-    function navigateToTop() {
-      if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') switchView('settings');
-      else switchView('quickstatus');
+    function goBack() {
+      let target = 'quickstatus';
+      if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') {
+        target = 'settings';
+      } else if (currentActiveView === 'task-page') {
+        target = (previousView && !SETTINGS_SUBPAGES.includes(previousView) && previousView !== 'task-page') ? previousView : 'quickstatus';
+      } else {
+        target = 'quickstatus';
+      }
+
+      if (TOP_TABS.includes(target)) {
+        switchViewDirect(target);
+        return;
+      }
+
+      const currentEl = document.getElementById('view-' + currentActiveView);
+      const targetEl = document.getElementById('view-' + target);
+
+      if (currentEl && targetEl) {
+        currentEl.classList.remove('slide-in-right', 'slide-in-left');
+        currentEl.classList.add('slide-out-right');
+        targetEl.classList.remove('hidden', 'slide-in-right', 'slide-in-left');
+
+        setTimeout(() => {
+          currentEl.classList.add('hidden');
+          currentEl.classList.remove('slide-out-right');
+          switchViewDirect(target);
+        }, 220);
+      } else {
+        switchView(target);
+      }
+    }
+
+    function switchViewDirect(targetView) {
+      currentActiveView = targetView;
+      const isTargetTopGroup = TOP_TABS.includes(targetView);
+
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) {
+          if (v !== targetView) el.classList.add('hidden');
+          else el.classList.remove('hidden');
+        }
+      });
+
+      const tabNav = document.getElementById('top-tab-nav-container');
+      if (isTargetTopGroup) {
+        tabNav.classList.remove('hidden');
+        TOP_TABS.forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
+        });
+      } else {
+        tabNav.classList.add('hidden');
+      }
+
+      const footerNav = document.getElementById('global-footer');
+      if (SETTINGS_SUBPAGES.includes(targetView)) {
+        footerNav.classList.add('hidden');
+      } else {
+        footerNav.classList.remove('hidden');
+      }
+
+      const menuSubGroup = document.getElementById('header-menu-sub-group');
+      const subGroup = document.getElementById('header-sub-group');
+      const logo = document.getElementById('global-logo');
+
+      const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
+
+      if (isTargetTopGroup) {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else if (isMenuGroup) {
+        menuSubGroup.classList.remove('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.add('hidden');
+        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+      } else {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.remove('hidden');
+        logo.classList.add('hidden');
+      }
+
+      const addBtn = document.getElementById('global-add-proj-btn');
+      const hideAddBtnViews = ['task-page', 'diary-page', 'trash', 'settings', ...SETTINGS_SUBPAGES];
+      if (hideAddBtnViews.includes(targetView)) {
+        addBtn.classList.add('hidden');
+      } else {
+        addBtn.classList.remove('hidden');
+      }
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const deleteBtn = document.getElementById('global-delete-btn');
+      if (targetView === 'task-page') {
+        saveBtn.classList.remove('hidden');
+        deleteBtn.classList.remove('hidden');
+      } else {
+        saveBtn.classList.add('hidden');
+        deleteBtn.classList.add('hidden');
+      }
+      renderApp();
     }
 
     function getRootParentId(taskId, taskList) {
@@ -1246,7 +1447,7 @@
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
-      document.getElementById('detail-project-label').innerText = `プロジェクト：${rootTask ? (rootTask.title || '無題') : 'なし'}`;
+      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? (rootTask.title || '（無題）') : 'なし'}]`;
 
       const saveBtn = document.getElementById('global-save-btn');
       const updatedAtRow = document.getElementById('detail-updated-at-row');
@@ -1450,7 +1651,7 @@
         currentEditingTaskId = null;
       }
       closeDeleteModal();
-      navigateToTop();
+      switchView('quickstatus');
     }
 
     function restoreTask(taskId) {

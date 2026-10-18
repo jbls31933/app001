@@ -427,6 +427,73 @@
       text-decoration: line-through;
       color: #94a3b8;
     }
+
+    /* 削除確認モーダル（ポップアップ） */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      width: 85%;
+      max-width: 320px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .modal-message {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-modal-cancel {
+      flex: 1;
+      padding: 10px 0;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-modal-confirm {
+      flex: 1;
+      padding: 10px 0;
+      background-color: #dc2626;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -447,7 +514,7 @@
       <div style="display: flex; gap: 8px; align-items: center;">
         <button id="global-add-proj-btn" class="btn-add-project hidden" onclick="openNewProjectPage()">＋ 新規プロジェクト追加</button>
         <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
-        <button id="global-delete-btn" class="btn-delete hidden" onclick="deleteCurrentTask()">削除</button>
+        <button id="global-delete-btn" class="btn-delete hidden" onclick="confirmDeleteCurrentTask()">削除</button>
       </div>
     </header>
 
@@ -669,6 +736,18 @@
 
   </div>
 
+  <!-- 削除確認モーダル（ポップアップ） -->
+  <div id="delete-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">項目の削除</div>
+      <div class="modal-message">この項目をゴミ箱へ移動しますか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeDeleteModal()">戻る</button>
+        <button class="btn-modal-confirm" onclick="executeDeleteCurrentTask()">削除する</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let tasks = [];
     let trashTasks = [];
@@ -711,15 +790,7 @@
     }
 
     function switchView(targetView) {
-      // task-pageから他のビューに移動する際、未保存（isSaved === false）であれば破棄する
       if (currentActiveView === 'task-page' && targetView !== 'task-page') {
-        if (currentEditingTaskId !== null) {
-          const task = tasks.find(t => t.id === currentEditingTaskId);
-          if (task && !task.isSaved) {
-            tasks = tasks.filter(t => t.id !== currentEditingTaskId);
-            saveTasksToStorage();
-          }
-        }
         currentEditingTaskId = null;
       }
 
@@ -859,7 +930,6 @@
 
       let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
 
-      // 保存済みのタスクのみホーム画面等に反映させる
       const validTasks = tasks.filter(t => t.isSaved);
 
       validTasks.forEach(task => {
@@ -1014,7 +1084,6 @@
       const rootTask = tasks.find(t => t.id === rootId);
       document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? (rootTask.title || '（無題）') : 'なし'}]`;
 
-      // 保存状態に応じたボタンおよび更新日時の表示制御
       const saveBtn = document.getElementById('global-save-btn');
       const updatedAtRow = document.getElementById('detail-updated-at-row');
       const updatedAtText = document.getElementById('detail-updated-at-text');
@@ -1094,7 +1163,7 @@
       openDetailView(newId);
     }
 
-    // 「保存」または「更新」ボタンが押された時の処理（トップに戻らず、その場でポップアップを表示）
+    // 「保存」または「更新」ボタンが押された時の処理
     function saveOrUpdateCurrentTask() {
       if (currentEditingTaskId === null) return;
       const task = tasks.find(t => t.id === currentEditingTaskId);
@@ -1109,7 +1178,6 @@
 
       saveTasksToStorage();
 
-      // ボタンの見た目や更新日時エリアをその場で最新の状態に更新
       const saveBtn = document.getElementById('global-save-btn');
       saveBtn.innerText = '更新';
       
@@ -1118,7 +1186,6 @@
       updatedAtRow.classList.remove('hidden');
       updatedAtText.innerText = task.updatedAt;
 
-      // それぞれに応じたポップアップメッセージを表示
       if (isFirstTime) {
         alert('保存しました。');
       } else {
@@ -1130,9 +1197,7 @@
       const task = tasks.find(t => t.id === currentEditingTaskId);
       if (task) {
         task[field] = value;
-        if (task.isSaved) {
-          saveTasksToStorage();
-        }
+        saveTasksToStorage();
       }
     }
 
@@ -1140,9 +1205,7 @@
       const task = tasks.find(t => t.id === currentEditingTaskId);
       if (task) {
         task.status = status;
-        if (task.isSaved) {
-          saveTasksToStorage();
-        }
+        saveTasksToStorage();
         renderApp();
       }
     }
@@ -1156,17 +1219,29 @@
       }
     }
 
-    function deleteCurrentTask() {
+    // 削除ボタン押下時：確認モーダルを表示
+    function confirmDeleteCurrentTask() {
       if (currentEditingTaskId === null) return;
-      const target = tasks.find(t => t.id === currentEditingTaskId);
-      if (target) {
-        if (target.isSaved) {
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    // モーダルを閉じる（「戻る」選択時）
+    function closeDeleteModal() {
+      document.getElementById('delete-confirm-modal').classList.add('hidden');
+    }
+
+    // 削除の実行（「削除する」選択時）：isSaved の状態に関わらずゴミ箱へ移動（簡易削除）
+    function executeDeleteCurrentTask() {
+      if (currentEditingTaskId !== null) {
+        const target = tasks.find(t => t.id === currentEditingTaskId);
+        if (target) {
           trashTasks.push(target);
+          tasks = tasks.filter(t => t.id !== currentEditingTaskId && t.parentId !== currentEditingTaskId);
+          saveTasksToStorage();
         }
-        tasks = tasks.filter(t => t.id !== currentEditingTaskId && t.parentId !== currentEditingTaskId);
-        saveTasksToStorage();
+        currentEditingTaskId = null;
       }
-      currentEditingTaskId = null;
+      closeDeleteModal();
       navigateToTop();
     }
 

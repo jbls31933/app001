@@ -1246,7 +1246,7 @@
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
-      document.getElementById('detail-project-label').innerText = `所属プロジェクト：[${rootTask ? (rootTask.title || '（無題）') : 'なし'}]`;
+      document.getElementById('detail-project-label').innerText = `プロジェクト：${rootTask ? (rootTask.title || '（無題）') : 'なし'}`;
 
       const saveBtn = document.getElementById('global-save-btn');
       const updatedAtRow = document.getElementById('detail-updated-at-row');

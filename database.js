@@ -9,9 +9,13 @@ db.version(1).stores({
 export async function runCatchUpProcessing() {
     const now = new Date();
     const allRecords = await db.records.toArray();
-    
+
     for (const record of allRecords) {
-        if (record.deadlineDate && new Date(record.deadlineDate) < now && record.status === 'pending') {
+        if (
+            record.deadlineDate &&
+            new Date(record.deadlineDate) < now &&
+            record.status === 'pending'
+        ) {
             await db.records.update(record.pageID, {
                 status: 'overdue',
                 updatedAt: now.toISOString()

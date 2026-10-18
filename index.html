@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -540,7 +539,7 @@
     <!-- トップページ専用タブナビゲーション -->
     <div id="top-tab-nav-container">
       <nav class="tab-nav">
-        <div class="tab-item active" id="tab-btn-quickstatus" onclick="switchMainTab('quickstatus')">クイックステータス</div>
+        <div class="tab-item active" id="tab-btn-quickstatus" onclick="switchMainTab('quickstatus')">今日のタスク</div>
         <div class="tab-item" id="tab-btn-calendar" onclick="switchMainTab('calendar')">カレンダー</div>
         <div class="tab-item" id="tab-btn-project" onclick="switchMainTab('project')">プロジェクト</div>
       </nav>
@@ -551,7 +550,6 @@
       <!-- 【固定ページ】1. トップページ: タブビュー (task, calendar, project) -->
       <div id="view-quickstatus">
         <div class="card">
-          <h2 class="section-title">本日のクイックステータス</h2>
           <div class="status-group group-expired">
             <div class="status-header"><span>⏰</span> 期限切れ (<span id="count-expired">0</span>件)</div>
             <div class="status-body" id="list-expired"><div class="empty-msg">タスクはありません</div></div>
@@ -620,7 +618,7 @@
       <!-- 【固定ページ】2. view-Q2 -->
       <div id="view-Q2" class="hidden">
         <div class="card">
-          <h2 class="section-title">💡 Q2</h2>
+          <h2 class="section-title">💡 余裕があれば</h2>
           <div id="list-nice" class="space-y-2"><div class="empty-msg">該当する項目はありません</div></div>
         </div>
       </div>
@@ -628,7 +626,7 @@
       <!-- 【固定ページ】3. view-pending -->
       <div id="view-pending" class="hidden">
         <div class="card">
-          <h2 class="section-title">⏸ 保留一覧</h2>
+          <h2 class="section-title">⏸ 保留・下書き一覧</h2>
           <div id="list-pending" class="space-y-2"><div class="empty-msg">保留中の項目はありません</div></div>
         </div>
       </div>
@@ -644,7 +642,7 @@
       <!-- 【固定ページ】5. 設定 -->
       <div id="view-settings" class="hidden">
         <div class="card">
-          <h2 class="section-title">⚙ 設定</h2>
+          <h2 class="section-title">⚙ メニュー</h2>
           <div class="settings-menu-item" onclick="openSettingsPage('settings-help')">📖 使い方 <span>›</span></div>
           <div class="settings-menu-item" onclick="openSettingsPage('settings-theme')">🎨 テーマカラー設定 <span>›</span></div>
           <div class="settings-menu-item" onclick="openSettingsPage('settings-category')">🏷️ カテゴリ設定 <span>›</span></div>
@@ -744,19 +742,19 @@
     <footer class="footer-nav">
       <div class="footer-item" onclick="switchView('Q2')">
         <div class="footer-icon-box">💡</div>
-        <div class="footer-text">Q2</div>
+        <div class="footer-text">余裕があれば</div>
       </div>
       <div class="footer-item" onclick="switchView('pending')">
         <div class="footer-icon-box">⏸</div>
-        <div class="footer-text">保留一覧</div>
+        <div class="footer-text">保留・下書き</div>
       </div>
       <div class="footer-item" onclick="switchView('diary')">
         <div class="footer-icon-box">📖</div>
         <div class="footer-text">日記一覧</div>
       </div>
       <div class="footer-item" onclick="switchView('settings')">
-        <div class="footer-icon-box">⚙</div>
-        <div class="footer-text">設定</div>
+        <div class="footer-icon-box">≡</div>
+        <div class="footer-text">メニュー</div>
       </div>
     </footer>
 
@@ -879,7 +877,6 @@
       function resolve(task) {
         if (!task || resolved.has(task.pageID)) return;
         if (resolving.has(task.pageID)) {
-          // 循環参照がある場合は、無限再帰を避けてこのページを起点にする
           task.parentID = null;
           task.projectID = task.pageID;
           task.path = task.pageID;
@@ -910,7 +907,6 @@
       tasks.forEach(resolve);
     }
 
-    // localStorageへ正式なプロパティ構成で保存
     function saveTasksToStorage() {
       try {
         refreshProjectProperties();
@@ -921,7 +917,6 @@
       }
     }
 
-    // localStorageから読み込み、旧形式の保存データも正式なプロパティ名へ変換
     function loadTasksFromStorage() {
       try {
         const savedTasks = localStorage.getItem('coach_app_tasks');
@@ -1069,7 +1064,6 @@
       return result;
     }
 
-    // 祖先IDのリストを再帰的に取得するヘルパー関数
     function getAncestorIds(taskId, taskList, ancestors = []) {
       const current = taskList.find(t => t.pageID === String(taskId));
       if (!current || current.parentID === null || current.parentID === '') return ancestors;
@@ -1329,7 +1323,6 @@
       }
     }
 
-    // 祖先の日付前後チェックを行い、矛盾がある祖先のタイトルリストを返す関数
     function checkDateConflicts(task) {
       if (task.parentID === null || task.parentID === '') return { invalidDues: [], invalidPlans: [] };
 
@@ -1341,12 +1334,10 @@
         const ancestor = tasks.find(t => t.pageID === String(ancestorId));
         if (!ancestor) return;
 
-        // 期限の比較（子の方が未来なら矛盾）
         if (task.deadlineDate && ancestor.deadlineDate && task.deadlineDate > ancestor.deadlineDate) {
           invalidDues.push(ancestor.title || '（無題の項目）');
         }
 
-        // 完了予定日の比較（子の方が未来なら矛盾）
         if (task.actionDate && ancestor.actionDate && task.actionDate > ancestor.actionDate) {
           invalidPlans.push(ancestor.title || '（無題の項目）');
         }
@@ -1355,17 +1346,14 @@
       return { invalidDues, invalidPlans };
     }
 
-    // 「保存」または「更新」ボタン押下時の処理（日付チェック連携）
     function saveOrUpdateCurrentTask() {
       if (currentEditingTaskId === null) return;
       const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
       if (!task) return;
 
-      // 日付の前後チェックを実行
       const conflicts = checkDateConflicts(task);
 
       if (conflicts.invalidDues.length > 0 || conflicts.invalidPlans.length > 0) {
-        // 矛盾が見つかった場合、警告メッセージを組み立ててポップアップを表示
         let msgParts = [];
         if (conflicts.invalidDues.length > 0) {
           msgParts.push(`「${conflicts.invalidDues.join('、')}」より期限が後の日にち`);
@@ -1377,14 +1365,12 @@
         const warningMsg = `${msgParts.join('、および')}になっていますが、そのまま登録しますか？`;
         document.getElementById('date-warning-message').innerText = warningMsg;
         document.getElementById('date-warning-modal').classList.remove('hidden');
-        return; // ポップアップで確認されるまで一旦処理を中断
+        return;
       }
 
-      // 問題なければそのまま保存処理へ
       executeFinalSave(task);
     }
 
-    // 日付警告ポップアップで「そのまま登録」が押された時の処理
     function executeSaveWithDateWarning() {
       document.getElementById('date-warning-modal').classList.add('hidden');
       const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
@@ -1393,12 +1379,10 @@
       }
     }
 
-    // 日付警告ポップアップで「戻る」が押された時の処理
     function closeDateWarningModal() {
       document.getElementById('date-warning-modal').classList.add('hidden');
     }
 
-    // 実際の保存・更新の確定処理
     function executeFinalSave(task) {
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       const isFirstTime = !task.isSaved;
@@ -1479,7 +1463,6 @@
       }
     }
 
-    // 初期起動時の読み込みと初期化
     loadTasksFromStorage();
     switchView('quickstatus');
     switchProjectSubview('data');

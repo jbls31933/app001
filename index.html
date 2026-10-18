@@ -1094,25 +1094,42 @@
       openDetailView(newId);
     }
 
-    // 「保存」または「更新」ボタンが押された時の処理
+    // 「保存」または「更新」ボタンが押された時の処理（トップに戻らず、その場でポップアップを表示）
     function saveOrUpdateCurrentTask() {
       if (currentEditingTaskId === null) return;
       const task = tasks.find(t => t.id === currentEditingTaskId);
       if (!task) return;
 
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      
+      const isFirstTime = !task.isSaved;
+      
       task.isSaved = true;
       task.updatedAt = nowStr;
 
       saveTasksToStorage();
-      navigateToTop();
+
+      // ボタンの見た目や更新日時エリアをその場で最新の状態に更新
+      const saveBtn = document.getElementById('global-save-btn');
+      saveBtn.innerText = '更新';
+      
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+      updatedAtRow.classList.remove('hidden');
+      updatedAtText.innerText = task.updatedAt;
+
+      // それぞれに応じたポップアップメッセージを表示
+      if (isFirstTime) {
+        alert('保存しました。');
+      } else {
+        alert('更新しました。');
+      }
     }
 
     function updateCurrentTaskField(field, value) {
       const task = tasks.find(t => t.id === currentEditingTaskId);
       if (task) {
         task[field] = value;
-        // 保存済みのものであれば随時ストレージ保存
         if (task.isSaved) {
           saveTasksToStorage();
         }
@@ -1143,7 +1160,6 @@
       if (currentEditingTaskId === null) return;
       const target = tasks.find(t => t.id === currentEditingTaskId);
       if (target) {
-        // 保存済みデータのみゴミ箱（trashTasks）へ移動。未保存はそのまま完全削除。
         if (target.isSaved) {
           trashTasks.push(target);
         }

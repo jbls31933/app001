@@ -1,6 +1,6 @@
 sw.js
 
-const CACHE_NAME = 'task-diary-cache-v1';
+const CACHE_NAME = 'task-diary-cache-v2';
 const ASSETS = [
     './index.html',
     './database.js',

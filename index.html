@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -220,6 +221,8 @@
     .slide-out-right { animation: slideOutToRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
     .slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
     .slide-out-left { animation: slideOutToLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .menu-title-slide-in-right { animation: slideInFromRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .menu-title-slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
     /* メインエリア */
     .main-content {
@@ -997,6 +1000,17 @@
 
     function openSettingsPage(targetView) { switchView(targetView); }
 
+    function animateMenuTitle(direction) {
+      const title = document.getElementById('header-menu-page-title');
+      if (!title) return;
+      title.classList.remove('menu-title-slide-in-right', 'menu-title-slide-in-left');
+      void title.offsetWidth;
+      title.classList.add(direction === 'left' ? 'menu-title-slide-in-left' : 'menu-title-slide-in-right');
+      window.setTimeout(() => {
+        title.classList.remove('menu-title-slide-in-right', 'menu-title-slide-in-left');
+      }, 260);
+    }
+
     function switchView(targetView) {
       if (currentActiveView === targetView) return;
 
@@ -1075,6 +1089,9 @@
         subGroup.classList.add('hidden');
         logo.classList.add('hidden');
         document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+        if (SETTINGS_SUBPAGES.includes(targetView) && previousView === 'settings') {
+          animateMenuTitle('right');
+        }
       } else {
         menuSubGroup.classList.add('hidden');
         subGroup.classList.remove('hidden');
@@ -1154,27 +1171,75 @@
         target = 'quickstatus';
       }
 
-      if (TOP_TABS.includes(target)) {
-        switchViewDirect(target);
+      const currentEl = document.getElementById('view-' + currentActiveView);
+      const targetEl = document.getElementById('view-' + target);
+      if (!currentEl || !targetEl) {
+        switchView(target);
         return;
       }
 
-      const currentEl = document.getElementById('view-' + currentActiveView);
-      const targetEl = document.getElementById('view-' + target);
+      // 戻り先を背面に固定し、現在のページだけを右へスライドさせる。
+      const mainContent = document.querySelector('.main-content');
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el && el !== currentEl && el !== targetEl) {
+          el.classList.add('hidden');
+          el.classList.remove('slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
+        }
+      });
 
-      if (currentEl && targetEl) {
-        currentEl.classList.remove('slide-in-right', 'slide-in-left');
-        currentEl.classList.add('slide-out-right');
-        targetEl.classList.remove('hidden', 'slide-in-right', 'slide-in-left');
+      // トップ画面へ戻る場合、タブ選択バーはスライド開始時点で表示する。
+      // アニメーション終了後まで隠しておくと、バーだけ遅れて現れるため。
+      if (TOP_TABS.includes(target)) {
+        const tabNav = document.getElementById('top-tab-nav-container');
+        tabNav.classList.remove('hidden');
+        TOP_TABS.forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === target) ? 'tab-item active' : 'tab-item';
+        });
 
-        setTimeout(() => {
-          currentEl.classList.add('hidden');
-          currentEl.classList.remove('slide-out-right');
-          switchViewDirect(target);
-        }, 220);
-      } else {
-        switchView(target);
+        // ヘッダーロゴも戻るアニメーションの開始時点で表示し、遅れて現れないようにする。
+        document.getElementById('header-menu-sub-group').classList.add('hidden');
+        document.getElementById('header-sub-group').classList.add('hidden');
+        document.getElementById('global-logo').classList.remove('hidden');
       }
+
+      const previousMainPosition = mainContent.style.position;
+      mainContent.style.position = 'relative';
+      [targetEl, currentEl].forEach(el => {
+        el.style.position = 'absolute';
+        el.style.top = '16px';
+        el.style.left = '16px';
+        el.style.right = '16px';
+        el.style.width = 'auto';
+      });
+      targetEl.style.zIndex = '1';
+      currentEl.style.zIndex = '2';
+
+      currentEl.classList.remove('hidden', 'slide-in-right', 'slide-in-left', 'slide-out-left', 'slide-out-right');
+      currentEl.classList.add('slide-out-right');
+      targetEl.classList.remove('hidden', 'slide-in-right', 'slide-out-right', 'slide-out-left', 'slide-in-left');
+
+      if (target === 'settings') {
+        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES.settings;
+        animateMenuTitle('left');
+      }
+
+      window.setTimeout(() => {
+        currentEl.classList.add('hidden');
+        currentEl.classList.remove('slide-out-right', 'slide-in-right', 'slide-in-left');
+        targetEl.classList.remove('slide-in-left', 'slide-in-right', 'slide-out-right', 'slide-out-left');
+        [targetEl, currentEl].forEach(el => {
+          el.style.position = '';
+          el.style.top = '';
+          el.style.left = '';
+          el.style.right = '';
+          el.style.width = '';
+          el.style.zIndex = '';
+        });
+        mainContent.style.position = previousMainPosition;
+        switchViewDirect(target);
+      }, 250);
     }
 
     function switchViewDirect(targetView) {

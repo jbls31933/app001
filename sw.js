@@ -1,11 +1,11 @@
-const CACHE_NAME = 'coach-cache-v4';
+const CACHE_NAME = 'coach-cache-v5';
 
 const APP_SHELL = [
   './',
   './index.html',
   './database.js',
   './manifest.json',
-  './assets/icons.svg'
+  './icons.svg'
 ];
 
 self.addEventListener('install', event => {

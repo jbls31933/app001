@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>更新を確認中</title>
+</head>
+<body>
+  <p>最新版を読み込んでいます…</p>
+
+  <script>
+    (async () => {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(registration => registration.unregister()));
+      }
+
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+      }
+
+      location.replace('./index.html?dev=' + Date.now());
+    })().catch(error => {
+      document.body.innerHTML = '<p>初期化に失敗しました。<br>' + error.message + '</p>';
+    });
+  </script>
+</body>
+</html>

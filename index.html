@@ -226,8 +226,13 @@
 
     /* メインエリア */
     .main-content {
-      flex: 1;
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-x: hidden;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -548,7 +553,9 @@
     }
 
     .main-content {
-      padding-bottom: 112px;
+      /* 浮いたフッターの下にコンテンツが隠れないよう、スクロール領域の末尾に余白を確保 */
+      padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+      scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
     }
 
     .completed-title {

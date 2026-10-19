@@ -657,6 +657,54 @@
       font-weight: bold;
       cursor: pointer;
     }
+
+    /* 画面を「上部 / メイン / 下部」の4行に固定する */
+    .app-container {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* ヘッダー */
+    .header {
+      min-height: 70px;
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+      padding-bottom: 16px;
+    }
+
+    /* トップ画面のタブ。非表示なら高さは自動で0になる */
+    #top-tab-nav-container {
+      min-height: 0;
+    }
+
+    /* 各ページの本体。ここだけをスクロールさせる */
+    .main-content {
+      display: block;
+      min-height: 0;
+      height: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      padding: 16px;
+    }
+
+    /* フッターをabsoluteではなく、画面下の通常行に置く */
+    .footer-nav {
+      position: static;
+      left: auto;
+      bottom: auto;
+      width: auto;
+      margin: 8px 5.5% calc(12px + env(safe-area-inset-bottom, 0px));
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -1815,71 +1863,23 @@
     switchProjectSubview('data');
     switchCalendarMode('due');
 
-    // メイン領域に実際のスクロール量がない時だけ、iPhoneのバウンドを止める。
-    // 内容が領域を超えている時は何も止めないため、通常どおりスクロールできる。
-    const mainContent = document.querySelector('.main-content');
-
-    function hasScrollableMainContent() {
-      return mainContent.scrollHeight > mainContent.clientHeight + 1;
-    }
-
-    function hasScrollableChild(target) {
-      let element = target instanceof Element ? target : null;
-
-      while (element && element !== mainContent) {
-        const overflowY = window.getComputedStyle(element).overflowY;
-        if (
-          (overflowY === 'auto' || overflowY === 'scroll') &&
-          element.scrollHeight > element.clientHeight + 1
-        ) {
-          return true;
-        }
-        element = element.parentElement;
-      }
-
-      return false;
-    }
-
-    mainContent.addEventListener('touchmove', event => {
-      if (!hasScrollableMainContent() && !hasScrollableChild(event.target)) {
-        event.preventDefault();
-      }
-    }, { passive: false });
+    // 新しいサービスワーカーが有効になった時だけ、最新版を表示するために一度再読み込みする。
     if ('serviceWorker' in navigator) {
-  let isReloadingForUpdate = false;
+      let isReloadingForUpdate = false;
 
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!isReloadingForUpdate) {
-      isReloadingForUpdate = true;
-      window.location.reload();
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!isReloadingForUpdate) {
+          isReloadingForUpdate = true;
+          window.location.reload();
+        }
+      });
+
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(registration => registration.update())
+          .catch(error => console.error('Service worker registration failed:', error));
+      });
     }
-  });
-
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => registration.update())
-      .catch(error =>
-        console.error('Service worker registration failed:', error)
-      );
-  });
-}
-    const BUILD_ID = 'DEV-2026-10-19-1730';
-
-const devBadge = document.createElement('div');
-devBadge.textContent = BUILD_ID;
-devBadge.style.cssText = `
-  position: fixed;
-  right: 8px;
-  bottom: 8px;
-  z-index: 9999;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #dc2626;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: bold;
-`;
-document.body.appendChild(devBadge);
   </script>
 </body>
 </html>

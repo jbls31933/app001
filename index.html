@@ -385,25 +385,68 @@
       margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
       color: #1e293b;
+    }
+
+    .memo-card-title-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .memo-expand-button {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .memo-expand-button:active {
+      background: #f1f5f9;
     }
 
     .memo-textarea {
       width: 100%;
-      height: 90px;
+      min-height: 90px;
       padding: 8px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       resize: none;
       outline: none;
       background-color: #f8fafc;
+      overflow: hidden;
     }
 
     .memo-help {
       font-size: 11px;
       color: #64748b;
       margin-top: 6px;
+    }
+
+    .display-setting-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      color: #334155;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .display-setting-option + .display-setting-option {
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .display-setting-option input {
+      width: 18px;
+      height: 18px;
+      accent-color: #2563eb;
     }
 
     .tree-card {
@@ -812,7 +855,7 @@
             <span>›</span>
           </div>
           <div class="settings-menu-item" onclick="openSettingsPage('settings-theme')">
-            <div class="menu-item-content"><span>🎨</span> <span>テーマカラー設定</span></div>
+            <div class="menu-item-content"><span>🎨</span> <span>表示設定</span></div>
             <span>›</span>
           </div>
           <div class="settings-menu-item" onclick="openSettingsPage('settings-category')">
@@ -851,7 +894,19 @@
 
       <!-- 設定内の各項目ページ -->
       <div id="view-settings-help" class="hidden settings-subpage"><div class="card"><div class="empty-msg">使い方ページ</div></div></div>
-      <div id="view-settings-theme" class="hidden settings-subpage"><div class="card"><div class="empty-msg">テーマカラー設定</div></div></div>
+      <div id="view-settings-theme" class="hidden settings-subpage">
+        <div class="card">
+          <div class="section-title">メモの初期表示</div>
+          <label class="display-setting-option">
+            <input type="radio" name="memo-default-expanded" value="open" onchange="setMemoDefaultExpanded(true)">
+            <span>開く</span>
+          </label>
+          <label class="display-setting-option">
+            <input type="radio" name="memo-default-expanded" value="closed" onchange="setMemoDefaultExpanded(false)">
+            <span>隠す</span>
+          </label>
+        </div>
+      </div>
       <div id="view-settings-category" class="hidden settings-subpage"><div class="card"><div class="empty-msg">カテゴリ設定</div></div></div>
       <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><div class="empty-msg">メール通知設定</div></div></div>
       <div id="view-action-templates" class="hidden settings-subpage"><div class="card"><div class="empty-msg">アクションテンプレートはまだ登録されていません</div></div></div>
@@ -903,9 +958,14 @@
         </div>
 
         <div class="card">
-          <div class="memo-card-title"><span>📄</span> Memo & Details</div>
-          <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
-          <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ ❓</div>
+          <div class="memo-card-title">
+            <div class="memo-card-title-label"><span>📄</span> Memo & Details</div>
+            <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true">⌃</button>
+          </div>
+          <div id="memo-content">
+            <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
+            <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ ❓</div>
+          </div>
         </div>
 
         <div class="tree-card">
@@ -976,6 +1036,7 @@
     let previousView = 'quickstatus';
     let currentProjectSubview = 'data';
     let currentCalendarMode = 'due';
+    let displaySettings = { memoDefaultExpanded: true };
 
     const SETTINGS_SUBPAGES = ['settings-help', 'settings-theme', 'settings-category', 'settings-email', 'settings-backup', 'settings-terms', 'action-templates'];
     const ALL_VIEWS = ['quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
@@ -986,13 +1047,40 @@
       'settings': 'メニュー',
       'trash': '最近削除した項目',
       'settings-help': '使い方',
-      'settings-theme': 'テーマカラー設定',
+      'settings-theme': '表示設定',
       'settings-category': 'カテゴリ設定',
       'settings-email': 'メール通知設定',
       'action-templates': 'アクションテンプレート',
       'settings-backup': 'データのバックアップ・復元',
       'settings-terms': '規約'
     };
+
+    function loadDisplaySettings() {
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem('coach_app_display_settings') || '{}');
+        displaySettings.memoDefaultExpanded = savedSettings.memoDefaultExpanded !== false;
+      } catch (e) {
+        displaySettings = { memoDefaultExpanded: true };
+      }
+      syncDisplaySettingsUI();
+    }
+
+    function saveDisplaySettings() {
+      localStorage.setItem('coach_app_display_settings', JSON.stringify(displaySettings));
+    }
+
+    function syncDisplaySettingsUI() {
+      const openOption = document.querySelector('input[name="memo-default-expanded"][value="open"]');
+      const closedOption = document.querySelector('input[name="memo-default-expanded"][value="closed"]');
+      if (openOption) openOption.checked = displaySettings.memoDefaultExpanded;
+      if (closedOption) closedOption.checked = !displaySettings.memoDefaultExpanded;
+    }
+
+    function setMemoDefaultExpanded(expanded) {
+      displaySettings.memoDefaultExpanded = expanded;
+      saveDisplaySettings();
+      syncDisplaySettingsUI();
+    }
 
     function normalizeRecord(record, fallbackId) {
       const pageID = String(record.pageID ?? record.id ?? fallbackId);
@@ -1606,6 +1694,7 @@
       document.getElementById('detail-memo-input').value = task.taskMemo || '';
       document.getElementById('detail-due-date-input').value = task.deadlineDate || '';
       document.getElementById('detail-plan-date-input').value = task.actionDate || '';
+      setMemoExpanded(displaySettings.memoDefaultExpanded);
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
@@ -1676,10 +1765,40 @@
       openDetailView(newId);
     }
 
+    function resizeMemoTextarea() {
+      const memoInput = document.getElementById('detail-memo-input');
+      if (!memoInput) return;
+
+      memoInput.style.height = 'auto';
+      memoInput.style.height = `${Math.max(90, memoInput.scrollHeight)}px`;
+    }
+
+    function setMemoExpanded(expanded) {
+      const memoContent = document.getElementById('memo-content');
+      const toggleButton = document.getElementById('memo-toggle-button');
+      if (!memoContent || !toggleButton) return;
+
+      memoContent.classList.toggle('hidden', !expanded);
+      toggleButton.textContent = expanded ? '⌃' : '⌄';
+      toggleButton.setAttribute('aria-expanded', String(expanded));
+      toggleButton.setAttribute('aria-label', expanded ? 'メモを隠す' : 'メモを開く');
+
+      if (expanded) window.requestAnimationFrame(resizeMemoTextarea);
+    }
+
+    function toggleMemoExpanded() {
+      const memoContent = document.getElementById('memo-content');
+      if (!memoContent) return;
+      setMemoExpanded(memoContent.classList.contains('hidden'));
+    }
+
     function updateCurrentTaskField(field, value) {
       const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
       if (task) {
         task[field] = value;
+        if (field === 'taskMemo') {
+          resizeMemoTextarea();
+        }
         if (task.isSaved) {
           saveTasksToStorage();
         }
@@ -1826,6 +1945,7 @@
       }
     }
 
+    loadDisplaySettings();
     loadTasksFromStorage();
     // アプリ起動時は画面遷移アニメーションを行わず、今日のタスクを直接表示する。
     switchViewDirect('quickstatus');
@@ -1834,7 +1954,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-    const BUILD_CREATED_AT = '2026.10.19 17:56:04';
+    const BUILD_CREATED_AT = '2026.10.19 22:17:39';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

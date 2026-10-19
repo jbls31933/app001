@@ -1778,6 +1778,7 @@
           tasks = tasks.filter(t => t.pageID === target.pageID || t.parentID !== target.pageID);
           saveTasksToStorage();
         }
+        
         currentEditingTaskId = null;
       }
       closeDeleteModal();

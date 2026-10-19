@@ -224,6 +224,30 @@
     .menu-title-slide-in-right { animation: slideInFromRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
     .menu-title-slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+    .back-transition-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #e8f1f8;
+      pointer-events: none;
+      animation: slideOutToRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .back-transition-header {
+      flex: 0 0 auto;
+    }
+
+    .back-transition-main {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
     /* メインエリア */
     .main-content {
       flex: 1 1 0;
@@ -571,8 +595,10 @@
 
     /* ヘッダーとタブは固定し、コンテンツ領域だけをスクロールさせる */
     .header,
-    #top-tab-nav-container {
+    #top-tab-nav-container,
+    .footer-nav {
       flex: 0 0 auto;
+      touch-action: none;
     }
 
     .header {
@@ -690,6 +716,7 @@
       min-height: 0;
       padding: 0;
       overflow: hidden;
+      overscroll-behavior: none;
     }
 
     /* ヘッダー */
@@ -712,7 +739,7 @@
       overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain;
+      overscroll-behavior: none;
       touch-action: pan-y;
       padding: 16px;
     }
@@ -1039,6 +1066,7 @@
     let displaySettings = { memoDefaultExpanded: true };
 
     const SETTINGS_SUBPAGES = ['settings-help', 'settings-theme', 'settings-category', 'settings-email', 'settings-backup', 'settings-terms', 'action-templates'];
+    const FOOTER_HIDDEN_VIEWS = ['settings', ...SETTINGS_SUBPAGES];
     const ALL_VIEWS = ['quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
     
     const TOP_TABS = ['quickstatus', 'calendar', 'project'];
@@ -1054,6 +1082,42 @@
       'settings-backup': 'データのバックアップ・復元',
       'settings-terms': '規約'
     };
+
+    function createBackTransitionOverlay(currentEl, currentScrollTop) {
+      const appContainer = document.querySelector('.app-container');
+      const header = document.querySelector('.header');
+      const tabNav = document.getElementById('top-tab-nav-container');
+      const overlay = document.createElement('div');
+      const headerClone = header.cloneNode(true);
+      const mainClone = document.createElement('main');
+      const pageClone = currentEl.cloneNode(true);
+
+      [headerClone, pageClone].forEach(element => {
+        element.removeAttribute('id');
+        element.querySelectorAll('[id]').forEach(child => child.removeAttribute('id'));
+      });
+
+      // 押した戻るボタンは遷移用の元ページから消す。
+      headerClone.querySelectorAll('.top-nav-link').forEach(button => button.remove());
+      pageClone.classList.remove('hidden', 'slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
+      headerClone.classList.add('back-transition-header');
+      mainClone.className = 'main-content back-transition-main';
+      mainClone.appendChild(pageClone);
+      mainClone.scrollTop = currentScrollTop;
+
+      overlay.className = 'back-transition-overlay';
+      overlay.appendChild(headerClone);
+
+      if (!tabNav.classList.contains('hidden')) {
+        const tabClone = tabNav.cloneNode(true);
+        tabClone.removeAttribute('id');
+        tabClone.querySelectorAll('[id]').forEach(child => child.removeAttribute('id'));
+        overlay.appendChild(tabClone);
+      }
+
+      overlay.appendChild(mainClone);
+      return { appContainer, overlay };
+    }
 
     function loadDisplaySettings() {
       try {
@@ -1254,7 +1318,7 @@
       }
 
       const footerNav = document.getElementById('global-footer');
-      if (SETTINGS_SUBPAGES.includes(targetView)) {
+      if (FOOTER_HIDDEN_VIEWS.includes(targetView)) {
         footerNav.classList.add('hidden');
       } else {
         footerNav.classList.remove('hidden');
@@ -1364,68 +1428,23 @@
         return;
       }
 
-      // 戻り先を背面に固定し、現在のページだけを右へスライドさせる。
+      // 戻り先はその場で通常表示し、元ページの見た目だけを上から右へ抜けさせる。
       const mainContent = document.querySelector('.main-content');
-      ALL_VIEWS.forEach(v => {
-        const el = document.getElementById('view-' + v);
-        if (el && el !== currentEl && el !== targetEl) {
-          el.classList.add('hidden');
-          el.classList.remove('slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
-        }
-      });
+      const { appContainer, overlay } = createBackTransitionOverlay(currentEl, mainContent.scrollTop);
 
-      // トップ画面へ戻る場合、タブ選択バーはスライド開始時点で表示する。
-      // アニメーション終了後まで隠しておくと、バーだけ遅れて現れるため。
-      if (TOP_TABS.includes(target)) {
-        const tabNav = document.getElementById('top-tab-nav-container');
-        tabNav.classList.remove('hidden');
-        TOP_TABS.forEach(name => {
-          const btn = document.getElementById('tab-btn-' + name);
-          if (btn) btn.className = (name === target) ? 'tab-item active' : 'tab-item';
-        });
+      switchViewDirect(target);
 
-        // ヘッダーロゴも戻るアニメーションの開始時点で表示し、遅れて現れないようにする。
-        document.getElementById('header-menu-sub-group').classList.add('hidden');
-        document.getElementById('header-sub-group').classList.add('hidden');
-        document.getElementById('global-logo').classList.remove('hidden');
+      const footerNav = document.getElementById('global-footer');
+      if (footerNav.classList.contains('hidden')) {
+        overlay.style.bottom = '0';
+      } else {
+        const appRect = appContainer.getBoundingClientRect();
+        const footerRect = footerNav.getBoundingClientRect();
+        overlay.style.bottom = `${Math.max(0, appRect.bottom - footerRect.top)}px`;
       }
 
-      const previousMainPosition = mainContent.style.position;
-      mainContent.style.position = 'relative';
-      [targetEl, currentEl].forEach(el => {
-        el.style.position = 'absolute';
-        el.style.top = '16px';
-        el.style.left = '16px';
-        el.style.right = '16px';
-        el.style.width = 'auto';
-      });
-      targetEl.style.zIndex = '1';
-      currentEl.style.zIndex = '2';
-
-      currentEl.classList.remove('hidden', 'slide-in-right', 'slide-in-left', 'slide-out-left', 'slide-out-right');
-      currentEl.classList.add('slide-out-right');
-      targetEl.classList.remove('hidden', 'slide-in-right', 'slide-out-right', 'slide-out-left', 'slide-in-left');
-
-      if (target === 'settings') {
-        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES.settings;
-        animateMenuTitle('left');
-      }
-
-      window.setTimeout(() => {
-        currentEl.classList.add('hidden');
-        currentEl.classList.remove('slide-out-right', 'slide-in-right', 'slide-in-left');
-        targetEl.classList.remove('slide-in-left', 'slide-in-right', 'slide-out-right', 'slide-out-left');
-        [targetEl, currentEl].forEach(el => {
-          el.style.position = '';
-          el.style.top = '';
-          el.style.left = '';
-          el.style.right = '';
-          el.style.width = '';
-          el.style.zIndex = '';
-        });
-        mainContent.style.position = previousMainPosition;
-        switchViewDirect(target);
-      }, 250);
+      appContainer.appendChild(overlay);
+      window.setTimeout(() => overlay.remove(), 250);
     }
 
     function switchViewDirect(targetView) {
@@ -1452,7 +1471,7 @@
       }
 
       const footerNav = document.getElementById('global-footer');
-      if (SETTINGS_SUBPAGES.includes(targetView)) {
+      if (FOOTER_HIDDEN_VIEWS.includes(targetView)) {
         footerNav.classList.add('hidden');
       } else {
         footerNav.classList.remove('hidden');
@@ -1952,9 +1971,54 @@
     switchProjectSubview('data');
     switchCalendarMode('due');
 
+    // メイン領域に収まるページは動かさず、長いページだけ縦スクロールする。
+    const mainContent = document.querySelector('.main-content');
+    const appContainer = document.querySelector('.app-container');
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    mainContent.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) return;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    }, { passive: true });
+
+    mainContent.addEventListener('touchmove', event => {
+      if (event.touches.length !== 1 || !event.cancelable) return;
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      // 横方向のドラッグではページを動かさない。
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        event.preventDefault();
+        return;
+      }
+
+      const maxScrollTop = mainContent.scrollHeight - mainContent.clientHeight;
+      // 内容が画面内に収まる場合は、上下のバウンドも発生させない。
+      if (maxScrollTop <= 1) {
+        event.preventDefault();
+        return;
+      }
+
+      const isPullingDownAtTop = deltaY > 0 && mainContent.scrollTop <= 0;
+      const isPushingUpAtBottom = deltaY < 0 && mainContent.scrollTop >= maxScrollTop - 1;
+      if (isPullingDownAtTop || isPushingUpAtBottom) {
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    // ヘッダー・タブ・フッターをドラッグしても、アプリ全体を上下左右へ動かさない。
+    appContainer.addEventListener('touchmove', event => {
+      if (!event.cancelable || event.target.closest('.main-content')) return;
+      event.preventDefault();
+    }, { passive: false });
+
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-    const BUILD_CREATED_AT = '2026.10.19 22:17:39';
+    const BUILD_CREATED_AT = '2026.10.19 22:43:06';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

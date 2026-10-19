@@ -23,23 +23,19 @@
       font-size: 16px !important;
     }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
     body {
       background-color: #e8f1f8;
       color: #333333;
       display: flex;
       justify-content: center;
-      min-height: 100vh;
-      min-height: 100dvh;
+      height: 100vh;
+      height: 100dvh;
       margin: 0;
+      overflow: hidden;
       overscroll-behavior: none;
-      position: relative;
+      position: fixed;
+      width: 100%;
+      touch-action: pan-y;
     }
 
     .app-container {
@@ -50,7 +46,6 @@
       flex-direction: column;
       height: 100vh;
       height: 100dvh;
-      min-height: 0;
       overflow: hidden;
       position: relative;
     }
@@ -504,16 +499,15 @@
 
     /* iPhoneのホーム画面追加（PWA）向けのヘッダー・フッター調整 */
     .app-container {
-      /* セーフエリアはヘッダーとフッター側で処理し、二重加算を防ぐ */
-      padding-top: 0;
-      padding-bottom: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      min-height: 0;
     }
 
     /* ヘッダーとタブは固定し、コンテンツ領域だけをスクロールさせる */
     .header,
     #top-tab-nav-container {
       flex: 0 0 auto;
-      min-height: 0;
     }
 
     .header {
@@ -566,12 +560,12 @@
     }
 
     .main-content {
-      /* ヘッダー・タブと画面下端の間だけをスクロール領域にする */
-      flex: 1 1 auto;
-      height: auto;
+      /* 画面内にスクロール領域を固定し、タスクが増えてもこの中だけをスクロール */
+      flex: 1 1 0%;
+      height: 0;
       min-height: 0;
       overflow-x: hidden;
-      overflow-y: auto;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: contain;
       touch-action: pan-y;
@@ -1820,6 +1814,37 @@
     switchViewDirect('quickstatus');
     switchProjectSubview('data');
     switchCalendarMode('due');
+
+    // メイン領域に実際のスクロール量がない時だけ、iPhoneのバウンドを止める。
+    // 内容が領域を超えている時は何も止めないため、通常どおりスクロールできる。
+    const mainContent = document.querySelector('.main-content');
+
+    function hasScrollableMainContent() {
+      return mainContent.scrollHeight > mainContent.clientHeight + 1;
+    }
+
+    function hasScrollableChild(target) {
+      let element = target instanceof Element ? target : null;
+
+      while (element && element !== mainContent) {
+        const overflowY = window.getComputedStyle(element).overflowY;
+        if (
+          (overflowY === 'auto' || overflowY === 'scroll') &&
+          element.scrollHeight > element.clientHeight + 1
+        ) {
+          return true;
+        }
+        element = element.parentElement;
+      }
+
+      return false;
+    }
+
+    mainContent.addEventListener('touchmove', event => {
+      if (!hasScrollableMainContent() && !hasScrollableChild(event.target)) {
+        event.preventDefault();
+      }
+    }, { passive: false });
   </script>
 </body>
 </html>

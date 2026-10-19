@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>COACH（コーチ）</title>
   <link rel="manifest" href="manifest.json">
   <style>
@@ -490,6 +490,65 @@
       color: #334155;
       line-height: 1.2;
       font-weight: bold;
+    }
+
+    /* iPhoneのホーム画面追加（PWA）向けのヘッダー・フッター調整 */
+    .app-container {
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .header {
+      padding-top: calc(20px + env(safe-area-inset-top, 0px));
+      padding-bottom: 20px;
+    }
+
+    .footer-nav {
+      position: absolute;
+      z-index: 30;
+      left: 5.5%;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      width: 89%;
+      padding: 7px 5px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .footer-item {
+      width: 25%;
+      min-width: 0;
+      padding: 4px 1px;
+      border-radius: 999px;
+      gap: 1px;
+    }
+
+    .footer-item:active {
+      background: #eef0f2;
+    }
+
+    .footer-icon-box {
+      width: auto;
+      height: 30px;
+      min-width: 34px;
+      margin-bottom: 1px;
+      padding: 0 5px;
+      background: transparent;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 21px;
+    }
+
+    .footer-text {
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .main-content {
+      padding-bottom: 112px;
     }
 
     .completed-title {
@@ -1729,8 +1788,8 @@
     }
 
     loadTasksFromStorage();
-    switchView('project');
-    switchView('quickstatus');
+    // アプリ起動時は画面遷移アニメーションを行わず、今日のタスクを直接表示する。
+    switchViewDirect('quickstatus');
     switchProjectSubview('data');
     switchCalendarMode('due');
   </script>

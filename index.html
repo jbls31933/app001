@@ -1,4 +1,4 @@
-
+v
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -460,41 +460,63 @@
       gap: 10px;
     }
 
+    /* 全ページ共通フッター
+       設定内のサブ項目だけJavaScriptで .hidden を付けて非表示にする */
     .footer-nav {
+      grid-row: 4;
       display: flex;
+      flex: 0 0 auto;
+      justify-self: center;
       justify-content: space-around;
-      padding: 12px 8px;
-      background-color: #e8f1f8;
-      border-top: 1px solid #cbd5e1;
+      width: 89%;
+      margin: 8px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+      padding: 7px 5px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .footer-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 22%;
+      width: 25%;
+      min-width: 0;
+      padding: 4px 1px;
+      border-radius: 999px;
+      gap: 1px;
       text-align: center;
       cursor: pointer;
     }
 
+    .footer-item:active {
+      background: #eef0f2;
+    }
+
     .footer-icon-box {
-      width: 44px;
-      height: 44px;
-      background-color: #94a3b8;
-      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
-      font-size: 20px;
-      margin-bottom: 4px;
+      width: auto;
+      min-width: 34px;
+      height: 30px;
+      margin-bottom: 1px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: transparent;
+      color: #334155;
+      font-size: 21px;
     }
 
     .footer-text {
-      font-size: 10px;
       color: #334155;
-      line-height: 1.2;
+      font-size: 10px;
       font-weight: bold;
+      line-height: 1.2;
+      white-space: nowrap;
     }
 
     /* iPhoneのホーム画面追加（PWA）向けのヘッダー・フッター調整 */
@@ -513,50 +535,6 @@
     .header {
       padding-top: calc(20px + env(safe-area-inset-top, 0px));
       padding-bottom: 20px;
-    }
-
-    .footer-nav {
-      position: absolute;
-      z-index: 30;
-      left: 5.5%;
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-      width: 89%;
-      padding: 7px 5px;
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .footer-item {
-      width: 25%;
-      min-width: 0;
-      padding: 4px 1px;
-      border-radius: 999px;
-      gap: 1px;
-    }
-
-    .footer-item:active {
-      background: #eef0f2;
-    }
-
-    .footer-icon-box {
-      width: auto;
-      height: 30px;
-      min-width: 34px;
-      margin-bottom: 1px;
-      padding: 0 5px;
-      background: transparent;
-      border-radius: 999px;
-      color: #334155;
-      font-size: 21px;
-    }
-
-    .footer-text {
-      font-size: 10px;
-      white-space: nowrap;
     }
 
     .main-content {
@@ -696,15 +674,6 @@
       padding: 16px;
     }
 
-    /* フッターをabsoluteではなく、画面下の通常行に置く */
-    .footer-nav {
-      position: static;
-      left: auto;
-      bottom: auto;
-      width: auto;
-      margin: 8px 5.5% calc(12px + env(safe-area-inset-bottom, 0px));
-      flex-shrink: 0;
-    }
   </style>
 </head>
 <body>
@@ -1862,6 +1831,28 @@
     switchViewDirect('quickstatus');
     switchProjectSubview('data');
     switchCalendarMode('due');
+
+    // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
+    const devBadge = document.createElement('div');
+    const BUILD_CREATED_AT = '2026.10.19 17:56:04';
+
+    devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
+    devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
+    devBadge.style.cssText = [
+      'position:fixed',
+      'right:8px',
+      'top:calc(8px + env(safe-area-inset-top, 0px))',
+      'z-index:9999',
+      'padding:4px 8px',
+      'border-radius:999px',
+      'background:#dc2626',
+      'color:#ffffff',
+      'font-size:10px',
+      'font-weight:700',
+      'line-height:1',
+      'pointer-events:none'
+    ].join(';');
+    document.body.appendChild(devBadge);
 
     // 新しいサービスワーカーが有効になった時だけ、最新版を表示するために一度再読み込みする。
     if ('serviceWorker' in navigator) {

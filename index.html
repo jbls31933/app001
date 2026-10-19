@@ -1863,6 +1863,23 @@
       );
   });
 }
+    const BUILD_ID = 'DEV-2026-10-19-1730';
+
+const devBadge = document.createElement('div');
+devBadge.textContent = BUILD_ID;
+devBadge.style.cssText = `
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  z-index: 9999;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: bold;
+`;
+document.body.appendChild(devBadge);
   </script>
 </body>
 </html>

@@ -437,6 +437,7 @@
 
     .memo-textarea {
       width: 100%;
+      height: 90px;
       min-height: 90px;
       padding: 8px;
       border: 1px solid #cbd5e1;
@@ -445,6 +446,13 @@
       outline: none;
       background-color: #f8fafc;
       overflow: hidden;
+      overflow-anchor: none;
+    }
+
+    .memo-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
     }
 
     .memo-help {
@@ -477,7 +485,7 @@
       border: 1px solid #93c5fd;
       border-radius: 12px;
       overflow: hidden;
-      margin-top: 4px;
+      margin-top: 16px;
     }
 
     .tree-header {
@@ -982,22 +990,22 @@
             <div class="datetime-label"><span>📅</span> 対応予定日</div>
             <input type="date" id="detail-plan-date-input" class="date-input-field" onchange="updateCurrentTaskField('actionDate', this.value)">
           </div>
-        </div>
 
-        <div class="card">
-          <div class="memo-card-title">
-            <div class="memo-card-title-label"><span>📄</span> Memo & Details</div>
-            <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true">⌃</button>
+          <div class="memo-section">
+            <div class="memo-card-title">
+              <div class="memo-card-title-label"><span>📄</span> Memo & Details</div>
+              <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true">⌃</button>
+            </div>
+            <div id="memo-content">
+              <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
+              <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ ❓</div>
+            </div>
           </div>
-          <div id="memo-content">
-            <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
-            <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ ❓</div>
-          </div>
-        </div>
 
-        <div class="tree-card">
-          <div class="tree-header"><span>≡</span> 同一プロジェクトの全項目 (ツリー形式)</div>
-          <div id="detail-tree-list"></div>
+          <div class="tree-card">
+            <div class="tree-header"><span>≡</span> 同一プロジェクトの全項目 (ツリー形式)</div>
+            <div id="detail-tree-list"></div>
+          </div>
         </div>
       </div>
 
@@ -1788,8 +1796,12 @@
       const memoInput = document.getElementById('detail-memo-input');
       if (!memoInput) return;
 
-      memoInput.style.height = 'auto';
-      memoInput.style.height = `${Math.max(90, memoInput.scrollHeight)}px`;
+      const defaultHeight = 90;
+      memoInput.style.height = `${defaultHeight}px`;
+
+      if (memoInput.scrollHeight > defaultHeight) {
+        memoInput.style.height = `${memoInput.scrollHeight}px`;
+      }
     }
 
     function setMemoExpanded(expanded) {
@@ -2018,7 +2030,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-    const BUILD_CREATED_AT = '2026.10.19 22:43:06';
+    const BUILD_CREATED_AT = '2026.10.19 22:52:17';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

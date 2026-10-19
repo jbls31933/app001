@@ -1,24 +1,56 @@
-sw.js
+const CACHE_NAME = 'coach-cache-v2';
 
-const CACHE_NAME = 'task-diary-cache-v2';
-const ASSETS = [
-    './index.html',
-    './database.js',
-    './manifest.json'
+const APP_SHELL = [
+  './',
+  './index.html',
+  './database.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS);
-        })
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(cacheNames => Promise.all(
+        cacheNames
+          .filter(cacheName =>
+            cacheName.startsWith('coach-cache-') &&
+            cacheName !== CACHE_NAME
+          )
+          .map(cacheName => caches.delete(cacheName))
+      ))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
+  if (event.request.method !== 'GET') return;
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response.ok) {
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, response.clone());
+          });
+        }
+        return response;
+      })
+      .catch(() =>
+        caches.match(event.request)
+          .then(cachedResponse =>
+            cachedResponse || caches.match('./index.html')
+          )
+      )
+  );
 });

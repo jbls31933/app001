@@ -745,11 +745,21 @@
       min-height: 0;
       height: auto;
       overflow-x: hidden;
+      overflow-y: hidden;
+      overscroll-behavior: none;
+      padding: 16px;
+    }
+
+    /* 上部の余白より内側を、実際のスクロールと見切れの開始位置にする */
+    .main-scroll-area {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: none;
       touch-action: pan-y;
-      padding: 16px;
     }
 
   </style>
@@ -796,6 +806,7 @@
 
     <!-- メインコンテンツ領域 -->
     <main class="main-content">
+      <div class="main-scroll-area">
       <!-- 【固定ページ】1. トップページ: タブビュー (task, calendar, project) -->
       <div id="view-quickstatus">
         <div class="card">
@@ -1015,6 +1026,7 @@
           <div class="empty-msg">日記の詳細・編集機能は今後実装予定です</div>
         </div>
       </div>
+      </div>
     </main>
 
     <!-- 下部フッターナビゲーション -->
@@ -1098,6 +1110,7 @@
       const overlay = document.createElement('div');
       const headerClone = header.cloneNode(true);
       const mainClone = document.createElement('main');
+      const scrollClone = document.createElement('div');
       const pageClone = currentEl.cloneNode(true);
 
       [headerClone, pageClone].forEach(element => {
@@ -1110,8 +1123,10 @@
       pageClone.classList.remove('hidden', 'slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
       headerClone.classList.add('back-transition-header');
       mainClone.className = 'main-content back-transition-main';
-      mainClone.appendChild(pageClone);
-      mainClone.scrollTop = currentScrollTop;
+      scrollClone.className = 'main-scroll-area';
+      scrollClone.appendChild(pageClone);
+      mainClone.appendChild(scrollClone);
+      scrollClone.scrollTop = currentScrollTop;
 
       overlay.className = 'back-transition-overlay';
       overlay.appendChild(headerClone);
@@ -1437,7 +1452,7 @@
       }
 
       // 戻り先はその場で通常表示し、元ページの見た目だけを上から右へ抜けさせる。
-      const mainContent = document.querySelector('.main-content');
+      const mainContent = document.querySelector('.main-scroll-area');
       const { appContainer, overlay } = createBackTransitionOverlay(currentEl, mainContent.scrollTop);
 
       switchViewDirect(target);
@@ -1984,7 +1999,7 @@
     switchCalendarMode('due');
 
     // メイン領域に収まるページは動かさず、長いページだけ縦スクロールする。
-    const mainContent = document.querySelector('.main-content');
+    const mainContent = document.querySelector('.main-scroll-area');
     const appContainer = document.querySelector('.app-container');
     let touchStartX = 0;
     let touchStartY = 0;
@@ -2024,13 +2039,13 @@
 
     // ヘッダー・タブ・フッターをドラッグしても、アプリ全体を上下左右へ動かさない。
     appContainer.addEventListener('touchmove', event => {
-      if (!event.cancelable || event.target.closest('.main-content')) return;
+      if (!event.cancelable || event.target.closest('.main-scroll-area')) return;
       event.preventDefault();
     }, { passive: false });
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-    const BUILD_CREATED_AT = '2026.10.19 22:52:17';
+    const BUILD_CREATED_AT = '2026.10.19 23:07:10';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

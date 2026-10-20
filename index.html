@@ -504,7 +504,11 @@
     }
 
     .category-option.selected { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-    .category-settings-link { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+    .category-settings-link { justify-content: center; margin-top: 4px; color: #ffffff; border-color: #2563eb; background: #2563eb; text-align: center; }
+    .category-menu-selected { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 2px 6px; }
+    .category-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; padding: 3px 8px; border-radius: 999px; color: #ffffff; font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .category-check-option { display: flex; align-items: center; gap: 7px; }
+    .category-check-option input { width: 16px; height: 16px; accent-color: #2563eb; }
 
     .datetime-row {
       display: flex;
@@ -512,6 +516,7 @@
       gap: 8px;
       margin-top: 8px;
       font-size: 13px;
+      cursor: pointer;
     }
 
     .datetime-label {
@@ -523,16 +528,28 @@
     }
 
     .date-input-field {
-      width: 160px;
+      width: auto;
+      min-width: 30px;
       height: 30px;
-      padding: 0 8px;
-      background-color: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      margin-left: auto;
+      padding: 0;
+      background-color: transparent;
+      border: 0;
       font-size: 12px;
       color: #334155;
       outline: none;
+      text-align: right;
+      cursor: pointer;
     }
+
+    .date-input-field.is-empty { color: #64748b; font-size: 18px; }
+
+    .title-input-row { display: flex; align-items: center; }
+    .title-accent-bar { flex: 0 0 3px; width: 3px; height: 24px; margin-right: 7px; border-radius: 999px; background: #2563eb; }
+    #detail-title-input, #detail-title-input:focus { flex: 1; padding: 8px 0; border: 0; border-radius: 0; background: transparent; font-weight: bold; }
+    #detail-title-input::placeholder { font-weight: normal; }
+    .title-edit-button { display: flex; visibility: hidden; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #64748b; font-size: 18px; cursor: pointer; }
+    #detail-title-input:placeholder-shown + .title-edit-button { visibility: visible; }
 
     .memo-card-title {
       font-size: 14px;
@@ -600,10 +617,40 @@
 
     .reference-link-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 6px;
+      align-items: center;
       margin-top: 8px;
     }
+
+    .reference-link-display { min-width: 0; display: flex; align-items: center; }
+    .reference-link-display a { min-width: 0; color: #2563eb; font-size: 12px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reference-link-edit-button { align-self: center; border: 0; border-radius: 7px; padding: 4px 7px; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .reference-link-add-button { width: 100%; margin-top: 10px; padding: 8px; border: 0; border-radius: 8px; background: #eff6ff; color: #2563eb; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .reference-link-modal-fields { display: grid; gap: 10px; margin: 16px 0; text-align: left; }
+
+    .history-memo-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .history-memo-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; padding-bottom: 2px; }
+    .history-memo-row.is-filled { border-bottom: 1px solid #cbd5e1; }
+    .history-memo-row.is-filled:focus-within { border-bottom-color: #2563eb; }
+    .history-memo-input, .history-memo-input:focus { min-width: 0; flex: 1; min-height: 38px; padding: 8px 0; border: 0; border-radius: 0; resize: none; overflow: hidden; line-height: 1.45; background: transparent; }
+    .history-memo-time { flex: 0 0 auto; padding-top: 10px; color: #64748b; font-size: 10px; white-space: nowrap; }
+    .history-memo-delete-button { flex: 0 0 auto; width: 30px; height: 30px; margin-top: 4px; padding: 0; border: 0; border-radius: 7px; background: #fef2f2; color: #dc2626; cursor: pointer; }
+    .history-memo-text { min-width: 0; flex: 1; padding: 8px 0; color: #334155; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+    .history-memo-controls { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+    .history-memo-edit-button, .history-memo-sort-button { height: 30px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #475569; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .history-memo-edit-button.is-editing { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+    .section-title-actions { display: flex; align-items: center; gap: 6px; }
+
+    .schedule-editor-box { width: min(320px, calc(100vw - 32px)); background: #ffffff; border-radius: 14px; padding: 12px; box-shadow: 0 14px 34px rgba(15,23,42,.2); }
+    .schedule-editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .schedule-editor-title { font-size: 15px; font-weight: bold; color: #334155; }
+    .schedule-editor-icon-button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #f1f5f9; color: #334155; font-size: 20px; cursor: pointer; }
+    .schedule-editor-save { color: #ffffff; background: #2563eb; font-size: 16px; }
+    .schedule-editor-input { width: 100%; height: 38px; padding: 0 8px; border: 1px solid #cbd5e1; border-radius: 8px; color: #334155; background: #ffffff; }
+    .schedule-end-toggle { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; color: #475569; font-size: 13px; font-weight: bold; }
+    .schedule-end-toggle input { width: 17px; height: 17px; accent-color: #2563eb; }
+    .schedule-clear-button { width: 100%; margin-top: 16px; padding: 8px; border: 0; border-radius: 8px; background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: bold; cursor: pointer; }
 
     .reference-link-input {
       min-width: 0;
@@ -628,12 +675,55 @@
     .category-settings-add {
       display: flex;
       gap: 6px;
-      margin-top: 12px;
+      margin-bottom: 12px;
     }
 
-    .category-settings-add .task-input { font-size: 13px; }
+    .category-settings-add .task-input { min-width: 0; flex: 1; font-size: 13px; }
+
+    .category-settings-main {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .category-drag-handle {
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 17px;
+      line-height: 1;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .category-drag-handle:active { cursor: grabbing; }
+    .category-settings-row.is-dragging { opacity: 0.48; }
+    .category-settings-row.is-drag-over { border-top: 2px solid #2563eb; }
+
+    .category-color-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex: 0 0 10px;
+    }
+
+    .category-settings-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-settings-actions { display: flex; gap: 5px; }
 
     .category-settings-add-button,
+    .category-settings-edit-button,
     .category-settings-remove-button {
       border: 0;
       border-radius: 8px;
@@ -643,7 +733,23 @@
     }
 
     .category-settings-add-button { padding: 0 12px; color: #ffffff; background: #2563eb; }
+    .category-settings-edit-button { padding: 4px 8px; color: #1d4ed8; background: #eff6ff; }
     .category-settings-remove-button { padding: 4px 8px; color: #dc2626; background: #fef2f2; }
+
+    .category-edit-input { width: 100%; margin-top: 12px; }
+    .category-color-label { margin: 14px 0 7px; color: #475569; font-size: 12px; font-weight: bold; }
+    .category-color-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .category-color-option {
+      width: 28px;
+      height: 28px;
+      padding: 3px;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .category-color-option.selected { border-color: #1e293b; }
+    .category-color-option .category-color-dot { width: 100%; height: 100%; }
 
     .memo-help {
       font-size: 11px;
@@ -848,6 +954,7 @@
     }
 
     .modal-box {
+      position: relative;
       background-color: #ffffff;
       border-radius: 16px;
       padding: 20px;
@@ -910,6 +1017,22 @@
       border-radius: 10px;
       font-size: 13px;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-close-button {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #64748b;
+      font-size: 21px;
+      line-height: 1;
       cursor: pointer;
     }
 
@@ -1155,11 +1278,11 @@
       </div>
       <div id="view-settings-category" class="hidden settings-subpage">
         <div class="card">
-          <div id="category-settings-list"></div>
           <div class="category-settings-add">
             <input type="text" id="category-settings-input" class="task-input" placeholder="カテゴリ名を入力">
             <button type="button" class="category-settings-add-button" onclick="addCategorySetting()">追加</button>
           </div>
+          <div id="category-settings-list"></div>
         </div>
       </div>
       <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><div class="empty-msg">メール通知設定</div></div></div>
@@ -1178,7 +1301,11 @@
       <div id="view-task-page" class="hidden">
         <div class="card">
           <div class="form-group">
-            <input type="text" id="detail-title-input" class="task-input" placeholder="タイトルを入力…" oninput="updateCurrentTaskField('title', this.value)">
+            <div class="title-input-row">
+              <span class="title-accent-bar" aria-hidden="true"></span>
+              <input type="text" id="detail-title-input" class="task-input" placeholder="タイトルを入力…" oninput="updateCurrentTaskField('title', this.value)">
+              <button type="button" class="title-edit-button" onclick="document.getElementById('detail-title-input').focus()" aria-label="タイトルを入力">✏︎</button>
+            </div>
           </div>
 
           <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
@@ -1189,35 +1316,35 @@
             <span class="detail-meta-text" id="detail-project-label">プロジェクト：[-]</span>
           </div>
 
-          <div class="task-status-control">
+          <div class="task-status-control" onclick="toggleTaskStatusMenu(event)">
             <span class="status-label icon-with-text"><span aria-hidden="true">🔘</span>ステータス</span>
-            <button type="button" id="task-status-picker" class="task-status-picker" onclick="toggleTaskStatusMenu()" aria-label="ステータスを選択" aria-expanded="false">
+            <button type="button" id="task-status-picker" class="task-status-picker" aria-label="ステータスを選択" aria-expanded="false">
               <span id="task-status-picker-label"></span>
               <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
             </button>
             <div id="task-status-menu" class="task-status-menu hidden">
-              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')"><span class="status-icon-spacer" aria-hidden="true"></span>未完了</button>
-              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了済み</span></button>
-              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留中</span></button>
+              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo', event)"><span class="status-icon-spacer" aria-hidden="true"></span>未完了</button>
+              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed', event)"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了済み</span></button>
+              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending', event)"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留中</span></button>
             </div>
           </div>
 
           <div class="category-control">
             <button type="button" id="category-picker" class="category-picker" onclick="toggleCategoryMenu()" aria-label="カテゴリを選択" aria-expanded="false">
-              <span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg><span id="category-picker-label">カテゴリ：[一般]</span></span>
+              <span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#bookmark"></use></svg><span>カテゴリ</span><span id="category-picker-label">を選択</span></span>
               <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
             </button>
             <div id="category-menu" class="category-menu hidden"></div>
           </div>
 
-          <div class="datetime-row">
+          <div class="datetime-row" onclick="openScheduleEditor('deadline')">
             <div class="datetime-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alarm"></use></svg>期限</div>
-            <input type="date" id="detail-due-date-input" class="date-input-field" onchange="updateCurrentTaskField('deadlineDate', this.value)">
+            <button type="button" id="detail-due-date-input" class="date-input-field">設定なし</button>
           </div>
 
-          <div class="datetime-row">
+          <div class="datetime-row" onclick="openScheduleEditor('action')">
             <div class="datetime-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar"></use></svg>対応予定日</div>
-            <input type="date" id="detail-plan-date-input" class="date-input-field" onchange="updateCurrentTaskField('actionDate', this.value)">
+            <button type="button" id="detail-plan-date-input" class="date-input-field">設定なし</button>
           </div>
 
           <div class="memo-section">
@@ -1228,6 +1355,22 @@
             <div id="memo-content">
               <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
               <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ <svg class="app-icon" aria-hidden="true"><use href="icons.svg#help"></use></svg></div>
+            </div>
+          </div>
+
+          <div class="history-memo-section">
+            <div class="memo-card-title">
+              <div class="reference-links-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg>履歴メモ</div>
+              <div class="section-title-actions">
+                <button type="button" id="history-memo-toggle-button" class="memo-expand-button" onclick="toggleHistoryMemoExpanded()" aria-label="履歴メモを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
+              </div>
+            </div>
+            <div id="history-memo-content">
+              <div class="history-memo-controls">
+                <button type="button" id="history-memo-edit-button" class="history-memo-edit-button" onclick="toggleHistoryMemoEdit()">編集</button>
+                <button type="button" id="history-memo-sort-button" class="history-memo-sort-button" onclick="toggleHistoryMemoSort()" aria-label="履歴メモを古い順に並び替え" title="古い順に並び替え">↑ 古い順</button>
+              </div>
+              <div id="history-memo-container"></div>
             </div>
           </div>
 
@@ -1307,10 +1450,64 @@
   <div id="missing-date-confirm-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-title">日付の確認</div>
-      <div class="modal-message">期限、対応予定日が入力されていませんが保存してもいいですか？</div>
+      <div class="modal-message">期限、完了予定日が入力されていませんが保存してもいいですか？</div>
       <div class="modal-buttons">
         <button class="btn-modal-cancel" onclick="closeMissingDateConfirmModal()">戻る</button>
         <button class="btn-modal-save" onclick="executeSaveWithoutDates()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. カテゴリ編集モーダル -->
+  <div id="category-edit-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">カテゴリを編集</div>
+      <input type="text" id="category-edit-input" class="task-input category-edit-input" placeholder="カテゴリ名を入力">
+      <div class="category-color-label">色</div>
+      <div id="category-color-options" class="category-color-options"></div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeCategoryEditModal()">戻る</button>
+        <button class="btn-modal-save" onclick="saveCategoryEdit()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reference-link-edit-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div id="reference-link-modal-title" class="modal-title">参考リンクを追加</div>
+      <div class="reference-link-modal-fields">
+        <input type="text" id="reference-link-title-input" class="task-input" placeholder="リンクタイトル">
+        <input type="url" id="reference-link-url-input" class="task-input" placeholder="URL">
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-modal-cancel" onclick="closeReferenceLinkModal()">戻る</button>
+        <button type="button" class="btn-modal-save" onclick="saveReferenceLinkModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="schedule-editor-modal" class="modal-overlay hidden">
+    <div class="schedule-editor-box">
+      <div class="schedule-editor-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="closeScheduleEditor()" aria-label="閉じる">×</button>
+        <div id="schedule-editor-title" class="schedule-editor-title"></div>
+        <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="saveScheduleEditor()" aria-label="保存">✓</button>
+      </div>
+      <input type="datetime-local" id="schedule-start-input" class="schedule-editor-input">
+      <label class="schedule-end-toggle"><input type="checkbox" id="schedule-end-toggle" onchange="toggleScheduleEndInput()">終了日時を設定</label>
+      <input type="datetime-local" id="schedule-end-input" class="schedule-editor-input hidden">
+      <button type="button" class="schedule-clear-button" onclick="clearScheduleEditor()">設定を削除</button>
+    </div>
+  </div>
+
+  <div id="unsaved-task-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button type="button" class="modal-close-button" onclick="closeUnsavedTaskModal()" aria-label="閉じる">×</button>
+      <div class="modal-title">未保存の変更があります</div>
+      <div class="modal-message">入力した項目が保存されていません。保存して移動しますか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="discardAndContinueNavigation()">無視して移動する</button>
+        <button class="btn-modal-save" onclick="saveAndContinueNavigation()">保存して移動</button>
       </div>
     </div>
   </div>
@@ -1326,6 +1523,29 @@
     let currentCalendarMode = 'due';
     let displaySettings = { memoDefaultExpanded: true };
     let taskCategories = [];
+    let editingCategoryIndex = null;
+    let editingCategoryColor = '';
+    let categoryPointerDrag = null;
+    let scheduleEditingField = null;
+    let pendingNavigationTarget = null;
+    let taskReturnView = 'quickstatus';
+    let referenceLinkEditingIndexes = new Set();
+    let editingReferenceLinkIndex = null;
+    let historyMemoSortOrder = 'asc';
+    let isHistoryMemoEditing = false;
+
+    const CATEGORY_COLOR_OPTIONS = ['#2563eb', '#7c3aed', '#db2777', '#e11d48', '#ea580c', '#d97706', '#16a34a', '#0f766e', '#0891b2', '#4f46e5'];
+    const DEFAULT_TASK_CATEGORIES = [
+      { name: '仕事', color: '#2563eb' },
+      { name: 'プライベート', color: '#7c3aed' },
+      { name: '家庭', color: '#db2777' },
+      { name: '健康', color: '#16a34a' },
+      { name: '学習', color: '#0f766e' },
+      { name: '趣味', color: '#ea580c' },
+      { name: '人間関係', color: '#e11d48' },
+      { name: 'お金', color: '#d97706' },
+      { name: '目標・夢', color: '#4f46e5' }
+    ];
 
     function iconMarkup(name, extraClass = '') {
       return `<svg class="app-icon ${extraClass}" aria-hidden="true"><use href="icons.svg#${name}"></use></svg>`;
@@ -1418,17 +1638,50 @@
     function loadTaskCategories() {
       try {
         const savedCategories = JSON.parse(localStorage.getItem('coach_app_task_categories') || 'null');
-        taskCategories = Array.isArray(savedCategories)
-          ? [...new Set(savedCategories.map(category => String(category).trim()).filter(Boolean))]
-          : ['一般'];
+        if (!Array.isArray(savedCategories) || savedCategories.length === 0) {
+          taskCategories = DEFAULT_TASK_CATEGORIES.map(category => ({ ...category }));
+        } else {
+          const isLegacyFormat = savedCategories.some(category => typeof category === 'string');
+          const normalizedCategories = savedCategories
+            .map((category, index) => normalizeCategorySetting(category, index))
+            .filter(Boolean);
+          const uniqueCategories = normalizedCategories.filter((category, index, categories) =>
+            categories.findIndex(item => item.name === category.name) === index
+          );
+          taskCategories = isLegacyFormat
+            ? [...DEFAULT_TASK_CATEGORIES.map(category => ({ ...category })), ...uniqueCategories.filter(category => !DEFAULT_TASK_CATEGORIES.some(defaultCategory => defaultCategory.name === category.name))]
+            : uniqueCategories;
+        }
       } catch (e) {
-        taskCategories = ['一般'];
+        taskCategories = DEFAULT_TASK_CATEGORIES.map(category => ({ ...category }));
       }
       saveTaskCategories();
     }
 
     function saveTaskCategories() {
       localStorage.setItem('coach_app_task_categories', JSON.stringify(taskCategories));
+    }
+
+    function normalizeCategorySetting(category, index = 0) {
+      const name = typeof category === 'object' && category !== null
+        ? String(category.name || '').trim()
+        : String(category || '').trim();
+      if (!name) return null;
+      const defaultCategory = DEFAULT_TASK_CATEGORIES.find(item => item.name === name);
+      const color = typeof category === 'object' && category !== null && CATEGORY_COLOR_OPTIONS.includes(category.color)
+        ? category.color
+        : (defaultCategory?.color || CATEGORY_COLOR_OPTIONS[index % CATEGORY_COLOR_OPTIONS.length]);
+      return { name, color };
+    }
+
+    function getCategorySetting(name) {
+      return taskCategories.find(category => category.name === name) || null;
+    }
+
+    function escapeHtml(value) {
+      const element = document.createElement('div');
+      element.textContent = String(value ?? '');
+      return element.innerHTML;
     }
 
     function normalizeRecord(record, fallbackId) {
@@ -1444,7 +1697,7 @@
         parentID,
         projectID: record.projectID == null ? null : String(record.projectID),
         childID,
-        category: record.category ?? '',
+        category: normalizeTaskCategories(record.category),
         status: record.status === 'uncompleted' ? 'todo' : (record.status ?? 'todo'),
         actionDate: record.actionDate ?? record.planDate ?? '',
         deadlineDate: record.deadlineDate ?? record.dueDate ?? '',
@@ -1453,9 +1706,18 @@
         preDeletedAt: record.preDeletedAt ?? null,
         diaryMemo: record.diaryMemo ?? '',
         taskMemo: record.taskMemo ?? record.memo ?? '',
-        referenceLinks: Array.isArray(record.referenceLinks) ? record.referenceLinks.map(link => ({ title: link?.title ?? '', url: link?.url ?? '' })) : [],
+        referenceLinks: Array.isArray(record.referenceLinks) ? record.referenceLinks.map(link => ({ title: link?.title ?? '', url: link?.url ?? '', confirmed: Boolean(link?.confirmed) })) : [],
+        historyMemo: Array.isArray(record.historyMemo) ? record.historyMemo.map(value => String(value ?? '')) : [],
+        historyMemoAt: Array.isArray(record.historyMemoAt) ? record.historyMemoAt.map(value => String(value ?? '')) : [],
+        deadlineTime: record.deadlineTime ?? '',
+        deadlineEndDate: record.deadlineEndDate ?? '',
+        deadlineEndTime: record.deadlineEndTime ?? '',
+        actionTime: record.actionTime ?? '',
+        actionEndDate: record.actionEndDate ?? '',
+        actionEndTime: record.actionEndTime ?? '',
         createdAt: record.createdAt ?? new Date().toISOString(),
         updatedAt: record.updatedAt ?? null,
+        previousUpdatedAt: record.previousUpdatedAt ?? record.updatedAt ?? null,
         email: record.email ?? '',
         isSaved: Boolean(record.isSaved ?? false),
         path: record.path ?? '',
@@ -1467,6 +1729,22 @@
         isActionCustomActive: Boolean(record.isActionCustomActive ?? false)
       };
       return normalized;
+    }
+
+    function normalizeTaskCategories(value) {
+      const source = Array.isArray(value) ? value : (value ? [value] : []);
+      return [...new Set(source.map(item => String(item).trim()).filter(Boolean))];
+    }
+
+    function cloneTaskForEditing(task) {
+      return {
+        ...task,
+        childID: [...task.childID],
+        category: normalizeTaskCategories(task.category),
+        referenceLinks: (task.referenceLinks || []).map(link => ({ ...link })),
+        historyMemo: [...(task.historyMemo || [])],
+        historyMemoAt: [...(task.historyMemoAt || [])]
+      };
     }
 
     function refreshProjectProperties() {
@@ -1547,10 +1825,16 @@
       }, 260);
     }
 
-    function switchView(targetView) {
+    function switchView(targetView, options = {}) {
       if (currentActiveView === targetView) return;
 
-      if (currentActiveView === 'task-page' && targetView !== 'task-page') {
+      if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft && hasTaskDraftChanges()) {
+        pendingNavigationTarget = targetView;
+        document.getElementById('unsaved-task-modal').classList.remove('hidden');
+        return;
+      }
+
+      if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft) {
         currentEditingTaskId = null;
         currentEditingTaskDraft = null;
       }
@@ -1701,9 +1985,14 @@
     function goBack() {
       let target = 'quickstatus';
       if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') {
-        target = 'settings';
+        target = currentActiveView === 'settings-category' && taskReturnView === 'task-page' ? 'task-page' : 'settings';
       } else if (currentActiveView === 'task-page') {
-        target = (previousView && !SETTINGS_SUBPAGES.includes(previousView) && previousView !== 'task-page') ? previousView : 'quickstatus';
+        target = taskReturnView || 'quickstatus';
+        if (hasTaskDraftChanges()) {
+          pendingNavigationTarget = target;
+          document.getElementById('unsaved-task-modal').classList.remove('hidden');
+          return;
+        }
       } else {
         target = 'quickstatus';
       }
@@ -1719,6 +2008,10 @@
       const mainContent = document.querySelector('.main-scroll-area');
       const { appContainer, overlay } = createBackTransitionOverlay(currentEl, mainContent.scrollTop);
 
+      if (currentActiveView === 'task-page' && target !== 'task-page') {
+        currentEditingTaskId = null;
+        currentEditingTaskDraft = null;
+      }
       switchViewDirect(target);
 
       const footerNav = document.getElementById('global-footer');
@@ -1732,6 +2025,46 @@
 
       appContainer.appendChild(overlay);
       window.setTimeout(() => overlay.remove(), 250);
+    }
+
+    function hasTaskDraftChanges() {
+      const savedTask = tasks.find(task => task.pageID === String(currentEditingTaskId));
+      const draft = currentEditingTaskDraft;
+      if (!savedTask || !draft) return false;
+      const comparable = task => ({
+        title: task.title || '', status: task.status || 'todo', category: normalizeTaskCategories(task.category),
+        deadlineDate: task.deadlineDate || '', deadlineTime: task.deadlineTime || '', deadlineEndDate: task.deadlineEndDate || '', deadlineEndTime: task.deadlineEndTime || '',
+        actionDate: task.actionDate || '', actionTime: task.actionTime || '', actionEndDate: task.actionEndDate || '', actionEndTime: task.actionEndTime || '',
+        taskMemo: task.taskMemo || '', referenceLinks: (task.referenceLinks || []).filter(link => link.title || link.url).map(link => ({ title: link.title || '', url: link.url || '' })),
+        historyMemo: (task.historyMemo || []).filter(Boolean), historyMemoAt: (task.historyMemoAt || []).slice(0, (task.historyMemo || []).filter(Boolean).length)
+      });
+      return JSON.stringify(comparable(savedTask)) !== JSON.stringify(comparable(draft));
+    }
+
+    function closeUnsavedTaskModal() {
+      pendingNavigationTarget = null;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+    }
+
+    function discardAndContinueNavigation() {
+      const target = pendingNavigationTarget;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+      pendingNavigationTarget = null;
+      if (!target) return;
+      currentEditingTaskId = null;
+      currentEditingTaskDraft = null;
+      switchView(target, { force: true });
+    }
+
+    function saveAndContinueNavigation() {
+      const target = pendingNavigationTarget;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+      if (!target || !currentEditingTaskDraft) return;
+      executeFinalSave(currentEditingTaskDraft, true);
+      pendingNavigationTarget = null;
+      currentEditingTaskId = null;
+      currentEditingTaskDraft = null;
+      switchView(target, { force: true });
     }
 
     function switchViewDirect(targetView) {
@@ -2007,20 +2340,25 @@
     }
 
     function openDetailView(taskId) {
+      taskReturnView = currentActiveView;
       currentEditingTaskId = taskId;
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
-      currentEditingTaskDraft = { ...task, childID: [...task.childID], referenceLinks: (task.referenceLinks || []).map(link => ({ ...link })) };
+      currentEditingTaskDraft = cloneTaskForEditing(task);
+      referenceLinkEditingIndexes = new Set();
+      isHistoryMemoEditing = false;
 
       document.getElementById('detail-title-input').value = task.title || '';
       document.getElementById('detail-memo-input').value = task.taskMemo || '';
-      document.getElementById('detail-due-date-input').value = task.deadlineDate || '';
-      document.getElementById('detail-plan-date-input').value = task.actionDate || '';
+      updateScheduleButton('deadline');
+      updateScheduleButton('action');
       renderReferenceLinkFields();
+      renderHistoryMemoFields();
       syncTaskStatusPicker();
       syncCategoryPicker();
       setMemoExpanded(displaySettings.memoDefaultExpanded);
       setReferenceLinksExpanded(true);
+      setHistoryMemoExpanded(true);
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
@@ -2145,6 +2483,87 @@
       }
     }
 
+    function getScheduleKeys(field) {
+      return field === 'deadline'
+        ? { date: 'deadlineDate', time: 'deadlineTime', endDate: 'deadlineEndDate', endTime: 'deadlineEndTime', label: '期限' }
+        : { date: 'actionDate', time: 'actionTime', endDate: 'actionEndDate', endTime: 'actionEndTime', label: '対応予定日' };
+    }
+
+    function joinScheduleDateTime(date, time) {
+      return date ? `${date}T${time || '00:00'}` : '';
+    }
+
+    function splitScheduleDateTime(value) {
+      return { date: value ? value.slice(0, 10) : '', time: value ? value.slice(11, 16) : '' };
+    }
+
+    function formatSchedule(field) {
+      const task = currentEditingTaskDraft;
+      const keys = getScheduleKeys(field);
+      if (!task?.[keys.date]) return '設定なし';
+      const start = `${task[keys.date].replaceAll('-', '/')} ${task[keys.time] || ''}`.trim();
+      if (!task[keys.endDate]) return start;
+      const end = `${task[keys.endDate].replaceAll('-', '/')} ${task[keys.endTime] || ''}`.trim();
+      return `${start}〜${end}`;
+    }
+
+    function updateScheduleButton(field) {
+      const button = document.getElementById(field === 'deadline' ? 'detail-due-date-input' : 'detail-plan-date-input');
+      if (!button) return;
+      const keys = getScheduleKeys(field);
+      const isEmpty = !currentEditingTaskDraft?.[keys.date];
+      button.classList.toggle('is-empty', isEmpty);
+      button.innerHTML = isEmpty ? '<span aria-hidden="true">✏︎</span>' : escapeHtml(formatSchedule(field));
+      button.setAttribute('aria-label', `${keys.label}${isEmpty ? 'を入力' : `：${formatSchedule(field)}`}`);
+    }
+
+    function openScheduleEditor(field) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      const keys = getScheduleKeys(field);
+      scheduleEditingField = field;
+      document.getElementById('schedule-editor-title').textContent = keys.label;
+      document.getElementById('schedule-start-input').value = joinScheduleDateTime(task[keys.date], task[keys.time]);
+      const hasEnd = Boolean(task[keys.endDate]);
+      document.getElementById('schedule-end-toggle').checked = hasEnd;
+      document.getElementById('schedule-end-input').value = joinScheduleDateTime(task[keys.endDate], task[keys.endTime]);
+      toggleScheduleEndInput();
+      document.getElementById('schedule-editor-modal').classList.remove('hidden');
+    }
+
+    function closeScheduleEditor() {
+      scheduleEditingField = null;
+      document.getElementById('schedule-editor-modal').classList.add('hidden');
+    }
+
+    function toggleScheduleEndInput() {
+      const enabled = document.getElementById('schedule-end-toggle').checked;
+      document.getElementById('schedule-end-input').classList.toggle('hidden', !enabled);
+    }
+
+    function saveScheduleEditor() {
+      if (!scheduleEditingField || !currentEditingTaskDraft) return;
+      const keys = getScheduleKeys(scheduleEditingField);
+      const start = splitScheduleDateTime(document.getElementById('schedule-start-input').value);
+      const end = document.getElementById('schedule-end-toggle').checked
+        ? splitScheduleDateTime(document.getElementById('schedule-end-input').value)
+        : { date: '', time: '' };
+      Object.assign(currentEditingTaskDraft, {
+        [keys.date]: start.date, [keys.time]: start.time,
+        [keys.endDate]: end.date, [keys.endTime]: end.time
+      });
+      updateScheduleButton(scheduleEditingField);
+      closeScheduleEditor();
+    }
+
+    function clearScheduleEditor() {
+      if (!scheduleEditingField || !currentEditingTaskDraft) return;
+      const keys = getScheduleKeys(scheduleEditingField);
+      Object.assign(currentEditingTaskDraft, { [keys.date]: '', [keys.time]: '', [keys.endDate]: '', [keys.endTime]: '' });
+      updateScheduleButton(scheduleEditingField);
+      closeScheduleEditor();
+    }
+
     function checkDateConflicts(task) {
       if (task.parentID === null || task.parentID === '') return { invalidDues: [], invalidPlans: [] };
 
@@ -2220,14 +2639,16 @@
       document.getElementById('missing-date-confirm-modal').classList.add('hidden');
     }
 
-    function executeFinalSave(task) {
+    function executeFinalSave(task, silent = false) {
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
       if (!savedTask) return;
       const isFirstTime = !savedTask.isSaved;
       
-      Object.assign(savedTask, task, { isSaved: true, updatedAt: nowStr });
-      currentEditingTaskDraft = { ...savedTask, childID: [...savedTask.childID], referenceLinks: (savedTask.referenceLinks || []).map(link => ({ ...link })) };
+      const previousUpdatedAt = savedTask.updatedAt || null;
+      Object.assign(savedTask, task, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
+      currentEditingTaskDraft = cloneTaskForEditing(savedTask);
+      referenceLinkEditingIndexes = new Set();
 
       saveTasksToStorage();
 
@@ -2239,9 +2660,11 @@
       updatedAtRow.classList.remove('hidden');
       updatedAtText.innerText = savedTask.updatedAt;
 
-      if (isFirstTime) {
+      renderReferenceLinkFields();
+      renderHistoryMemoFields();
+      if (!silent && isFirstTime) {
         alert('保存しました。');
-      } else {
+      } else if (!silent) {
         alert('更新しました。');
       }
     }
@@ -2259,7 +2682,13 @@
       const task = currentEditingTaskDraft;
       const label = document.getElementById('category-picker-label');
       if (!task || !label) return;
-      label.textContent = `カテゴリ：[${task.category || '一般'}]`;
+      const selected = normalizeTaskCategories(task.category);
+      label.innerHTML = selected.length
+        ? selected.map(name => {
+          const category = getCategorySetting(name);
+          return `<span class="category-chip" style="background:${category?.color || '#64748b'}">${escapeHtml(name)}</span>`;
+        }).join('')
+        : '<span>を選択</span>';
     }
 
     function toggleCategoryMenu() {
@@ -2276,14 +2705,21 @@
       const task = currentEditingTaskDraft;
       if (!menu || !task) return;
       menu.innerHTML = '';
-      const selectedCategory = task.category || '一般';
+      const selectedCategories = normalizeTaskCategories(task.category);
+
+      const selectedBox = document.createElement('div');
+      selectedBox.className = 'category-menu-selected';
+      selectedBox.innerHTML = selectedCategories.map(name => {
+        const category = getCategorySetting(name);
+        return `<span class="category-chip" style="background:${category?.color || '#64748b'}">${escapeHtml(name)}</span>`;
+      }).join('');
+      if (selectedCategories.length) menu.appendChild(selectedBox);
 
       taskCategories.forEach(category => {
-        const option = document.createElement('button');
-        option.type = 'button';
-        option.className = `category-option${category === selectedCategory ? ' selected' : ''}`;
-        option.textContent = category;
-        option.onclick = () => selectTaskCategory(category);
+        const option = document.createElement('label');
+        option.className = `category-option category-check-option${selectedCategories.includes(category.name) ? ' selected' : ''}`;
+        option.innerHTML = `<input type="checkbox" ${selectedCategories.includes(category.name) ? 'checked' : ''}><span class="category-color-dot" style="background:${category.color}"></span><span>${escapeHtml(category.name)}</span>`;
+        option.querySelector('input').onchange = event => selectTaskCategory(category.name, event.target.checked);
         menu.appendChild(option);
       });
 
@@ -2295,17 +2731,19 @@
       menu.appendChild(settingsLink);
     }
 
-    function selectTaskCategory(category) {
-      updateCurrentTaskField('category', category);
+    function selectTaskCategory(category, checked) {
+      const selected = normalizeTaskCategories(currentEditingTaskDraft?.category);
+      const next = checked ? [...new Set([...selected, category])] : selected.filter(item => item !== category);
+      updateCurrentTaskField('category', next);
       syncCategoryPicker();
-      document.getElementById('category-menu').classList.add('hidden');
-      document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
+      renderCategoryMenu();
     }
 
     function openCategorySettingsFromTask() {
       document.getElementById('category-menu').classList.add('hidden');
       document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
-      openSettingsPage('settings-category');
+      taskReturnView = 'task-page';
+      switchView('settings-category', { preserveTaskDraft: true });
     }
 
     function renderCategorySettings() {
@@ -2321,14 +2759,39 @@
       taskCategories.forEach((category, index) => {
         const row = document.createElement('div');
         row.className = 'category-settings-row';
+        row.dataset.categoryIndex = String(index);
+        row.draggable = true;
+
+        const main = document.createElement('div');
+        main.className = 'category-settings-main';
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = 'category-drag-handle';
+        handle.textContent = '⠿';
+        handle.setAttribute('aria-label', `${category.name}を並び替える`);
+        const color = document.createElement('span');
+        color.className = 'category-color-dot';
+        color.style.background = category.color;
         const name = document.createElement('span');
-        name.textContent = category;
+        name.className = 'category-settings-name';
+        name.textContent = category.name;
+
+        const actions = document.createElement('div');
+        actions.className = 'category-settings-actions';
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'category-settings-edit-button';
+        edit.textContent = '編集';
+        edit.onclick = () => openCategoryEditModal(index);
         const remove = document.createElement('button');
         remove.type = 'button';
         remove.className = 'category-settings-remove-button';
         remove.textContent = '削除';
         remove.onclick = () => deleteCategorySetting(index);
-        row.append(name, remove);
+        main.append(handle, color, name);
+        actions.append(edit, remove);
+        row.append(main, actions);
+        bindCategoryRowDragEvents(row, handle, index);
         list.appendChild(row);
       });
     }
@@ -2336,8 +2799,8 @@
     function addCategorySetting() {
       const input = document.getElementById('category-settings-input');
       const category = input.value.trim();
-      if (!category || taskCategories.includes(category)) return;
-      taskCategories.push(category);
+      if (!category || taskCategories.some(item => item.name === category)) return;
+      taskCategories.push({ name: category, color: getNextCategoryColor() });
       saveTaskCategories();
       input.value = '';
       renderCategorySettings();
@@ -2349,48 +2812,330 @@
       renderCategorySettings();
     }
 
+    function getNextCategoryColor() {
+      return CATEGORY_COLOR_OPTIONS[taskCategories.length % CATEGORY_COLOR_OPTIONS.length];
+    }
+
+    function openCategoryEditModal(index) {
+      const category = taskCategories[index];
+      if (!category) return;
+      editingCategoryIndex = index;
+      editingCategoryColor = category.color;
+      document.getElementById('category-edit-input').value = category.name;
+      renderCategoryColorOptions();
+      document.getElementById('category-edit-modal').classList.remove('hidden');
+    }
+
+    function closeCategoryEditModal() {
+      editingCategoryIndex = null;
+      editingCategoryColor = '';
+      document.getElementById('category-edit-modal').classList.add('hidden');
+    }
+
+    function renderCategoryColorOptions() {
+      const container = document.getElementById('category-color-options');
+      if (!container) return;
+      container.innerHTML = '';
+      CATEGORY_COLOR_OPTIONS.forEach(color => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = `category-color-option${color === editingCategoryColor ? ' selected' : ''}`;
+        option.setAttribute('aria-label', `色を選択`);
+        option.innerHTML = `<span class="category-color-dot" style="background:${color}"></span>`;
+        option.onclick = () => {
+          editingCategoryColor = color;
+          renderCategoryColorOptions();
+        };
+        container.appendChild(option);
+      });
+    }
+
+    function saveCategoryEdit() {
+      const category = taskCategories[editingCategoryIndex];
+      const input = document.getElementById('category-edit-input');
+      const name = input.value.trim();
+      if (!category || !name) return;
+      if (taskCategories.some((item, index) => index !== editingCategoryIndex && item.name === name)) return;
+
+      const previousName = category.name;
+      category.name = name;
+      category.color = editingCategoryColor || category.color;
+      if (previousName !== name) {
+        tasks.forEach(task => {
+          task.category = normalizeTaskCategories(task.category).map(item => item === previousName ? name : item);
+        });
+        saveTasksToStorage();
+      }
+      saveTaskCategories();
+      closeCategoryEditModal();
+      renderCategorySettings();
+      syncCategoryPicker();
+    }
+
+    function bindCategoryRowDragEvents(row, handle, index) {
+      row.addEventListener('dragstart', event => {
+        categoryPointerDrag = { fromIndex: index };
+        row.classList.add('is-dragging');
+        event.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => {
+        categoryPointerDrag = null;
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.remove('is-dragging', 'is-drag-over'));
+      });
+      row.addEventListener('dragover', event => {
+        event.preventDefault();
+        row.classList.add('is-drag-over');
+      });
+      row.addEventListener('dragleave', () => row.classList.remove('is-drag-over'));
+      row.addEventListener('drop', event => {
+        event.preventDefault();
+        const fromIndex = categoryPointerDrag?.fromIndex;
+        if (Number.isInteger(fromIndex)) reorderCategorySettings(fromIndex, index);
+      });
+
+      handle.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        categoryPointerDrag = { fromIndex: index, pointerId: event.pointerId };
+        handle.setPointerCapture(event.pointerId);
+        row.classList.add('is-dragging');
+      });
+      handle.addEventListener('pointermove', event => {
+        if (categoryPointerDrag?.pointerId !== event.pointerId) return;
+        const targetRow = document.elementFromPoint(event.clientX, event.clientY)?.closest('.category-settings-row');
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.toggle('is-drag-over', item === targetRow && item !== row));
+      });
+      const finishPointerDrag = event => {
+        if (categoryPointerDrag?.pointerId !== event.pointerId) return;
+        const fromIndex = categoryPointerDrag.fromIndex;
+        const targetRow = document.elementFromPoint(event.clientX, event.clientY)?.closest('.category-settings-row');
+        const toIndex = Number(targetRow?.dataset.categoryIndex);
+        if (Number.isInteger(toIndex)) reorderCategorySettings(fromIndex, toIndex);
+        categoryPointerDrag = null;
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.remove('is-dragging', 'is-drag-over'));
+      };
+      handle.addEventListener('pointerup', finishPointerDrag);
+      handle.addEventListener('pointercancel', finishPointerDrag);
+    }
+
+    function reorderCategorySettings(fromIndex, toIndex) {
+      if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || fromIndex === toIndex) return;
+      const [movedCategory] = taskCategories.splice(fromIndex, 1);
+      taskCategories.splice(toIndex, 0, movedCategory);
+      saveTaskCategories();
+      renderCategorySettings();
+    }
+
     function renderReferenceLinkFields() {
       const container = document.getElementById('reference-links-container');
       const task = currentEditingTaskDraft;
       if (!container || !task) return;
 
       if (!Array.isArray(task.referenceLinks)) task.referenceLinks = [];
-      const links = task.referenceLinks;
-      if (links.length === 0 || links[links.length - 1].title || links[links.length - 1].url) {
-        links.push({ title: '', url: '' });
-      }
+      task.referenceLinks = task.referenceLinks.filter(link => link?.title || link?.url);
 
       container.innerHTML = '';
-      links.forEach((link, index) => appendReferenceLinkRow(container, link, index));
+      task.referenceLinks.forEach((link, index) => appendReferenceLinkRow(container, link, index));
+      const addButton = document.createElement('button');
+      addButton.type = 'button';
+      addButton.className = 'reference-link-add-button';
+      addButton.textContent = '＋ リンクを追加する';
+      addButton.onclick = () => openReferenceLinkModal();
+      container.appendChild(addButton);
     }
 
     function appendReferenceLinkRow(container, link, index) {
       const row = document.createElement('div');
       row.className = 'reference-link-row';
-      row.innerHTML = `
-        <input type="text" class="task-input reference-link-input" placeholder="リンクタイトル（自由入力）">
-        <input type="url" class="task-input reference-link-input" placeholder="URL">
-      `;
-      const [titleInput, urlInput] = row.querySelectorAll('input');
-      titleInput.value = link.title || '';
-      urlInput.value = link.url || '';
-      titleInput.addEventListener('input', event => updateReferenceLink(index, 'title', event.target.value, container));
-      urlInput.addEventListener('input', event => updateReferenceLink(index, 'url', event.target.value, container));
+      const display = document.createElement('div');
+      display.className = 'reference-link-display';
+      const anchor = document.createElement('a');
+      anchor.href = link.url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = link.title || link.url;
+      display.appendChild(anchor);
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'reference-link-edit-button';
+      edit.textContent = '編集';
+      edit.onclick = () => openReferenceLinkModal(index);
+      row.append(display, edit);
       container.appendChild(row);
     }
 
-    function updateReferenceLink(index, field, value, container) {
+    function openReferenceLinkModal(index = null) {
       const task = currentEditingTaskDraft;
-      if (!task || !task.referenceLinks?.[index]) return;
-      task.referenceLinks[index][field] = value;
-
-      if (index === task.referenceLinks.length - 1 && (task.referenceLinks[index].title || task.referenceLinks[index].url)) {
-        task.referenceLinks.push({ title: '', url: '' });
-        appendReferenceLinkRow(container, task.referenceLinks[task.referenceLinks.length - 1], task.referenceLinks.length - 1);
-      }
+      if (!task) return;
+      editingReferenceLinkIndex = index;
+      const link = index === null ? null : task.referenceLinks?.[index];
+      document.getElementById('reference-link-modal-title').textContent = index === null ? '参考リンクを追加' : '参考リンクを編集';
+      document.getElementById('reference-link-title-input').value = link?.title || '';
+      document.getElementById('reference-link-url-input').value = link?.url || '';
+      document.getElementById('reference-link-edit-modal').classList.remove('hidden');
     }
 
-    function toggleTaskStatusMenu() {
+    function closeReferenceLinkModal() {
+      editingReferenceLinkIndex = null;
+      document.getElementById('reference-link-edit-modal').classList.add('hidden');
+    }
+
+    function saveReferenceLinkModal() {
+      const task = currentEditingTaskDraft;
+      const title = document.getElementById('reference-link-title-input').value.trim();
+      const url = document.getElementById('reference-link-url-input').value.trim();
+      if (!task || !title || !url) {
+        alert('リンクタイトルとURLを入力してください。');
+        return;
+      }
+      const link = { title, url, confirmed: true };
+      if (editingReferenceLinkIndex === null) task.referenceLinks.push(link);
+      else task.referenceLinks[editingReferenceLinkIndex] = link;
+      closeReferenceLinkModal();
+      renderReferenceLinkFields();
+    }
+
+    function setHistoryMemoExpanded(expanded) {
+      const content = document.getElementById('history-memo-content');
+      const button = document.getElementById('history-memo-toggle-button');
+      if (!content || !button) return;
+      content.classList.toggle('hidden', !expanded);
+      button.setAttribute('aria-expanded', String(expanded));
+      button.setAttribute('aria-label', expanded ? '履歴メモを閉じる' : '履歴メモを開く');
+      button.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#${expanded ? 'chevron-up' : 'chevron-down'}"></use></svg>`;
+    }
+
+    function toggleHistoryMemoExpanded() {
+      const content = document.getElementById('history-memo-content');
+      if (content) setHistoryMemoExpanded(content.classList.contains('hidden'));
+    }
+
+    function syncHistoryMemoSortButton() {
+      const button = document.getElementById('history-memo-sort-button');
+      if (!button) return;
+      const isAscending = historyMemoSortOrder === 'asc';
+      button.textContent = isAscending ? '↑ 古い順' : '↓ 新しい順';
+      button.title = isAscending ? '古い順に並び替え' : '新しい順に並び替え';
+      button.setAttribute('aria-label', button.title);
+    }
+
+    function syncHistoryMemoEditButton() {
+      const button = document.getElementById('history-memo-edit-button');
+      if (!button) return;
+      button.textContent = isHistoryMemoEditing ? '完了' : '編集';
+      button.classList.toggle('is-editing', isHistoryMemoEditing);
+      button.setAttribute('aria-label', isHistoryMemoEditing ? '履歴メモの編集を完了' : '履歴メモを編集');
+    }
+
+    function toggleHistoryMemoEdit() {
+      isHistoryMemoEditing = !isHistoryMemoEditing;
+      syncHistoryMemoEditButton();
+      renderHistoryMemoFields();
+    }
+
+    function sortHistoryMemoEntries() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      const rows = (task.historyMemo || []).map((memo, index) => ({ memo, at: task.historyMemoAt?.[index] || '' })).filter(row => row.memo);
+      rows.sort((a, b) => a.at.localeCompare(b.at) * (historyMemoSortOrder === 'asc' ? 1 : -1));
+      task.historyMemo = rows.map(row => row.memo);
+      task.historyMemoAt = rows.map(row => row.at);
+      task.historyMemo.push('');
+      task.historyMemoAt.push('');
+    }
+
+    function toggleHistoryMemoSort() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      historyMemoSortOrder = historyMemoSortOrder === 'asc' ? 'desc' : 'asc';
+      sortHistoryMemoEntries();
+      syncHistoryMemoSortButton();
+      renderHistoryMemoFields();
+    }
+
+    function renderHistoryMemoFields() {
+      const task = currentEditingTaskDraft;
+      const container = document.getElementById('history-memo-container');
+      if (!task || !container) return;
+      if (!Array.isArray(task.historyMemo)) task.historyMemo = [];
+      if (!Array.isArray(task.historyMemoAt)) task.historyMemoAt = [];
+      while (task.historyMemoAt.length < task.historyMemo.length) task.historyMemoAt.push('');
+      if (task.historyMemo.length === 0 || task.historyMemo[task.historyMemo.length - 1]) task.historyMemo.push('');
+      container.innerHTML = '';
+      const entries = task.historyMemo.map((memo, index) => ({ memo, at: task.historyMemoAt[index] || '', index }));
+      const displayEntries = historyMemoSortOrder === 'desc'
+        ? [...entries.filter(entry => !entry.memo), ...entries.filter(entry => entry.memo)]
+        : entries;
+      displayEntries.forEach(({ memo, at, index }) => {
+        const row = document.createElement('div');
+        row.className = `history-memo-row${memo ? ' is-filled' : ''}`;
+        const time = document.createElement('span');
+        time.className = 'history-memo-time';
+        time.textContent = at;
+        const canEdit = !at || isHistoryMemoEditing;
+        if (canEdit) {
+          const input = document.createElement('textarea');
+          input.className = 'task-input history-memo-input';
+          input.rows = 1;
+          input.placeholder = '履歴メモを入力…';
+          input.value = memo || '';
+          input.addEventListener('input', event => {
+            row.classList.toggle('is-filled', Boolean(event.target.value));
+            resizeHistoryMemoInput(event.target);
+            updateHistoryMemo(index, event.target.value);
+          });
+          input.addEventListener('blur', () => commitHistoryMemo(index));
+          row.append(input, time);
+          resizeHistoryMemoInput(input);
+        } else {
+          const text = document.createElement('div');
+          text.className = 'history-memo-text';
+          text.textContent = memo;
+          row.append(text, time);
+        }
+        if (isHistoryMemoEditing && at) {
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'history-memo-delete-button';
+          remove.innerHTML = '<svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>';
+          remove.setAttribute('aria-label', 'この履歴メモを削除');
+          remove.onclick = () => deleteHistoryMemo(index);
+          row.appendChild(remove);
+        }
+        container.appendChild(row);
+      });
+      syncHistoryMemoSortButton();
+      syncHistoryMemoEditButton();
+    }
+
+    function resizeHistoryMemoInput(input) {
+      input.style.height = 'auto';
+      input.style.height = `${Math.max(38, input.scrollHeight)}px`;
+    }
+
+    function updateHistoryMemo(index, value) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      task.historyMemo[index] = value;
+    }
+
+    function commitHistoryMemo(index) {
+      const task = currentEditingTaskDraft;
+      if (!task || task.historyMemoAt[index] || !task.historyMemo[index]) return;
+      task.historyMemoAt[index] = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      sortHistoryMemoEntries();
+      renderHistoryMemoFields();
+    }
+
+    function deleteHistoryMemo(index) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      task.historyMemo.splice(index, 1);
+      task.historyMemoAt.splice(index, 1);
+      renderHistoryMemoFields();
+    }
+
+    function toggleTaskStatusMenu(event) {
+      if (event?.target?.closest('.task-status-menu')) return;
       const menu = document.getElementById('task-status-menu');
       const picker = document.getElementById('task-status-picker');
       const isOpen = !menu.classList.contains('hidden');
@@ -2398,7 +3143,8 @@
       picker.setAttribute('aria-expanded', String(!isOpen));
     }
 
-    function selectTaskStatus(status) {
+    function selectTaskStatus(status, event) {
+      event?.stopPropagation();
       updateCurrentTaskStatus(status);
       document.getElementById('task-status-menu').classList.add('hidden');
       document.getElementById('task-status-picker').setAttribute('aria-expanded', 'false');
@@ -2482,6 +3228,20 @@
     let touchStartX = 0;
     let touchStartY = 0;
 
+    mainContent.addEventListener('pointerdown', event => {
+      if (currentActiveView !== 'task-page') return;
+      if (!event.target.closest('.category-control')) {
+        document.getElementById('category-menu')?.classList.add('hidden');
+        document.getElementById('category-picker')?.setAttribute('aria-expanded', 'false');
+      }
+      if (!event.target.closest('.task-status-control')) {
+        document.getElementById('task-status-menu')?.classList.add('hidden');
+        document.getElementById('task-status-picker')?.setAttribute('aria-expanded', 'false');
+      }
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && event.target !== active) active.blur();
+    });
+
     mainContent.addEventListener('touchstart', event => {
       if (event.touches.length !== 1) return;
       touchStartX = event.touches[0].clientX;
@@ -2523,7 +3283,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 16:39:58';
+  const BUILD_CREATED_AT = '2026.10.20 1:40:14';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

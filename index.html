@@ -388,12 +388,17 @@
       margin: 8px 0 10px;
     }
 
-    .detail-meta-text,
-    .status-label {
+    .detail-meta-text {
       display: block;
       font-size: 12px;
       font-weight: normal;
       color: #64748b;
+    }
+
+    .status-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #475569;
     }
 
     .task-status-picker,
@@ -441,6 +446,65 @@
     .task-status-option { width: 100%; padding: 7px 8px; border: 1px solid #cbd5e1; border-radius: 8px; justify-content: flex-start; }
     .task-status-option.selected.status-completed { background-color: #2563eb; border-color: #2563eb; color: #ffffff; }
     .task-status-option.selected.status-pending { background-color: #dcfce7; border-color: #86efac; color: #166534; }
+
+    .status-icon-spacer {
+      display: inline-block;
+      width: 18px;
+      flex: 0 0 18px;
+    }
+
+    .category-control {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .category-picker {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #475569;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .category-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 190px;
+      display: grid;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    .category-option {
+      width: 100%;
+      padding: 7px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #475569;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: left;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-option.selected { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+    .category-settings-link { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
 
     .datetime-row {
       display: flex;
@@ -536,15 +600,50 @@
 
     .reference-link-row {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 6px;
       margin-top: 8px;
     }
 
     .reference-link-input {
+      min-width: 0;
       padding: 7px 8px;
       font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+
+    .category-settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .category-settings-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .category-settings-add .task-input { font-size: 13px; }
+
+    .category-settings-add-button,
+    .category-settings-remove-button {
+      border: 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .category-settings-add-button { padding: 0 12px; color: #ffffff; background: #2563eb; }
+    .category-settings-remove-button { padding: 4px 8px; color: #dc2626; background: #fef2f2; }
 
     .memo-help {
       font-size: 11px;
@@ -1054,7 +1153,15 @@
           </label>
         </div>
       </div>
-      <div id="view-settings-category" class="hidden settings-subpage"><div class="card"><div class="empty-msg">カテゴリ設定</div></div></div>
+      <div id="view-settings-category" class="hidden settings-subpage">
+        <div class="card">
+          <div id="category-settings-list"></div>
+          <div class="category-settings-add">
+            <input type="text" id="category-settings-input" class="task-input" placeholder="カテゴリ名を入力">
+            <button type="button" class="category-settings-add-button" onclick="addCategorySetting()">追加</button>
+          </div>
+        </div>
+      </div>
       <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><div class="empty-msg">メール通知設定</div></div></div>
       <div id="view-action-templates" class="hidden settings-subpage"><div class="card"><div class="empty-msg">アクションテンプレートはまだ登録されていません</div></div></div>
       <div id="view-settings-backup" class="hidden settings-subpage"><div class="card"><div class="empty-msg">データのバックアップ・復元</div></div></div>
@@ -1083,20 +1190,24 @@
           </div>
 
           <div class="task-status-control">
-            <span class="status-label">ステータス</span>
+            <span class="status-label icon-with-text"><span aria-hidden="true">🔘</span>ステータス</span>
             <button type="button" id="task-status-picker" class="task-status-picker" onclick="toggleTaskStatusMenu()" aria-label="ステータスを選択" aria-expanded="false">
               <span id="task-status-picker-label"></span>
               <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
             </button>
             <div id="task-status-menu" class="task-status-menu hidden">
-              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')">未完了</button>
-              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了</span></button>
-              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留</span></button>
+              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')"><span class="status-icon-spacer" aria-hidden="true"></span>未完了</button>
+              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了済み</span></button>
+              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留中</span></button>
             </div>
           </div>
 
-          <div class="form-group">
-            <span class="label-text icon-with-text" style="color: #475569;"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg>カテゴリ：[一般]</span>
+          <div class="category-control">
+            <button type="button" id="category-picker" class="category-picker" onclick="toggleCategoryMenu()" aria-label="カテゴリを選択" aria-expanded="false">
+              <span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg><span id="category-picker-label">カテゴリ：[一般]</span></span>
+              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
+            </button>
+            <div id="category-menu" class="category-menu hidden"></div>
           </div>
 
           <div class="datetime-row">
@@ -1121,8 +1232,13 @@
           </div>
 
           <div class="reference-links-section">
-            <div class="reference-links-title">参考リンク</div>
-            <div id="reference-links-container"></div>
+            <div class="memo-card-title">
+              <div class="reference-links-title icon-with-text"><span aria-hidden="true">🔗</span>参考リンク</div>
+              <button type="button" id="reference-links-toggle-button" class="memo-expand-button" onclick="toggleReferenceLinksExpanded()" aria-label="参考リンクを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
+            </div>
+            <div id="reference-links-content">
+              <div id="reference-links-container"></div>
+            </div>
           </div>
 
           <div class="tree-card">
@@ -1187,6 +1303,18 @@
     </div>
   </div>
 
+  <!-- 3. 日付未入力の保存確認モーダル -->
+  <div id="missing-date-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">日付の確認</div>
+      <div class="modal-message">期限、対応予定日が入力されていませんが保存してもいいですか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeMissingDateConfirmModal()">戻る</button>
+        <button class="btn-modal-save" onclick="executeSaveWithoutDates()">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let tasks = [];
     let nextIdCounter = 1;
@@ -1197,6 +1325,7 @@
     let currentProjectSubview = 'data';
     let currentCalendarMode = 'due';
     let displaySettings = { memoDefaultExpanded: true };
+    let taskCategories = [];
 
     function iconMarkup(name, extraClass = '') {
       return `<svg class="app-icon ${extraClass}" aria-hidden="true"><use href="icons.svg#${name}"></use></svg>`;
@@ -1284,6 +1413,22 @@
       displaySettings.memoDefaultExpanded = expanded;
       saveDisplaySettings();
       syncDisplaySettingsUI();
+    }
+
+    function loadTaskCategories() {
+      try {
+        const savedCategories = JSON.parse(localStorage.getItem('coach_app_task_categories') || 'null');
+        taskCategories = Array.isArray(savedCategories)
+          ? [...new Set(savedCategories.map(category => String(category).trim()).filter(Boolean))]
+          : ['一般'];
+      } catch (e) {
+        taskCategories = ['一般'];
+      }
+      saveTaskCategories();
+    }
+
+    function saveTaskCategories() {
+      localStorage.setItem('coach_app_task_categories', JSON.stringify(taskCategories));
     }
 
     function normalizeRecord(record, fallbackId) {
@@ -1688,6 +1833,7 @@
       renderTopProjectTab();
       renderCalendar();
       renderFooterPages();
+      renderCategorySettings();
     }
 
     function renderQuickStatus() {
@@ -1872,7 +2018,9 @@
       document.getElementById('detail-plan-date-input').value = task.actionDate || '';
       renderReferenceLinkFields();
       syncTaskStatusPicker();
+      syncCategoryPicker();
       setMemoExpanded(displaySettings.memoDefaultExpanded);
+      setReferenceLinksExpanded(true);
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
@@ -1972,6 +2120,22 @@
       setMemoExpanded(memoContent.classList.contains('hidden'));
     }
 
+    function setReferenceLinksExpanded(expanded) {
+      const content = document.getElementById('reference-links-content');
+      const button = document.getElementById('reference-links-toggle-button');
+      if (!content || !button) return;
+      content.classList.toggle('hidden', !expanded);
+      button.setAttribute('aria-expanded', String(expanded));
+      button.setAttribute('aria-label', expanded ? '参考リンクを閉じる' : '参考リンクを開く');
+      button.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#${expanded ? 'chevron-up' : 'chevron-down'}"></use></svg>`;
+    }
+
+    function toggleReferenceLinksExpanded() {
+      const content = document.getElementById('reference-links-content');
+      if (!content) return;
+      setReferenceLinksExpanded(content.classList.contains('hidden'));
+    }
+
     function updateCurrentTaskField(field, value) {
       if (currentEditingTaskDraft) {
         currentEditingTaskDraft[field] = value;
@@ -2009,6 +2173,11 @@
       const task = currentEditingTaskDraft;
       if (!task) return;
 
+      if (!task.deadlineDate && !task.actionDate) {
+        document.getElementById('missing-date-confirm-modal').classList.remove('hidden');
+        return;
+      }
+
       const conflicts = checkDateConflicts(task);
 
       if (conflicts.invalidDues.length > 0 || conflicts.invalidPlans.length > 0) {
@@ -2039,6 +2208,16 @@
 
     function closeDateWarningModal() {
       document.getElementById('date-warning-modal').classList.add('hidden');
+    }
+
+    function executeSaveWithoutDates() {
+      document.getElementById('missing-date-confirm-modal').classList.add('hidden');
+      const task = currentEditingTaskDraft;
+      if (task) executeFinalSave(task);
+    }
+
+    function closeMissingDateConfirmModal() {
+      document.getElementById('missing-date-confirm-modal').classList.add('hidden');
     }
 
     function executeFinalSave(task) {
@@ -2074,6 +2253,100 @@
         task.completedAt = status === 'completed' ? (task.completedAt || new Date().toISOString()) : null;
         syncTaskStatusPicker();
       }
+    }
+
+    function syncCategoryPicker() {
+      const task = currentEditingTaskDraft;
+      const label = document.getElementById('category-picker-label');
+      if (!task || !label) return;
+      label.textContent = `カテゴリ：[${task.category || '一般'}]`;
+    }
+
+    function toggleCategoryMenu() {
+      const menu = document.getElementById('category-menu');
+      const picker = document.getElementById('category-picker');
+      const isOpen = !menu.classList.contains('hidden');
+      if (!isOpen) renderCategoryMenu();
+      menu.classList.toggle('hidden', isOpen);
+      picker.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function renderCategoryMenu() {
+      const menu = document.getElementById('category-menu');
+      const task = currentEditingTaskDraft;
+      if (!menu || !task) return;
+      menu.innerHTML = '';
+      const selectedCategory = task.category || '一般';
+
+      taskCategories.forEach(category => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = `category-option${category === selectedCategory ? ' selected' : ''}`;
+        option.textContent = category;
+        option.onclick = () => selectTaskCategory(category);
+        menu.appendChild(option);
+      });
+
+      const settingsLink = document.createElement('button');
+      settingsLink.type = 'button';
+      settingsLink.className = 'category-option category-settings-link icon-with-text';
+      settingsLink.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#sliders"></use></svg>カテゴリを管理`;
+      settingsLink.onclick = openCategorySettingsFromTask;
+      menu.appendChild(settingsLink);
+    }
+
+    function selectTaskCategory(category) {
+      updateCurrentTaskField('category', category);
+      syncCategoryPicker();
+      document.getElementById('category-menu').classList.add('hidden');
+      document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
+    }
+
+    function openCategorySettingsFromTask() {
+      document.getElementById('category-menu').classList.add('hidden');
+      document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
+      openSettingsPage('settings-category');
+    }
+
+    function renderCategorySettings() {
+      const list = document.getElementById('category-settings-list');
+      if (!list) return;
+      list.innerHTML = '';
+
+      if (taskCategories.length === 0) {
+        list.innerHTML = '<div class="empty-msg">カテゴリはまだありません</div>';
+        return;
+      }
+
+      taskCategories.forEach((category, index) => {
+        const row = document.createElement('div');
+        row.className = 'category-settings-row';
+        const name = document.createElement('span');
+        name.textContent = category;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'category-settings-remove-button';
+        remove.textContent = '削除';
+        remove.onclick = () => deleteCategorySetting(index);
+        row.append(name, remove);
+        list.appendChild(row);
+      });
+    }
+
+    function addCategorySetting() {
+      const input = document.getElementById('category-settings-input');
+      const category = input.value.trim();
+      if (!category || taskCategories.includes(category)) return;
+      taskCategories.push(category);
+      saveTaskCategories();
+      input.value = '';
+      renderCategorySettings();
+    }
+
+    function deleteCategorySetting(index) {
+      taskCategories.splice(index, 1);
+      saveTaskCategories();
+      renderCategorySettings();
     }
 
     function renderReferenceLinkFields() {
@@ -2136,14 +2409,14 @@
       if (!task) return;
 
       const status = task.status === 'completed' || task.status === 'pending' ? task.status : 'todo';
-      const labels = { todo: '未完了', completed: '完了', pending: '保留' };
+      const labels = { todo: '未完了', completed: '完了済み', pending: '保留中' };
       const icons = { completed: 'check-circle', pending: 'inbox' };
       const picker = document.getElementById('task-status-picker');
       const label = document.getElementById('task-status-picker-label');
 
       picker.className = `task-status-picker status-${status}`;
       label.innerHTML = status === 'todo'
-        ? labels.todo
+        ? `<span class="status-icon-spacer" aria-hidden="true"></span>${labels.todo}`
         : `<span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#${icons[status]}"></use></svg>${labels[status]}</span>`;
       document.querySelectorAll('.task-status-option').forEach(option => {
         const optionStatus = option.dataset.status;
@@ -2196,6 +2469,7 @@
     }
 
     loadDisplaySettings();
+    loadTaskCategories();
     loadTasksFromStorage();
     // アプリ起動時は画面遷移アニメーションを行わず、今日のタスクを直接表示する。
     switchViewDirect('quickstatus');
@@ -2249,7 +2523,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 15:25:19';
+  const BUILD_CREATED_AT = '2026.10.20 16:39:58';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -637,7 +637,7 @@
     .history-memo-time { flex: 0 0 auto; padding-top: 10px; color: #64748b; font-size: 10px; white-space: nowrap; }
     .history-memo-delete-button { flex: 0 0 auto; width: 30px; height: 30px; margin-top: 4px; padding: 0; border: 0; border-radius: 7px; background: #fef2f2; color: #dc2626; cursor: pointer; }
     .history-memo-text { min-width: 0; flex: 1; padding: 8px 0; color: #334155; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
-    .history-memo-controls { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+    .history-memo-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0; }
     .history-memo-edit-button, .history-memo-sort-button { height: 30px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #475569; font-size: 11px; font-weight: bold; cursor: pointer; }
     .history-memo-edit-button.is-editing { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
     .section-title-actions { display: flex; align-items: center; gap: 6px; }
@@ -1367,8 +1367,8 @@
             </div>
             <div id="history-memo-content">
               <div class="history-memo-controls">
+                <button type="button" id="history-memo-sort-button" class="history-memo-sort-button" onclick="toggleHistoryMemoSort()" aria-label="履歴メモを古い順に並び替え" title="古い順に並び替え">↓ 新しい順</button>
                 <button type="button" id="history-memo-edit-button" class="history-memo-edit-button" onclick="toggleHistoryMemoEdit()">編集</button>
-                <button type="button" id="history-memo-sort-button" class="history-memo-sort-button" onclick="toggleHistoryMemoSort()" aria-label="履歴メモを古い順に並び替え" title="古い順に並び替え">↑ 古い順</button>
               </div>
               <div id="history-memo-container"></div>
             </div>
@@ -1531,7 +1531,7 @@
     let taskReturnView = 'quickstatus';
     let referenceLinkEditingIndexes = new Set();
     let editingReferenceLinkIndex = null;
-    let historyMemoSortOrder = 'asc';
+    let historyMemoSortOrder = 'desc';
     let isHistoryMemoEditing = false;
 
     const CATEGORY_COLOR_OPTIONS = ['#2563eb', '#7c3aed', '#db2777', '#e11d48', '#ea580c', '#d97706', '#16a34a', '#0f766e', '#0891b2', '#4f46e5'];
@@ -3014,7 +3014,7 @@
       if (!button) return;
       const isAscending = historyMemoSortOrder === 'asc';
       button.textContent = isAscending ? '↑ 古い順' : '↓ 新しい順';
-      button.title = isAscending ? '古い順に並び替え' : '新しい順に並び替え';
+      button.title = isAscending ? '新しい順に並び替え' : '古い順に並び替え';
       button.setAttribute('aria-label', button.title);
     }
 
@@ -3032,11 +3032,28 @@
       renderHistoryMemoFields();
     }
 
+    function historyMemoTimestamp(value) {
+      if (!value) return 0;
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function formatHistoryMemoTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value).replace(/:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?$/, '');
+      return date.toLocaleString('ja-JP', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
     function sortHistoryMemoEntries() {
       const task = currentEditingTaskDraft;
       if (!task) return;
       const rows = (task.historyMemo || []).map((memo, index) => ({ memo, at: task.historyMemoAt?.[index] || '' })).filter(row => row.memo);
-      rows.sort((a, b) => a.at.localeCompare(b.at) * (historyMemoSortOrder === 'asc' ? 1 : -1));
+      rows.sort((a, b) => historyMemoTimestamp(a.at) - historyMemoTimestamp(b.at));
+      if (historyMemoSortOrder === 'desc') rows.reverse();
       task.historyMemo = rows.map(row => row.memo);
       task.historyMemoAt = rows.map(row => row.at);
       task.historyMemo.push('');
@@ -3062,15 +3079,19 @@
       if (task.historyMemo.length === 0 || task.historyMemo[task.historyMemo.length - 1]) task.historyMemo.push('');
       container.innerHTML = '';
       const entries = task.historyMemo.map((memo, index) => ({ memo, at: task.historyMemoAt[index] || '', index }));
-      const displayEntries = historyMemoSortOrder === 'desc'
-        ? [...entries.filter(entry => !entry.memo), ...entries.filter(entry => entry.memo)]
-        : entries;
+      // 新規入力欄は並び順に関係なく先頭に配置する。
+      const newEntries = entries.filter(entry => !entry.memo);
+      const savedEntries = entries.filter(entry => entry.memo).sort((a, b) => {
+        const difference = historyMemoTimestamp(a.at) - historyMemoTimestamp(b.at);
+        return difference === 0 ? a.index - b.index : difference * (historyMemoSortOrder === 'asc' ? 1 : -1);
+      });
+      const displayEntries = [...newEntries, ...savedEntries];
       displayEntries.forEach(({ memo, at, index }) => {
         const row = document.createElement('div');
         row.className = `history-memo-row${memo ? ' is-filled' : ''}`;
         const time = document.createElement('span');
         time.className = 'history-memo-time';
-        time.textContent = at;
+        time.textContent = formatHistoryMemoTime(at);
         const canEdit = !at || isHistoryMemoEditing;
         if (canEdit) {
           const input = document.createElement('textarea');
@@ -3121,7 +3142,7 @@
     function commitHistoryMemo(index) {
       const task = currentEditingTaskDraft;
       if (!task || task.historyMemoAt[index] || !task.historyMemo[index]) return;
-      task.historyMemoAt[index] = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      task.historyMemoAt[index] = new Date().toISOString();
       sortHistoryMemoEntries();
       renderHistoryMemoFields();
     }
@@ -3283,7 +3304,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 1:40:14';
+  const BUILD_CREATED_AT = '2026.10.20 16:10:14';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

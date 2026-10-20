@@ -795,7 +795,65 @@
       gap: 4px;
     }
 
-    .tree-item {
+
+    /* タスクページ最下部：階層型プロジェクトビュー */
+    body:has(#view-task-page:not(.hidden)),
+    body:has(#view-task-page:not(.hidden)) .app-container,
+    body:has(#view-task-page:not(.hidden)) .main-content,
+    body:has(#view-task-page:not(.hidden)) .main-scroll-area { touch-action: auto; }
+    .project-tree-section { margin-top: 18px; min-width: 0; }
+    .project-tree-section-heading { font-size: 14px; font-weight: 700; color: #334155; margin: 0 0 8px; display: flex; align-items: center; gap: 5px; }
+    .project-tree-scroll { overflow-x: auto; overflow-y: auto; max-width: 100%; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: auto; scrollbar-width: auto; scrollbar-color: #94a3b8 #e2e8f0; border: 0; border-radius: 0; }
+    .project-tree-scroll::-webkit-scrollbar { height: 12px; }
+    .project-tree-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .project-tree-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 2px solid #f1f5f9; border-radius: 8px; }
+    #detail-tree-list { width: max-content; min-width: 100%; }
+    .project-tree-columns, .project-tree-row {
+      display: grid;
+      grid-template-columns: minmax(240px, 2fr) 115px 140px 140px minmax(200px, 1fr);
+      min-width: 850px;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .project-tree-columns { color: #9ca3af; font-size: 15px; font-weight: 500; background: #fff; }
+    .project-tree-columns > span { padding: 13px 8px; }
+    .project-tree-row { min-height: 51px; font-size: 15px; position: relative; }
+    .project-tree-title-cell { display: flex; align-items: center; min-width: 0; gap: 5px; }
+    .project-tree-toggle { flex: 0 0 22px; border: 0; background: transparent; color: #475569; cursor: pointer; padding: 7px 0; }
+    .project-tree-toggle:disabled { cursor: default; }
+    .project-tree-title { border: 0; background: transparent; text-align: left; cursor: pointer; color: #1e293b; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; padding: 9px 2px; }
+    .project-tree-title-input { min-width: 0; width: 100%; padding: 6px; border: 1px solid #94a3b8; border-radius: 4px; font-size: 15px; }
+    .project-tree-title:hover { text-decoration: underline; }
+    .project-tree-completed { text-decoration: line-through; color: #94a3b8; }
+    .project-tree-property { padding: 8px; overflow-wrap: anywhere; color: #475569; }
+    .project-tree-add { display: block; position: relative; box-sizing: border-box; min-width: 850px; width: 100%; border: 0; border-bottom: 1px solid #e2e8f0; background: #fff; text-align: left; padding-top: 10px; padding-bottom: 10px; color: #94a3b8; font-size: 12px; cursor: pointer; }
+    .project-tree-add:hover { background: #f8fafc; }
+    .project-tree-branch { position: absolute; pointer-events: none; width: 1px; background: #b7c0cc; top: 0; bottom: 0; }
+    .project-tree-branch-end { position: absolute; pointer-events: none; height: 1px; background: #b7c0cc; top: 50%; }
+    .project-tree-add { font-size: 10px; }
+    .project-tree-columns { position: sticky; top: 0; z-index: 15; background: white; }
+    .project-tree-title-cell { position: relative; padding-left: 0 !important; }
+    .project-tree-drag { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 4; width: 20px; }
+    .project-tree-toggle, .project-tree-title, .project-tree-edit { position: relative; z-index: 2; background: white; }
+    .project-tree-edit { border: 0; color: #64748b; padding: 5px; cursor: pointer; font-size: 15px; }
+    .project-tree-branch, .project-tree-branch-end { z-index: 0; }
+    .project-tree-add-label { position: relative; z-index: 2; background: white; }
+    .project-tree-edit-fields { display: grid; gap: 10px; text-align: left; margin: 12px 0; }
+    .project-tree-edit-fields label { display: grid; gap: 4px; font-size: 13px; }
+    .project-tree-edit-fields input, .project-tree-edit-fields textarea { box-sizing: border-box; width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 5px; font: inherit; }
+    .project-tree-edit-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .project-tree-edit-actions button { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 5px; background: white; cursor: pointer; }
+    .project-tree-edit-actions .save { background: #2563eb; color: white; }
+    .project-tree-edit-actions .delete { color: #b91c1c; margin-right: auto; }
+    .project-tree-drag { flex: 0 0 20px; border: 0; background: transparent; color: #94a3b8; cursor: grab; padding: 8px 0; touch-action: none; user-select: none; }
+    .project-tree-drag:active { cursor: grabbing; }
+    .project-tree-drag:disabled { opacity: .2; cursor: default; }
+    .project-tree-row.project-tree-drop-before { box-shadow: inset 0 3px #2563eb; }
+    .project-tree-row.project-tree-drop-after { box-shadow: inset 0 -3px #2563eb; }
+    .project-tree-row.project-tree-drop-inside { background: #dbeafe; outline: 1px solid #2563eb; }
+    .project-tree-drag-ghost { position: fixed; pointer-events: none; z-index: 99999; background: white; border: 1px solid #93c5fd; border-radius: 6px; padding: 7px 12px; box-shadow: 0 4px 16px #0002; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+\n    .tree-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1062,6 +1120,72 @@
       min-height: 0;
     }
 
+    /* ゴミ箱：既存ヘッダーと下部ナビはそのまま利用 */
+    /* タイトルはヘッダー中央、ゴミ箱専用操作はヘッダー右端に独立配置 */
+    .menu-title-actions { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); white-space:nowrap; pointer-events:none; }
+    .menu-title-actions .subpage-title { position:static; margin:0; pointer-events:auto; }
+    #header-menu-sub-group .trash-header-select { position:absolute; right:0; top:50%; transform:translateY(-50%); left:auto; margin:0; z-index:2; background:#fff; border:0; border-radius:999px; color:#334155; padding:10px 18px; font-size:13px; font-weight:700; box-shadow:0 3px 12px #1e293b0d; cursor:pointer; white-space:nowrap; }
+    @media (max-width:480px) { #header-menu-sub-group .trash-header-select { font-size:11px; padding:9px 12px; } }
+    .trash-card { padding: 8px 16px !important; }
+    .trash-entry { display:flex; gap:14px; align-items:center; padding:17px 0; border-bottom:1px solid #e2e8f0; }
+    .trash-entry:last-child { border-bottom:0; }
+    .trash-entry input { width:21px; height:21px; accent-color:#1672f7; flex:none; }
+    .trash-entry-main { flex:1; min-width:0; background:none; border:0; text-align:left; color:#1e293b; padding:0; cursor:pointer; }
+    .trash-entry-main strong { display:block; font-size:15px; }
+    .trash-entry-main small { display:block; color:#94a3b8; margin-top:5px; font-size:12px; }
+    .trash-entry-chevron { color:#64748b; font-size:22px; }
+    .trash-actions { display:flex; justify-content:space-between; padding:22px 8px 12px; }
+    .trash-round-action { display:flex; flex-direction:column; align-items:center; gap:7px; border:0; background:transparent; color:#334155; font-weight:700; cursor:pointer; }
+    .trash-action-circle { display:flex; align-items:center; justify-content:center; width:66px; height:66px; border-radius:50%; background:#fff; box-shadow:0 5px 20px #1e293b13; font-size:37px; font-weight:400; }
+    .trash-action-circle .app-icon { width:30px; height:30px; }
+    .trash-round-action.danger { color:#dc2626; }
+    /* ゴミ箱の操作はスクロール領域の外、下部ナビの上に固定 */
+    .app-container { position: relative; }
+    #view-trash { padding-bottom: 125px; }
+    #trash-fixed-actions.trash-actions {
+      position: absolute;
+      z-index: 30;
+      left: 18px;
+      right: 18px;
+      bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      justify-content: space-between;
+      padding: 0;
+      pointer-events: none;
+    }
+    #trash-fixed-actions.hidden { display: none; }
+    .app-container:has(#view-trash:not(.hidden)) #trash-fixed-actions { display: flex; }
+    .app-container:has(#view-trash.hidden) #trash-fixed-actions { display: none; }
+    #trash-fixed-actions .trash-round-action {
+      width: 83px;
+      height: 83px;
+      flex: 0 0 83px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .19), 0 2px 6px rgba(15, 23, 42, .07);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      pointer-events: auto;
+      font-size: 13px;
+      line-height: 1.2;
+      transition: transform .15s, box-shadow .15s;
+    }
+    #trash-fixed-actions .trash-round-action:active { transform: scale(.96); }
+    #trash-fixed-actions .trash-round-action .app-icon { width: 28px; height: 28px; }
+    #trash-fixed-actions .trash-action-glyph { font-size: 31px; line-height: 30px; font-weight: 400; }
+
+    .trash-detail-dialog { max-height:82vh; overflow:auto; }
+    .trash-detail-row { display:grid; grid-template-columns:34% 1fr; gap:8px; background:#f1f5f9; border-radius:9px; padding:10px; margin:5px 0; font-size:13px; overflow-wrap:anywhere; }
+    .trash-detail-row .trash-detail-label { color:#94a3b8; }
+    .trash-detail-row a { color:#2563eb; }
+    .trash-dialog-title { text-align:center; font-size:19px; font-weight:700; margin:0 0 18px; color:#1e293b; }
+    .trash-dialog-text { text-align:center; color:#64748b; line-height:1.7; margin-bottom:20px; }
+    .trash-dialog-buttons { display:flex; gap:10px; }
+    .trash-dialog-buttons button { flex:1; border:1px solid #cbd5e1; border-radius:12px; background:#f1f5f9; color:#475569; font-weight:700; padding:13px 6px; }
+    .trash-dialog-buttons button.danger { background:#dc2626; color:#fff; border-color:#dc2626; }
     /* 各ページの本体。ここだけをスクロールさせる */
     .main-content {
       display: block;
@@ -1097,7 +1221,7 @@
         <!-- メニューおよびその中の項目ページ専用ヘッダー（戻るボタン ＋ センターのタイトル） -->
         <div id="header-menu-sub-group" class="header-left-group hidden" style="width: 100%; position: relative;">
           <span class="top-nav-link" onclick="goBack()"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></span>
-          <h2 class="subpage-title" id="header-menu-page-title">メニュー</h2>
+          <div class="menu-title-actions"><h2 class="subpage-title" id="header-menu-page-title">メニュー</h2></div><button id="trash-select-all" class="trash-header-select hidden" type="button" onclick="toggleTrashSelectAll()">✓ すべて選択</button>
         </div>
         <!-- その他のサブページ・詳細ページ用ヘッダー -->
         <div id="header-sub-group" class="header-left-group hidden">
@@ -1256,9 +1380,9 @@
 
       <!-- 【固定ページ】6. view-trash -->
       <div id="view-trash" class="hidden">
-        <div class="card">
-          <div id="list-trash" class="space-y-2"><div class="empty-msg">削除された項目はありません</div></div>
-        </div>
+        
+        <div class="card trash-card"><div id="list-trash"><div class="empty-msg">削除された項目はありません</div></div></div>
+
       </div>
 
       <!-- 設定内の各項目ページ -->
@@ -1384,10 +1508,12 @@
             </div>
           </div>
 
-          <div class="tree-card">
-            <div class="tree-header icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#list-tree"></use></svg>同一プロジェクトの全項目 (ツリー形式)</div>
-            <div id="detail-tree-list"></div>
-          </div>
+          <section class="project-tree-section" aria-label="タスク一覧">
+            <h3 class="project-tree-section-heading"><span aria-hidden="true">📋</span> タスク一覧</h3>
+            <div class="project-tree-scroll" id="project-tree-scroll" tabindex="0" aria-label="タスク一覧（左右にスクロールできます）">
+              <div id="detail-tree-list"></div>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -1399,6 +1525,16 @@
       </div>
       </div>
     </main>
+
+    <!-- 最近削除した項目専用：スクロール領域の外に置く固定操作ボタン -->
+    <div id="trash-fixed-actions" class="trash-actions">
+      <button class="trash-round-action" type="button" onclick="restoreSelectedTrash()" aria-label="選択した項目を復旧">
+        <span class="trash-action-glyph" aria-hidden="true">↶</span><span>復旧</span>
+      </button>
+      <button class="trash-round-action danger" type="button" onclick="confirmPermanentTrashDelete()" aria-label="選択した項目を完全削除">
+        <svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg><span>削除</span>
+      </button>
+    </div>
 
     <!-- 下部フッターナビゲーション -->
     <footer id="global-footer" class="footer-nav">
@@ -1423,6 +1559,23 @@
   </div>
 
   <!-- 1. 削除確認モーダル -->
+  <div id="trash-detail-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="項目の詳細">
+    <div class="modal-box trash-detail-dialog" style="max-width:480px; width:calc(100% - 36px);">
+      <button type="button" onclick="closeTrashDetail()" style="border:0;background:none;font-size:27px;color:#64748b;float:left;">×</button>
+      <h3 class="trash-dialog-title">項目の詳細</h3>
+      <div id="trash-detail-body"></div>
+    </div>
+  </div>
+  <div id="trash-permanent-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="項目の完全削除">
+    <div class="modal-box" style="max-width:420px; width:calc(100% - 36px);">
+      <h3 class="trash-dialog-title">項目の完全削除</h3>
+      <p class="trash-dialog-text">選択した項目を完全に削除しますか？<br>この操作は取り消せません。</p>
+      <div class="trash-dialog-buttons">
+        <button type="button" onclick="closePermanentTrashDelete()">戻る</button>
+        <button type="button" class="danger" onclick="executePermanentTrashDelete()">完全に削除する</button>
+      </div>
+    </div>
+  </div>
   <div id="delete-confirm-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-title">項目の削除</div>
@@ -1447,6 +1600,23 @@
   </div>
 
   <!-- 3. 日付未入力の保存確認モーダル -->
+  <div id="project-tree-open-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="project-tree-open-title">
+    <div class="modal-box" style="max-width:420px">
+      <div class="modal-title" id="project-tree-open-title">タスクの簡易編集</div>
+      <div class="project-tree-edit-fields">
+        <label>タスク名<input id="project-tree-edit-name" type="text"></label>
+        <label>期限<input id="project-tree-edit-deadline" type="date"></label>
+        <label>対応予定日<input id="project-tree-edit-action" type="date"></label>
+        <label>メモ<textarea id="project-tree-edit-memo" rows="3"></textarea></label>
+      </div>
+      <div class="project-tree-edit-actions">
+        <button type="button" class="delete" onclick="deleteProjectTreeItem()">削除</button>
+        <button type="button" onclick="closeProjectTreeOpenModal()">閉じる</button>
+        <button type="button" onclick="confirmProjectTreeOpen()">ページに飛ぶ</button>
+        <button type="button" class="save" onclick="saveProjectTreeQuickEdit()">更新</button>
+      </div>
+    </div>
+  </div>
   <div id="missing-date-confirm-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-title">日付の確認</div>
@@ -1785,6 +1955,35 @@
       tasks.forEach(resolve);
     }
 
+    // 操作により確定した変更のみ履歴化する。内部管理値と履歴メモ自体は対象外。
+    const auditFields = [
+      ['title', 'タスク名'], ['status', 'ステータス'], ['category', 'カテゴリ'],
+      ['deadlineDate', '期限'], ['deadlineTime', '期限時刻'], ['deadlineEndDate', '期限終了日'], ['deadlineEndTime', '期限終了時刻'],
+      ['actionDate', '対応予定日'], ['actionTime', '対応予定時刻'], ['actionEndDate', '対応予定終了日'], ['actionEndTime', '対応予定終了時刻'],
+      ['taskMemo', 'メモ'], ['diaryMemo', '日記メモ'], ['referenceLinks', '参考リンク'],
+      ['parentID', '親タスク']
+    ];
+    function auditValue(value) {
+      if (value == null || value === '') return '未設定';
+      if (Array.isArray(value)) return value.length ? value.map(v => typeof v === 'object' ? JSON.stringify(v) : String(v)).join('、') : '未設定';
+      return String(value);
+    }
+    function appendTaskAudit(task, message, at = new Date().toISOString()) {
+      if (!Array.isArray(task.historyMemo)) task.historyMemo = [];
+      if (!Array.isArray(task.historyMemoAt)) task.historyMemoAt = [];
+      // 編集画面に存在する空の入力行は履歴として保存しない。
+      const entries = task.historyMemo.map((memo, i) => ({memo, at: task.historyMemoAt[i] || ''})).filter(entry => entry.memo);
+      entries.push({memo: message, at});
+      task.historyMemo = entries.map(entry => entry.memo);
+      task.historyMemoAt = entries.map(entry => entry.at);
+    }
+    function recordUserTaskSave(before, after, isCreation = false) {
+      if (isCreation) { appendTaskAudit(after, 'タスクが作成されました'); return; }
+      const changes = auditFields.filter(([key]) => JSON.stringify(before[key] ?? null) !== JSON.stringify(after[key] ?? null))
+        .map(([key, label]) => `${label}を「${auditValue(before[key])}」から「${auditValue(after[key])}」に変更しました`);
+      if (changes.length) appendTaskAudit(after, changes.join('\n'));
+    }
+
     function saveTasksToStorage() {
       try {
         refreshProjectProperties();
@@ -1826,7 +2025,7 @@
     }
 
     function switchView(targetView, options = {}) {
-      if (currentActiveView === targetView) return;
+      if (currentActiveView === targetView && !options.force) return;
 
       if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft && hasTaskDraftChanges()) {
         pendingNavigationTarget = targetView;
@@ -1899,6 +2098,7 @@
       const subGroup = document.getElementById('header-sub-group');
       const logo = document.getElementById('global-logo');
 
+      document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
       const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
 
       if (isTargetTopGroup) {
@@ -1910,6 +2110,7 @@
         subGroup.classList.add('hidden');
         logo.classList.add('hidden');
         document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+        document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
         if (SETTINGS_SUBPAGES.includes(targetView) && previousView === 'settings') {
           animateMenuTitle('right');
         }
@@ -2101,6 +2302,7 @@
       const subGroup = document.getElementById('header-sub-group');
       const logo = document.getElementById('global-logo');
 
+      document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
       const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
 
       if (isTargetTopGroup) {
@@ -2112,6 +2314,7 @@
         subGroup.classList.add('hidden');
         logo.classList.add('hidden');
         document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+        document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
       } else {
         menuSubGroup.classList.add('hidden');
         subGroup.classList.remove('hidden');
@@ -2324,26 +2527,128 @@
         allContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
       }
 
-      const trashContainer = document.getElementById('list-trash');
-      trashContainer.innerHTML = '';
-      const trashTasks = tasks.filter(t => t.preDeleted);
-      if (trashTasks.length > 0) {
-        trashTasks.forEach(t => {
-          const div = document.createElement('div');
-          div.className = 'flex items-center justify-between p-2 bg-red-50 rounded text-xs text-red-700';
-          div.innerHTML = `<span>${t.title || '（無題）'} (ID:${t.pageID})</span><button onclick='restoreTask("${t.pageID}")' class="text-[10px] bg-white border border-red-200 px-2 py-0.5 rounded">復元</button>`;
-          trashContainer.appendChild(div);
+      renderTrashList();
+
+    }
+
+    const selectedTrashIds = new Set();
+    function escapeTrashHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function formatTrashDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? String(value) : date.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    }
+    function renderTrashList() {
+      const container = document.getElementById('list-trash');
+      if (!container) return;
+      const deleted = tasks.filter(t => t.preDeleted);
+      for (const id of [...selectedTrashIds]) if (!deleted.some(t => String(t.pageID) === id)) selectedTrashIds.delete(id);
+      container.replaceChildren();
+      if (!deleted.length) container.innerHTML = '<div class="empty-msg">削除された項目はありません</div>';
+      deleted.forEach(t => {
+        const id = String(t.pageID);
+        const row = document.createElement('div');
+        row.className = 'trash-entry';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = selectedTrashIds.has(id);
+        check.setAttribute('aria-label', `${t.title || '無題'}を選択`);
+        check.addEventListener('change', () => {
+          if (check.checked) selectedTrashIds.add(id); else selectedTrashIds.delete(id);
+          updateTrashSelectAllButton();
         });
-      } else {
-        trashContainer.innerHTML = '<div class="empty-msg">削除された項目はありません</div>';
-      }
+        const main = document.createElement('button');
+        main.type = 'button';
+        main.className = 'trash-entry-main';
+        main.innerHTML = `<strong>${escapeTrashHtml(t.title || '（無題）')}</strong><small>削除日時：${escapeTrashHtml(formatTrashDate(t.preDeletedAt))}</small>`;
+        main.addEventListener('click', () => openTrashDetail(id));
+        const arrow = document.createElement('span');
+        arrow.className = 'trash-entry-chevron';
+        arrow.textContent = '›';
+        row.append(check, main, arrow);
+        container.appendChild(row);
+      });
+      updateTrashSelectAllButton();
+    }
+    function updateTrashSelectAllButton() {
+      const deleted = tasks.filter(t => t.preDeleted);
+      const all = deleted.length > 0 && deleted.every(t => selectedTrashIds.has(String(t.pageID)));
+      const button = document.getElementById('trash-select-all');
+      if (button) button.textContent = all ? '✓ 選択解除' : '✓ すべて選択';
+    }
+    function toggleTrashSelectAll() {
+      const deleted = tasks.filter(t => t.preDeleted);
+      const all = deleted.length > 0 && deleted.every(t => selectedTrashIds.has(String(t.pageID)));
+      deleted.forEach(t => { if (all) selectedTrashIds.delete(String(t.pageID)); else selectedTrashIds.add(String(t.pageID)); });
+      renderTrashList();
+    }
+    function restoreSelectedTrash() {
+      if (!selectedTrashIds.size) return;
+      tasks.forEach(t => {
+        if (selectedTrashIds.has(String(t.pageID)) && t.preDeleted) {
+          t.preDeleted = false;
+          t.preDeletedAt = null;
+        }
+      });
+      selectedTrashIds.clear();
+      saveTasksToStorage();
+      renderApp();
+    }
+    function trashDetailField(label, value) {
+      return `<div class="trash-detail-row"><span class="trash-detail-label">${escapeTrashHtml(label)}</span><div>${value || '—'}</div></div>`;
+    }
+    function openTrashDetail(id) {
+      const t = tasks.find(t => t.preDeleted && String(t.pageID) === String(id));
+      if (!t) return;
+      const parentProject = tasks.find(p => String(p.pageID) === String(t.projectID));
+      const projectName = parentProject?.title || (t.parentID === null ? t.title : '無題');
+      const statuses = {todo:'未完了',pending:'保留',in_progress:'進行中',completed:'完了'};
+      const history = (t.historyMemo || []).map((memo,i) => `${escapeTrashHtml(formatTrashDate(t.historyMemoAt?.[i]))}<div>${escapeTrashHtml(memo).replace(/\n/g,'<br>')}</div>`).join('<hr style="margin:8px 0;border:0;border-top:1px solid #e2e8f0">');
+      const links = (t.referenceLinks || []).map(link => {
+        const url = String(link.url || '');
+        const safe = /^https?:\/\//i.test(url) ? escapeTrashHtml(url) : '';
+        return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${escapeTrashHtml(link.title || url)}</a>` : escapeTrashHtml(link.title || url);
+      }).join('<br>');
+      const html = [
+        trashDetailField('タイトル',escapeTrashHtml(t.title)),
+        trashDetailField('削除日時',escapeTrashHtml(formatTrashDate(t.preDeletedAt))),
+        trashDetailField('プロジェクト',escapeTrashHtml(projectName)),
+        trashDetailField('ステータス',escapeTrashHtml(statuses[t.status] || t.status)),
+        trashDetailField('カテゴリ',escapeTrashHtml(t.category)),
+        trashDetailField('期限',escapeTrashHtml(t.deadlineDate || '')),
+        trashDetailField('対応予定日',escapeTrashHtml(t.actionDate || '')),
+        trashDetailField('メモ',escapeTrashHtml(t.taskMemo).replace(/\n/g,'<br>')),
+        trashDetailField('履歴メモ',history),
+        trashDetailField('参考リンク',links)
+      ].join('');
+      document.getElementById('trash-detail-body').innerHTML = html;
+      document.getElementById('trash-detail-modal').classList.remove('hidden');
+    }
+    function closeTrashDetail() { document.getElementById('trash-detail-modal').classList.add('hidden'); }
+    function confirmPermanentTrashDelete() {
+      if (!selectedTrashIds.size) return;
+      document.getElementById('trash-permanent-modal').classList.remove('hidden');
+    }
+    function closePermanentTrashDelete() { document.getElementById('trash-permanent-modal').classList.add('hidden'); }
+    function executePermanentTrashDelete() {
+      tasks = tasks.filter(t => !(t.preDeleted && selectedTrashIds.has(String(t.pageID))));
+      selectedTrashIds.clear();
+      saveTasksToStorage();
+      closePermanentTrashDelete();
+      renderApp();
     }
 
     function openDetailView(taskId) {
-      taskReturnView = currentActiveView;
-      currentEditingTaskId = taskId;
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
+      if (currentActiveView === 'task-page' && String(currentEditingTaskId) !== String(taskId) && hasTaskDraftChanges()) {
+        alert('現在のページに未保存の変更があります。先に保存してください。');
+        return;
+      }
+      taskReturnView = currentActiveView;
+      currentEditingTaskId = String(taskId);
       currentEditingTaskDraft = cloneTaskForEditing(task);
       referenceLinkEditingIndexes = new Set();
       isHistoryMemoEditing = false;
@@ -2377,34 +2682,388 @@
         updatedAtRow.classList.add('hidden');
       }
 
-      const treeContainer = document.getElementById('detail-tree-list');
-      treeContainer.innerHTML = '';
-      
-      let projectTree = [];
-      if (rootId) {
-        const rootNode = tasks.find(t => t.pageID === String(rootId));
-        if (rootNode) {
-          projectTree.push({ ...rootNode, depth: 0 });
-          getFlattenedTree(rootId, tasks, 1, projectTree);
+      renderProjectTree(rootId);
+
+      switchView('task-page', { force: true });
+      const scrollArea = document.querySelector('#view-task-page .main-scroll-area') || document.querySelector('.main-scroll-area');
+      if (scrollArea) scrollArea.scrollTop = 0;
+    }
+
+    // プロジェクトビュー：親子関係と兄弟順は parentID / childID で管理する。
+    const projectTreeExpanded = new Set();
+    let projectTreeDrag = null;
+
+    function projectTreeChildren(parent, members) {
+      const children = members.filter(t => String(t.parentID) === String(parent.pageID) && String(t.pageID) !== String(parent.pageID));
+      const order = Array.isArray(parent.childID) ? parent.childID.map(String) : [];
+      return children.sort((a, b) => {
+        const ai = order.indexOf(String(a.pageID)), bi = order.indexOf(String(b.pageID));
+        return (ai < 0 ? Number.MAX_SAFE_INTEGER : ai) - (bi < 0 ? Number.MAX_SAFE_INTEGER : bi);
+      });
+    }
+
+    function projectTreeMove(sourceId, targetId, position, rootId) {
+      sourceId = String(sourceId); targetId = String(targetId);
+      if (sourceId === targetId || sourceId === String(rootId)) return false;
+      const source = tasks.find(t => String(t.pageID) === sourceId && !t.preDeleted);
+      const target = tasks.find(t => String(t.pageID) === targetId && !t.preDeleted);
+      if (!source || !target || String(source.projectID) !== String(target.projectID)) return false;
+      const destination = position === 'inside' ? target : tasks.find(t => String(t.pageID) === String(target.parentID));
+      if (!destination) return false;
+      // 自分自身・子孫の下への移動は禁止。
+      let ancestor = destination;
+      const seen = new Set();
+      while (ancestor) {
+        if (String(ancestor.pageID) === sourceId) return false;
+        if (seen.has(String(ancestor.pageID))) return false;
+        seen.add(String(ancestor.pageID));
+        ancestor = tasks.find(t => String(t.pageID) === String(ancestor.parentID));
+      }
+      const oldParent = tasks.find(t => String(t.pageID) === String(source.parentID));
+      if (oldParent) oldParent.childID = (oldParent.childID || []).map(String).filter(id => id !== sourceId);
+      const next = (destination.childID || []).map(String).filter(id => id !== sourceId);
+      if (position === 'inside') next.push(sourceId);
+      else {
+        const index = next.indexOf(targetId);
+        if (index < 0) return false;
+        next.splice(index + (position === 'after' ? 1 : 0), 0, sourceId);
+      }
+      destination.childID = next;
+      source.parentID = String(destination.pageID);
+      // 移動先の親のカテゴリを継承する（子孫の既存カテゴリは変更しない）。
+      if (oldParent && String(oldParent.pageID) !== String(destination.pageID)) {
+        source.category = [...normalizeTaskCategories(destination.category)];
+      }
+      saveTasksToStorage(); // projectID と path は既存処理で子孫まで更新
+      projectTreeExpanded.add(String(destination.pageID));
+      renderProjectTree(rootId);
+      return true;
+    }
+
+    function renderProjectTree(rootId) {
+      const container = document.getElementById('detail-tree-list');
+      if (!container) return;
+      container.replaceChildren();
+      const root = tasks.find(t => String(t.pageID) === String(rootId) && !t.preDeleted);
+      if (!root) return;
+      const projectId = String(root.projectID || root.pageID);
+      const members = tasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
+      const visited = new Set();
+      const heading = document.createElement('div');
+      heading.className = 'project-tree-columns';
+      heading.innerHTML = '<span>▾ タスク</span><span>◉ ステータス</span><span>▣ 期限</span><span>▣ 対応予定日</span><span>▤ メモ</span>';
+      container.appendChild(heading);
+
+      // 各階層の親から、その階層の「新規サブアイテム」まで線を通す。
+      // DOM上の並び順やインデントは変えず、線だけを重ねる。
+      function drawTreeBranches(element, ancestorDepths, endDepth = null) {
+        ancestorDepths.forEach(d => {
+          const line = document.createElement('span');
+          line.className = 'project-tree-branch';
+          line.style.left = `${44 + Math.min(d, 30) * 18}px`;
+          element.appendChild(line);
+        });
+        if (endDepth !== null) {
+          const x = 44 + Math.min(endDepth, 30) * 18;
+          const line = document.createElement('span');
+          line.className = 'project-tree-branch';
+          line.style.left = `${x}px`;
+          line.style.bottom = '50%';
+          element.appendChild(line);
+          const elbow = document.createElement('span');
+          elbow.className = 'project-tree-branch-end';
+          elbow.style.left = `${x}px`;
+          elbow.style.width = `${Math.max(12, 18)}px`;
+          element.appendChild(elbow);
         }
       }
 
-      projectTree.forEach(item => {
-        const isCompleted = item.status === 'completed';
-        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+      function addNode(task, depth, ancestors = []) {
+        const id = String(task.pageID);
+        if (visited.has(id)) return;
+        visited.add(id);
+        const children = projectTreeChildren(task, members);
+        const row = document.createElement('div');
+        row.className = 'project-tree-row';
+        row.dataset.pageId = id;
+        const titleCell = document.createElement('div');
+        titleCell.className = 'project-tree-title-cell';
+        titleCell.style.paddingLeft = '0px';
 
-        const treeItem = document.createElement('div');
-        treeItem.className = 'tree-item';
-        treeItem.innerHTML = `
-          <div class="tree-item-left" style="${titleStyle}">
-            ${iconMarkup('list-tree')} ${iconMarkup('check-circle')} ${item.title || '（無題）'} - (ID:${item.pageID})
-          </div>
-          <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick='toggleTaskComplete("${item.pageID}")'>
-        `;
-        treeContainer.appendChild(treeItem);
+        const handle = document.createElement('button');
+        handle.type = 'button'; handle.className = 'project-tree-drag';
+        handle.textContent = '⠿'; handle.title = 'ドラッグして移動';
+        handle.setAttribute('aria-label', 'ドラッグして移動');
+        handle.disabled = id === String(rootId);
+        handle.draggable = !handle.disabled;
+        handle.addEventListener('dragstart', e => {
+          if (handle.disabled) { e.preventDefault(); return; }
+          projectTreeDrag = { sourceId: id, rootId: String(rootId) };
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', id);
+        });
+        handle.addEventListener('dragend', () => { projectTreeDrag = null; clearProjectTreeDrop(); });
+        handle.addEventListener('pointerdown', e => {
+          if (e.pointerType === 'mouse' || handle.disabled || e.button !== 0) return;
+          e.preventDefault();
+          startProjectTreeTouchDrag(e, id, rootId, handle);
+        });
+        titleCell.appendChild(handle);
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button'; toggle.className = 'project-tree-toggle';
+        toggle.textContent = projectTreeExpanded.has(id) ? '▼' : '▶';
+        toggle.setAttribute('aria-label', '子ページの展開・折りたたみ');
+        toggle.onclick = () => {
+          if (projectTreeExpanded.has(id)) projectTreeExpanded.delete(id);
+          else projectTreeExpanded.add(id);
+          renderProjectTree(rootId);
+        };
+        if (id === String(rootId)) {
+          toggle.disabled = true;
+          toggle.setAttribute('aria-label', '最上位親は常に展開');
+        }
+        toggle.style.marginLeft = `${20 + Math.min(depth, 30) * 18}px`;
+        titleCell.appendChild(toggle);
+
+        const title = document.createElement('button');
+        title.type = 'button'; title.className = 'project-tree-title';
+        title.dataset.pageId = id;
+        title.textContent = task.title || '（無題）';
+        if (task.status === 'completed') title.classList.add('project-tree-completed');
+        title.onclick = () => editProjectTreeTitle(id, rootId);
+        titleCell.appendChild(title);
+        const edit = document.createElement('button');
+        edit.type = 'button'; edit.className = 'project-tree-edit';
+        edit.textContent = '✎'; edit.title = '簡易編集';
+        edit.setAttribute('aria-label', '簡易編集');
+        edit.onclick = () => showProjectTreeOpenModal(id, rootId);
+        titleCell.appendChild(edit);
+        row.appendChild(titleCell);
+        [task.status || '', task.deadlineDate || '', task.actionDate || '', task.taskMemo || ''].forEach(value => {
+          const cell = document.createElement('span');
+          cell.className = 'project-tree-property';
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        row.addEventListener('dragover', e => {
+          if (!projectTreeDrag) return;
+          e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+          markProjectTreeDrop(row, e.clientY);
+        });
+        row.addEventListener('drop', e => {
+          if (!projectTreeDrag) return;
+          e.preventDefault();
+          const drag = projectTreeDrag;
+          const position = projectTreeDropPosition(row, e.clientY);
+          projectTreeDrag = null;
+          clearProjectTreeDrop();
+          projectTreeMove(drag.sourceId, id, position, rootId);
+        });
+        // 親から子への線は、子の行では曲がり角を表示する。
+        drawTreeBranches(row, ancestors.slice(0, -1), depth ? depth - 1 : null);
+        container.appendChild(row);
+
+        if (projectTreeExpanded.has(id)) {
+          children.forEach(child => addNode(child, depth + 1, [...ancestors, depth]));
+          const add = document.createElement('button');
+          add.type = 'button'; add.className = 'project-tree-add';
+          add.style.paddingLeft = `${Math.min(depth + 1, 30) * 18 + 30}px`;
+          add.innerHTML = '<span class="project-tree-add-label">＋ 新規サブアイテム</span>';
+          add.onclick = () => createProjectChildInline(id, rootId);
+          drawTreeBranches(add, ancestors, depth);
+          container.appendChild(add);
+        }
+      }
+      projectTreeExpanded.add(String(root.pageID));
+      addNode(root, 0);
+    }
+
+    // タイトルタップはインライン編集。編集アイコンは簡易編集ポップアップ。
+    function editProjectTreeTitle(pageId, rootId) {
+      const task = tasks.find(t => String(t.pageID) === String(pageId) && !t.preDeleted);
+      const button = Array.from(document.querySelectorAll('#detail-tree-list .project-tree-title'))
+        .find(el => el.dataset.pageId === String(pageId));
+      if (!task || !button) return;
+      const input = document.createElement('input');
+      input.type = 'text'; input.className = 'project-tree-title-input';
+      input.value = task.title || ''; input.setAttribute('aria-label', 'タスク名');
+      button.replaceWith(input);
+      let done = false;
+      const finish = (save = true) => {
+        if (done) return;
+        done = true;
+        if (save) { const before = cloneTaskForEditing(task); task.title = input.value.trim(); recordUserTaskSave(before, task); saveTasksToStorage(); }
+        renderProjectTree(rootId);
+      };
+      input.addEventListener('blur', () => finish());
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); finish(false); }
       });
+      input.focus(); input.select();
+    }
+    let pendingProjectTreeOpenId = null;
+    let pendingProjectTreeRootId = null;
+    function showProjectTreeOpenModal(pageId, rootId) {
+      const task = tasks.find(t => String(t.pageID) === String(pageId) && !t.preDeleted);
+      if (!task) return;
+      pendingProjectTreeOpenId = String(pageId);
+      pendingProjectTreeRootId = String(rootId);
+      document.getElementById('project-tree-edit-name').value = task.title || '';
+      document.getElementById('project-tree-edit-deadline').value = /^\d{4}-\d{2}-\d{2}$/.test(task.deadlineDate || '') ? task.deadlineDate : '';
+      document.getElementById('project-tree-edit-action').value = /^\d{4}-\d{2}-\d{2}$/.test(task.actionDate || '') ? task.actionDate : '';
+      document.getElementById('project-tree-edit-memo').value = task.taskMemo || '';
+      document.getElementById('project-tree-open-modal').classList.remove('hidden');
+    }
+    function closeProjectTreeOpenModal() {
+      document.getElementById('project-tree-open-modal').classList.add('hidden');
+      pendingProjectTreeOpenId = null;
+      pendingProjectTreeRootId = null;
+    }
+    function saveProjectTreeQuickEdit() {
+      const task = tasks.find(t => String(t.pageID) === pendingProjectTreeOpenId && !t.preDeleted);
+      if (!task) return;
+      const rootId = pendingProjectTreeRootId;
+      const before = cloneTaskForEditing(task);
+      task.title = document.getElementById('project-tree-edit-name').value.trim();
+      task.deadlineDate = document.getElementById('project-tree-edit-deadline').value;
+      task.actionDate = document.getElementById('project-tree-edit-action').value;
+      task.taskMemo = document.getElementById('project-tree-edit-memo').value;
+      recordUserTaskSave(before, task);
+      saveTasksToStorage();
+      closeProjectTreeOpenModal();
+      renderProjectTree(rootId);
+    }
+    function deleteProjectTreeItem() {
+      const id = pendingProjectTreeOpenId;
+      const rootId = pendingProjectTreeRootId;
+      if (!id || id === rootId) { alert('最上位の親ページは一覧から削除できません。'); return; }
+      if (!confirm('このタスクを削除しますか？')) return;
+      const target = tasks.find(t => String(t.pageID) === id && !t.preDeleted);
+      if (!target) return;
+      const parent = tasks.find(t => String(t.pageID) === String(target.parentID));
+      if (parent) parent.childID = (parent.childID || []).map(String).filter(childId => childId !== id);
+      const now = new Date().toISOString();
+      const stack = [id]; const visited = new Set();
+      while (stack.length) {
+        const current = stack.pop();
+        if (visited.has(current)) continue;
+        visited.add(current);
+        const item = tasks.find(t => String(t.pageID) === current);
+        if (!item) continue;
+        item.preDeleted = true; item.preDeletedAt = now;
+        tasks.filter(t => String(t.parentID) === current).forEach(child => stack.push(String(child.pageID)));
+      }
+      saveTasksToStorage(); closeProjectTreeOpenModal(); renderProjectTree(rootId);
+    }
+    function confirmProjectTreeOpen() {
+      const id = pendingProjectTreeOpenId;
+      closeProjectTreeOpenModal();
+      if (id !== null) openDetailView(id);
+    }
 
-      switchView('task-page');
+    function projectTreeDropPosition(row, y) {
+      const r = row.getBoundingClientRect();
+      const ratio = (y - r.top) / Math.max(r.height, 1);
+      return ratio < .25 ? 'before' : ratio > .75 ? 'after' : 'inside';
+    }
+    function clearProjectTreeDrop() {
+      document.querySelectorAll('#detail-tree-list .project-tree-row').forEach(row =>
+        row.classList.remove('project-tree-drop-before', 'project-tree-drop-after', 'project-tree-drop-inside'));
+    }
+    function markProjectTreeDrop(row, y) {
+      clearProjectTreeDrop();
+      row.classList.add('project-tree-drop-' + projectTreeDropPosition(row, y));
+    }
+    function startProjectTreeTouchDrag(event, sourceId, rootId, handle) {
+      const ghost = document.createElement('div');
+      ghost.className = 'project-tree-drag-ghost';
+      ghost.textContent = handle.parentElement.querySelector('.project-tree-title')?.textContent || 'ページ';
+      document.body.appendChild(ghost);
+      const move = e => {
+        if (e.pointerId !== event.pointerId) return;
+        e.preventDefault();
+        ghost.style.left = `${e.clientX + 12}px`;
+        ghost.style.top = `${e.clientY + 12}px`;
+        const row = document.elementFromPoint(e.clientX, e.clientY)?.closest('.project-tree-row');
+        if (row && row.closest('#detail-tree-list')) markProjectTreeDrop(row, e.clientY);
+        else clearProjectTreeDrop();
+      };
+      const end = e => {
+        if (e.pointerId !== event.pointerId) return;
+        const row = document.elementFromPoint(e.clientX, e.clientY)?.closest('.project-tree-row');
+        const targetId = row?.closest('#detail-tree-list') ? row.dataset.pageId : null;
+        const position = row ? projectTreeDropPosition(row, e.clientY) : null;
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', cancel);
+        ghost.remove(); clearProjectTreeDrop();
+        if (targetId) projectTreeMove(sourceId, targetId, position, rootId);
+      };
+      const cancel = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', cancel);
+        ghost.remove(); clearProjectTreeDrop();
+      };
+      handle.setPointerCapture(event.pointerId);
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', end);
+      handle.addEventListener('pointercancel', cancel);
+      move(event);
+    }
+
+    // 子ページを通常のタスクと同じ34プロパティで作成し、即時保存する。
+    // 追加直後はプロジェクトビュー内でタイトルを入力できる。
+    function createProjectChildInline(parentID, rootId) {
+      const parent = tasks.find(t => t.pageID === String(parentID) && !t.preDeleted);
+      if (!parent) return;
+      const newId = String(nextIdCounter++);
+      const newTask = normalizeRecord({
+        pageID: newId, type: 'task', title: '', parentID: String(parent.pageID),
+        projectID: String(parent.projectID || parent.pageID), childID: [],
+        path: `${parent.path || parent.pageID}/${newId}`, category: [...normalizeTaskCategories(parent.category)], status: 'todo',
+        actionDate: '', actionTime: '', actionEndDate: '', actionEndTime: '',
+        deadlineDate: '', deadlineTime: '', deadlineEndDate: '', deadlineEndTime: '',
+        completedAt: null, taskMemo: '', diaryMemo: '', referenceLinks: [],
+        historyMemo: [], historyMemoAt: [], createdAt: new Date().toISOString(),
+        updatedAt: null, previousUpdatedAt: null, email: '', isSaved: true,
+        preDeleted: false, preDeletedAt: null, actionDateCheck: [], deadlineDateCheck: [],
+        actionCustomReminderAt: '', deadlineCustomReminderAt: '',
+        isActionCustomActive: false, isDeadlineCustomActive: false
+      }, newId);
+      if (!Array.isArray(parent.childID)) parent.childID = [];
+      if (!parent.childID.map(String).includes(newId)) parent.childID.push(newId);
+      tasks.push(newTask);
+      saveTasksToStorage();
+      projectTreeExpanded.add(String(parent.pageID));
+      projectTreeExpanded.delete(newId);
+      renderProjectTree(rootId);
+      const titleButton = Array.from(document.querySelectorAll('#detail-tree-list .project-tree-title'))
+        .find(el => el.dataset.pageId === newId);
+      if (!titleButton) return;
+      const input = document.createElement('input');
+      input.className = 'project-tree-title-input';
+      input.type = 'text';
+      input.placeholder = 'タスク名を入力';
+      input.setAttribute('aria-label', '新しいタスクのタイトル');
+      titleButton.replaceWith(input);
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        newTask.title = input.value.trim();
+        recordUserTaskSave(null, newTask, true);
+        saveTasksToStorage();
+        renderProjectTree(rootId);
+      };
+      input.addEventListener('blur', finish);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); input.blur(); }
+      });
+      input.focus();
     }
 
     function openNewProjectPage() {
@@ -2424,6 +3083,7 @@
       };
       if (parentTask) parentTask.childID.push(newId);
       tasks.push(newSub);
+      saveTasksToStorage();
       openDetailView(newId);
     }
 
@@ -2644,9 +3304,11 @@
       const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
       if (!savedTask) return;
       const isFirstTime = !savedTask.isSaved;
+      const before = cloneTaskForEditing(savedTask);
       
       const previousUpdatedAt = savedTask.updatedAt || null;
       Object.assign(savedTask, task, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
+      recordUserTaskSave(before, savedTask, isFirstTime);
       currentEditingTaskDraft = cloneTaskForEditing(savedTask);
       referenceLinkEditingIndexes = new Set();
 
@@ -3196,6 +3858,8 @@
       if (task) {
         task.status = task.status === 'completed' ? 'todo' : 'completed';
         task.completedAt = task.status === 'completed' ? new Date().toISOString() : null;
+        // ステータス切替はユーザー操作として記録する。
+        recordUserTaskSave({status: task.status === 'completed' ? 'todo' : 'completed'}, task);
         saveTasksToStorage();
         renderApp();
       }
@@ -3276,6 +3940,9 @@
       const deltaX = touch.clientX - touchStartX;
       const deltaY = touch.clientY - touchStartY;
 
+      // タスク一覧内の横スクロールはブラウザ標準動作に任せる。
+      if (event.target.closest('#project-tree-scroll')) return;
+
       // 横方向のドラッグではページを動かさない。
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         event.preventDefault();
@@ -3304,7 +3971,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 16:10:14';
+  const BUILD_CREATED_AT = '2026.10.21 DEV38';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -382,8 +382,18 @@
 
     .task-status-control {
       position: relative;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin: 8px 0 10px;
+    }
+
+    .detail-meta-text,
+    .status-label {
+      display: block;
+      font-size: 12px;
+      font-weight: normal;
+      color: #64748b;
     }
 
     .task-status-picker,
@@ -510,6 +520,30 @@
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px solid #e2e8f0;
+    }
+
+    .reference-links-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .reference-links-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .reference-link-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .reference-link-input {
+      padding: 7px 8px;
+      font-size: 12px;
     }
 
     .memo-help {
@@ -1040,28 +1074,29 @@
             <input type="text" id="detail-title-input" class="task-input" placeholder="タイトルを入力…" oninput="updateCurrentTaskField('title', this.value)">
           </div>
 
-          <div class="task-status-control">
-            <button type="button" id="task-status-picker" class="task-status-picker" onclick="toggleTaskStatusMenu()" aria-label="ステータスを選択" aria-expanded="false">
-              <span id="task-status-picker-label"></span>
-              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
-            </button>
-            <div id="task-status-menu" class="task-status-menu hidden">
-              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#circle"></use></svg>未完了</span></button>
-              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了</span></button>
-              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留</span></button>
-            </div>
-          </div>
-
           <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
             前回更新日時：<span id="detail-updated-at-text">-</span>
           </div>
 
           <div class="form-group">
-            <span class="label-text icon-with-text" style="color: #475569;"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg>カテゴリ：[一般]</span>
+            <span class="detail-meta-text" id="detail-project-label">プロジェクト：[-]</span>
           </div>
 
-          <div class="form-group" style="margin-top: 8px;">
-            <span class="label-text" id="detail-project-label">プロジェクト：[-]</span>
+          <div class="task-status-control">
+            <span class="status-label">ステータス</span>
+            <button type="button" id="task-status-picker" class="task-status-picker" onclick="toggleTaskStatusMenu()" aria-label="ステータスを選択" aria-expanded="false">
+              <span id="task-status-picker-label"></span>
+              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
+            </button>
+            <div id="task-status-menu" class="task-status-menu hidden">
+              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')">未完了</button>
+              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了</span></button>
+              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留</span></button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="label-text icon-with-text" style="color: #475569;"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg>カテゴリ：[一般]</span>
           </div>
 
           <div class="datetime-row">
@@ -1076,13 +1111,18 @@
 
           <div class="memo-section">
             <div class="memo-card-title">
-              <div class="memo-card-title-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg>Memo & Details</div>
+              <div class="memo-card-title-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg>Memo</div>
               <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
             </div>
             <div id="memo-content">
               <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
               <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ <svg class="app-icon" aria-hidden="true"><use href="icons.svg#help"></use></svg></div>
             </div>
+          </div>
+
+          <div class="reference-links-section">
+            <div class="reference-links-title">参考リンク</div>
+            <div id="reference-links-container"></div>
           </div>
 
           <div class="tree-card">
@@ -1268,6 +1308,7 @@
         preDeletedAt: record.preDeletedAt ?? null,
         diaryMemo: record.diaryMemo ?? '',
         taskMemo: record.taskMemo ?? record.memo ?? '',
+        referenceLinks: Array.isArray(record.referenceLinks) ? record.referenceLinks.map(link => ({ title: link?.title ?? '', url: link?.url ?? '' })) : [],
         createdAt: record.createdAt ?? new Date().toISOString(),
         updatedAt: record.updatedAt ?? null,
         email: record.email ?? '',
@@ -1823,12 +1864,13 @@
       currentEditingTaskId = taskId;
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
-      currentEditingTaskDraft = { ...task, childID: [...task.childID] };
+      currentEditingTaskDraft = { ...task, childID: [...task.childID], referenceLinks: (task.referenceLinks || []).map(link => ({ ...link })) };
 
       document.getElementById('detail-title-input').value = task.title || '';
       document.getElementById('detail-memo-input').value = task.taskMemo || '';
       document.getElementById('detail-due-date-input').value = task.deadlineDate || '';
       document.getElementById('detail-plan-date-input').value = task.actionDate || '';
+      renderReferenceLinkFields();
       syncTaskStatusPicker();
       setMemoExpanded(displaySettings.memoDefaultExpanded);
       
@@ -2006,7 +2048,7 @@
       const isFirstTime = !savedTask.isSaved;
       
       Object.assign(savedTask, task, { isSaved: true, updatedAt: nowStr });
-      currentEditingTaskDraft = { ...savedTask, childID: [...savedTask.childID] };
+      currentEditingTaskDraft = { ...savedTask, childID: [...savedTask.childID], referenceLinks: (savedTask.referenceLinks || []).map(link => ({ ...link })) };
 
       saveTasksToStorage();
 
@@ -2034,6 +2076,47 @@
       }
     }
 
+    function renderReferenceLinkFields() {
+      const container = document.getElementById('reference-links-container');
+      const task = currentEditingTaskDraft;
+      if (!container || !task) return;
+
+      if (!Array.isArray(task.referenceLinks)) task.referenceLinks = [];
+      const links = task.referenceLinks;
+      if (links.length === 0 || links[links.length - 1].title || links[links.length - 1].url) {
+        links.push({ title: '', url: '' });
+      }
+
+      container.innerHTML = '';
+      links.forEach((link, index) => appendReferenceLinkRow(container, link, index));
+    }
+
+    function appendReferenceLinkRow(container, link, index) {
+      const row = document.createElement('div');
+      row.className = 'reference-link-row';
+      row.innerHTML = `
+        <input type="text" class="task-input reference-link-input" placeholder="リンクタイトル（自由入力）">
+        <input type="url" class="task-input reference-link-input" placeholder="URL">
+      `;
+      const [titleInput, urlInput] = row.querySelectorAll('input');
+      titleInput.value = link.title || '';
+      urlInput.value = link.url || '';
+      titleInput.addEventListener('input', event => updateReferenceLink(index, 'title', event.target.value, container));
+      urlInput.addEventListener('input', event => updateReferenceLink(index, 'url', event.target.value, container));
+      container.appendChild(row);
+    }
+
+    function updateReferenceLink(index, field, value, container) {
+      const task = currentEditingTaskDraft;
+      if (!task || !task.referenceLinks?.[index]) return;
+      task.referenceLinks[index][field] = value;
+
+      if (index === task.referenceLinks.length - 1 && (task.referenceLinks[index].title || task.referenceLinks[index].url)) {
+        task.referenceLinks.push({ title: '', url: '' });
+        appendReferenceLinkRow(container, task.referenceLinks[task.referenceLinks.length - 1], task.referenceLinks.length - 1);
+      }
+    }
+
     function toggleTaskStatusMenu() {
       const menu = document.getElementById('task-status-menu');
       const picker = document.getElementById('task-status-picker');
@@ -2054,12 +2137,14 @@
 
       const status = task.status === 'completed' || task.status === 'pending' ? task.status : 'todo';
       const labels = { todo: '未完了', completed: '完了', pending: '保留' };
-      const icons = { todo: 'circle', completed: 'check-circle', pending: 'inbox' };
+      const icons = { completed: 'check-circle', pending: 'inbox' };
       const picker = document.getElementById('task-status-picker');
       const label = document.getElementById('task-status-picker-label');
 
       picker.className = `task-status-picker status-${status}`;
-      label.innerHTML = `<span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#${icons[status]}"></use></svg>${labels[status]}</span>`;
+      label.innerHTML = status === 'todo'
+        ? labels.todo
+        : `<span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#${icons[status]}"></use></svg>${labels[status]}</span>`;
       document.querySelectorAll('.task-status-option').forEach(option => {
         const optionStatus = option.dataset.status;
         option.className = `task-status-option${optionStatus === status ? ` selected status-${status}` : ''}`;
@@ -2164,7 +2249,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 15:00:17';
+  const BUILD_CREATED_AT = '2026.10.20 15:25:19';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

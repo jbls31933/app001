@@ -371,7 +371,7 @@
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       color: #334155;
-      background-color: #f8fafc;
+      background-color: #ffffff;
       outline: none;
     }
 
@@ -380,29 +380,59 @@
       background-color: #ffffff;
     }
 
-    .status-buttons {
-      display: flex;
-      gap: 6px;
+    .task-status-control {
+      position: relative;
       margin: 8px 0;
     }
 
-    .status-btn {
-      flex: 1;
-      padding: 6px 0;
-      border-radius: 20px;
-      border: none;
+    .task-status-picker,
+    .task-status-option {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       gap: 4px;
+      color: #475569;
+      background-color: #ffffff;
     }
 
-    .status-btn.completed { background-color: #16a34a; color: #ffffff; }
-    .status-btn.uncompleted { background-color: #ffffff; border: 1px solid #cbd5e1; color: #475569; }
-    .status-btn.pending { background-color: #d97706; color: #ffffff; }
+    .task-status-picker { padding: 7px 10px; }
+
+    .task-status-picker.status-completed {
+      background-color: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .task-status-picker.status-pending {
+      background-color: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
+
+    .task-status-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      display: grid;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background-color: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    .task-status-option { padding: 7px 8px; }
+    .task-status-option.selected.status-completed { background-color: #2563eb; border-color: #2563eb; color: #ffffff; }
+    .task-status-option.selected.status-pending { background-color: #dcfce7; border-color: #86efac; color: #166534; }
 
     .datetime-row {
       display: flex;
@@ -421,9 +451,11 @@
     }
 
     .date-input-field {
-      background-color: #f1f5f9;
+      width: 160px;
+      height: 36px;
+      padding: 4px 8px;
+      background-color: #ffffff;
       border: 1px solid #cbd5e1;
-      padding: 6px 10px;
       border-radius: 8px;
       font-size: 12px;
       color: #334155;
@@ -471,7 +503,7 @@
       border-radius: 8px;
       resize: none;
       outline: none;
-      background-color: #f8fafc;
+      background-color: #ffffff;
       overflow: hidden;
       overflow-anchor: none;
     }
@@ -1019,10 +1051,16 @@
             前回更新日時：<span id="detail-updated-at-text">-</span>
           </div>
 
-          <div class="status-buttons">
-            <button class="status-btn completed" onclick="updateCurrentTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了</span></button>
-            <button class="status-btn uncompleted" onclick="updateCurrentTaskStatus('uncompleted')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#circle"></use></svg>未完了</span></button>
-            <button class="status-btn pending" onclick="updateCurrentTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留</span></button>
+          <div class="task-status-control">
+            <button type="button" id="task-status-picker" class="task-status-picker" onclick="toggleTaskStatusMenu()" aria-label="ステータスを選択" aria-expanded="false">
+              <span id="task-status-picker-label"></span>
+              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
+            </button>
+            <div id="task-status-menu" class="task-status-menu hidden">
+              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#circle"></use></svg>未完了</span></button>
+              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了</span></button>
+              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留</span></button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -1116,6 +1154,7 @@
     let tasks = [];
     let nextIdCounter = 1;
     let currentEditingTaskId = null;
+    let currentEditingTaskDraft = null;
     let currentActiveView = 'quickstatus';
     let previousView = 'quickstatus';
     let currentProjectSubview = 'data';
@@ -1224,7 +1263,7 @@
         projectID: record.projectID == null ? null : String(record.projectID),
         childID,
         category: record.category ?? '',
-        status: record.status ?? 'uncompleted',
+        status: record.status === 'uncompleted' ? 'todo' : (record.status ?? 'todo'),
         actionDate: record.actionDate ?? record.planDate ?? '',
         deadlineDate: record.deadlineDate ?? record.dueDate ?? '',
         completedAt: record.completedAt ?? null,
@@ -1330,6 +1369,7 @@
 
       if (currentActiveView === 'task-page' && targetView !== 'task-page') {
         currentEditingTaskId = null;
+        currentEditingTaskDraft = null;
       }
 
       const isTopGroup = TOP_TABS.includes(currentActiveView);
@@ -1624,29 +1664,43 @@
       completedContainer.innerHTML = '';
 
       let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
 
-      validTasks.forEach(task => {
+      const appendTask = (container, task) => {
         const isCompleted = task.status === 'completed';
-        const titleClass = isCompleted ? 'completed-title truncate' : 'truncate';
-
+        const pendingLabel = task.status === 'pending' ? '<div style="margin-top:2px;color:#94a3b8;font-size:10px">保留中</div>' : '';
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'flex items-center justify-between py-1 text-xs text-slate-700 border-b border-slate-100 cursor-pointer';
+        itemDiv.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;color:#334155;font-size:13px;cursor:pointer';
         itemDiv.innerHTML = `
-          <div class="flex items-center gap-2 truncate">
-            <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick='event.stopPropagation(); toggleTaskComplete("${task.pageID}")'>
-            <span class="${titleClass}">${task.title || '（無題のタスク）'} (ID:${task.pageID})</span>
+          <input type="checkbox" style="flex:0 0 auto;margin-top:2px" ${isCompleted ? 'checked' : ''} onclick='event.stopPropagation(); toggleTaskComplete("${task.pageID}")'>
+          <div style="min-width:0">
+            <div style="${isCompleted ? 'text-decoration:line-through;color:#94a3b8;' : ''}">${task.title || '（無題のタスク）'} (ID:${task.pageID})</div>
+            ${pendingLabel}
           </div>
-          <button onclick='event.stopPropagation(); openDetailView("${task.pageID}")' class="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">詳細</button>
         `;
         itemDiv.onclick = () => openDetailView(task.pageID);
+        container.appendChild(itemDiv);
+      };
 
-        if (isCompleted) {
-          completedCount++;
-          completedContainer.appendChild(itemDiv);
-        } else {
+      validTasks.forEach(task => {
+        const isTodoOrPending = task.status === 'todo' || task.status === 'pending';
+        if (isTodoOrPending && task.deadlineDate && task.deadlineDate < today) {
+          expiredCount++;
+          appendTask(expiredContainer, task);
+        }
+        if (isTodoOrPending && task.deadlineDate === today) {
+          todayDueCount++;
+          appendTask(todayDueContainer, task);
+        }
+        if (isTodoOrPending && task.actionDate === today) {
           todayPlanCount++;
-          todayPlanContainer.appendChild(itemDiv);
+          appendTask(todayPlanContainer, task);
+        }
+        if (task.status === 'completed') {
+          completedCount++;
+          appendTask(completedContainer, task);
         }
       });
 
@@ -1772,11 +1826,13 @@
       currentEditingTaskId = taskId;
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
+      currentEditingTaskDraft = { ...task, childID: [...task.childID] };
 
       document.getElementById('detail-title-input').value = task.title || '';
       document.getElementById('detail-memo-input').value = task.taskMemo || '';
       document.getElementById('detail-due-date-input').value = task.deadlineDate || '';
       document.getElementById('detail-plan-date-input').value = task.actionDate || '';
+      syncTaskStatusPicker();
       setMemoExpanded(displaySettings.memoDefaultExpanded);
       
       const rootId = getRootParentId(taskId, tasks);
@@ -1829,10 +1885,9 @@
     function openNewProjectPage() {
       const newId = String(nextIdCounter++);
       const newProj = {
-        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'uncompleted', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
       };
       tasks.push(newProj);
-      saveTasksToStorage();
       openDetailView(newId);
     }
 
@@ -1840,11 +1895,10 @@
       const newId = String(nextIdCounter++);
       const parentTask = tasks.find(t => t.pageID === String(parentID));
       const newSub = {
-        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: String(parentID), projectID: parentTask ? (parentTask.projectID || parentTask.pageID) : null, childID: [], category: '', status: 'uncompleted', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: parentTask ? `${parentTask.path || parentTask.pageID}/${newId}` : newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: String(parentID), projectID: parentTask ? (parentTask.projectID || parentTask.pageID) : null, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: parentTask ? `${parentTask.path || parentTask.pageID}/${newId}` : newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
       };
       if (parentTask) parentTask.childID.push(newId);
       tasks.push(newSub);
-      saveTasksToStorage();
       openDetailView(newId);
     }
 
@@ -1880,14 +1934,10 @@
     }
 
     function updateCurrentTaskField(field, value) {
-      const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
-      if (task) {
-        task[field] = value;
+      if (currentEditingTaskDraft) {
+        currentEditingTaskDraft[field] = value;
         if (field === 'taskMemo') {
           resizeMemoTextarea();
-        }
-        if (task.isSaved) {
-          saveTasksToStorage();
         }
       }
     }
@@ -1917,7 +1967,7 @@
 
     function saveOrUpdateCurrentTask() {
       if (currentEditingTaskId === null) return;
-      const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
+      const task = currentEditingTaskDraft;
       if (!task) return;
 
       const conflicts = checkDateConflicts(task);
@@ -1942,7 +1992,7 @@
 
     function executeSaveWithDateWarning() {
       document.getElementById('date-warning-modal').classList.add('hidden');
-      const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
+      const task = currentEditingTaskDraft;
       if (task) {
         executeFinalSave(task);
       }
@@ -1954,10 +2004,12 @@
 
     function executeFinalSave(task) {
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-      const isFirstTime = !task.isSaved;
+      const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
+      if (!savedTask) return;
+      const isFirstTime = !savedTask.isSaved;
       
-      task.isSaved = true;
-      task.updatedAt = nowStr;
+      Object.assign(savedTask, task, { isSaved: true, updatedAt: nowStr });
+      currentEditingTaskDraft = { ...savedTask, childID: [...savedTask.childID] };
 
       saveTasksToStorage();
 
@@ -1967,7 +2019,7 @@
       const updatedAtRow = document.getElementById('detail-updated-at-row');
       const updatedAtText = document.getElementById('detail-updated-at-text');
       updatedAtRow.classList.remove('hidden');
-      updatedAtText.innerText = task.updatedAt;
+      updatedAtText.innerText = savedTask.updatedAt;
 
       if (isFirstTime) {
         alert('保存しました。');
@@ -1977,21 +2029,50 @@
     }
 
     function updateCurrentTaskStatus(status) {
-      const task = tasks.find(t => t.pageID === String(currentEditingTaskId));
+      const task = currentEditingTaskDraft;
       if (task) {
         task.status = status;
         task.completedAt = status === 'completed' ? (task.completedAt || new Date().toISOString()) : null;
-        if (task.isSaved) {
-          saveTasksToStorage();
-        }
-        renderApp();
+        syncTaskStatusPicker();
       }
+    }
+
+    function toggleTaskStatusMenu() {
+      const menu = document.getElementById('task-status-menu');
+      const picker = document.getElementById('task-status-picker');
+      const isOpen = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', isOpen);
+      picker.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function selectTaskStatus(status) {
+      updateCurrentTaskStatus(status);
+      document.getElementById('task-status-menu').classList.add('hidden');
+      document.getElementById('task-status-picker').setAttribute('aria-expanded', 'false');
+    }
+
+    function syncTaskStatusPicker() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+
+      const status = task.status === 'completed' || task.status === 'pending' ? task.status : 'todo';
+      const labels = { todo: '未完了', completed: '完了', pending: '保留' };
+      const icons = { todo: 'circle', completed: 'check-circle', pending: 'inbox' };
+      const picker = document.getElementById('task-status-picker');
+      const label = document.getElementById('task-status-picker-label');
+
+      picker.className = `task-status-picker status-${status}`;
+      label.innerHTML = `<span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#${icons[status]}"></use></svg>${labels[status]}</span>`;
+      document.querySelectorAll('.task-status-option').forEach(option => {
+        const optionStatus = option.dataset.status;
+        option.className = `task-status-option${optionStatus === status ? ` selected status-${status}` : ''}`;
+      });
     }
 
     function toggleTaskComplete(taskId) {
       const task = tasks.find(t => t.pageID === String(taskId));
       if (task) {
-        task.status = task.status === 'completed' ? 'uncompleted' : 'completed';
+        task.status = task.status === 'completed' ? 'todo' : 'completed';
         task.completedAt = task.status === 'completed' ? new Date().toISOString() : null;
         saveTasksToStorage();
         renderApp();
@@ -2086,7 +2167,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-    const BUILD_CREATED_AT = '2026.10.20 00:35:48';
+  const BUILD_CREATED_AT = '2026.10.20 14:26:32';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -2106,23 +2187,6 @@
     ].join(';');
     document.body.appendChild(devBadge);
 
-    // 新しいサービスワーカーが有効になった時だけ、最新版を表示するために一度再読み込みする。
-    if ('serviceWorker' in navigator) {
-      let isReloadingForUpdate = false;
-
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!isReloadingForUpdate) {
-          isReloadingForUpdate = true;
-          window.location.reload();
-        }
-      });
-
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(registration => registration.update())
-          .catch(error => console.error('Service worker registration failed:', error));
-      });
-    }
   </script>
 </body>
 </html>

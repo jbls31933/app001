@@ -382,36 +382,34 @@
 
     .task-status-control {
       position: relative;
-      margin: 8px 0;
+      display: inline-block;
+      margin: 8px 0 10px;
     }
 
     .task-status-picker,
     .task-status-option {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 4px;
       color: #475569;
       background-color: #ffffff;
     }
 
-    .task-status-picker { padding: 7px 10px; }
+    .task-status-picker {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      justify-content: flex-start;
+    }
 
     .task-status-picker.status-completed {
-      background-color: #2563eb;
-      border-color: #2563eb;
-      color: #ffffff;
+      color: #2563eb;
     }
 
     .task-status-picker.status-pending {
-      background-color: #dcfce7;
-      border-color: #86efac;
       color: #166534;
     }
 
@@ -420,7 +418,7 @@
       z-index: 20;
       top: calc(100% + 4px);
       left: 0;
-      right: 0;
+      min-width: 150px;
       display: grid;
       gap: 4px;
       padding: 4px;
@@ -430,7 +428,7 @@
       box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
     }
 
-    .task-status-option { padding: 7px 8px; }
+    .task-status-option { width: 100%; padding: 7px 8px; border: 1px solid #cbd5e1; border-radius: 8px; justify-content: flex-start; }
     .task-status-option.selected.status-completed { background-color: #2563eb; border-color: #2563eb; color: #ffffff; }
     .task-status-option.selected.status-pending { background-color: #dcfce7; border-color: #86efac; color: #166534; }
 
@@ -452,8 +450,8 @@
 
     .date-input-field {
       width: 160px;
-      height: 36px;
-      padding: 4px 8px;
+      height: 30px;
+      padding: 0 8px;
       background-color: #ffffff;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
@@ -1039,16 +1037,7 @@
       <div id="view-task-page" class="hidden">
         <div class="card">
           <div class="form-group">
-            <span class="label-text">タイトル：</span>
-            <input type="text" id="detail-title-input" class="task-input" placeholder="ここに名称を入力..." oninput="updateCurrentTaskField('title', this.value)">
-          </div>
-
-          <div class="form-group" style="margin-top: 8px;">
-            <span class="label-text" id="detail-project-label">プロジェクト：[-]</span>
-          </div>
-
-          <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
-            前回更新日時：<span id="detail-updated-at-text">-</span>
+            <input type="text" id="detail-title-input" class="task-input" placeholder="タイトルを入力…" oninput="updateCurrentTaskField('title', this.value)">
           </div>
 
           <div class="task-status-control">
@@ -1063,8 +1052,16 @@
             </div>
           </div>
 
+          <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
+            前回更新日時：<span id="detail-updated-at-text">-</span>
+          </div>
+
           <div class="form-group">
             <span class="label-text icon-with-text" style="color: #475569;"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg>カテゴリ：[一般]</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 8px;">
+            <span class="label-text" id="detail-project-label">プロジェクト：[-]</span>
           </div>
 
           <div class="datetime-row">
@@ -2167,7 +2164,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.20 14:26:32';
+  const BUILD_CREATED_AT = '2026.10.20 15:00:17';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

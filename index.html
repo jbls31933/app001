@@ -659,6 +659,39 @@
     .schedule-end-toggle input { width: 17px; height: 17px; accent-color: #2563eb; }
     .schedule-clear-button { width: 100%; margin-top: 16px; padding: 8px; border: 0; border-radius: 8px; background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: bold; cursor: pointer; }
 
+
+    /* DEV41: task date/time editor */
+    .schedule-editor-box {width:min(390px,calc(100vw - 28px)); padding:18px 16px; border-radius:22px; background:#f7f7fb; max-height:calc(100dvh - 35px); overflow-y:auto;}
+    .schedule-editor-header {margin-bottom:16px;}
+    .schedule-editor-icon-button {width:38px;height:38px;background:#f4f5fa;color:#1e293b;font-size:26px;}
+    .schedule-editor-save {background:#2864f5;color:white;font-size:23px;}
+    .schedule-editor-title {font-size:17px;color:#1f2937;}
+    .schedule-datetime-card,.schedule-options-card {background:white;border-radius:17px;overflow:hidden;margin-bottom:12px;}
+    .schedule-all-day-row,.schedule-option-row {min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;font-size:16px;color:#1c1c1e;}
+    .schedule-option-row + .schedule-option-row {border-top:1px solid #e5e5e9;}
+    .schedule-option-row input:disabled {opacity:.55;}
+    .schedule-muted {color:#98989f;}
+    .schedule-switch {appearance:none;-webkit-appearance:none;width:49px;height:30px;border-radius:30px;background:#c8c8cb;position:relative;flex-shrink:0;cursor:pointer;}
+    .schedule-switch:before {content:'';position:absolute;width:26px;height:26px;top:2px;left:2px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .15s;}
+    .schedule-switch:checked {background:#34c759;}
+    .schedule-switch:checked:before {transform:translateX(19px);}
+    .schedule-date-row {display:flex;align-items:center;gap:7px;min-height:54px;padding:0 16px;}
+    .schedule-date-caption {font-size:12px;color:#888;min-width:27px;}
+    .schedule-date-row button {background:transparent;border:0;font-size:16px;color:#202124;cursor:pointer;padding:10px 0;white-space:nowrap;}
+    .schedule-date-row button:nth-of-type(1) {flex:1;text-align:left;}
+    .schedule-date-row button:nth-of-type(2) {text-align:right;min-width:50px;}
+    .schedule-picker-area {padding:8px 12px 14px;border-top:1px solid #eee;}
+    .schedule-calendar-heading {display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px;}
+    .schedule-calendar-heading button {border:0;background:#f1f3f8;border-radius:8px;padding:5px 12px;font-size:18px;}
+    .schedule-calendar-grid {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center;}
+    .schedule-calendar-grid span,.schedule-calendar-grid button {height:36px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .schedule-calendar-grid span {color:#8a8a8f;}
+    .schedule-calendar-grid button {border:0;border-radius:50%;background:transparent;color:#222;}
+    .schedule-calendar-grid button.selected {background:#2275ed;color:white;}
+    .schedule-time-wheel {display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 0;}
+    .schedule-time-wheel select {font-size:24px;text-align:center;border:0;border-radius:12px;background:#f3f3f5;padding:12px 14px;color:#222;max-width:95px;}
+    .schedule-clear-button {margin-top:2px;padding:17px;border-radius:15px;font-size:16px;font-weight:600;background:#fff0f1;color:#e22;}
+
     .reference-link-input {
       min-width: 0;
       padding: 7px 8px;
@@ -1670,10 +1703,18 @@
         <div id="schedule-editor-title" class="schedule-editor-title"></div>
         <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="saveScheduleEditor()" aria-label="保存">✓</button>
       </div>
-      <input type="datetime-local" id="schedule-start-input" class="schedule-editor-input">
-      <label class="schedule-end-toggle"><input type="checkbox" id="schedule-end-toggle" onchange="toggleScheduleEndInput()">終了日時を設定</label>
-      <input type="datetime-local" id="schedule-end-input" class="schedule-editor-input hidden">
+      <div class="schedule-datetime-card">
+        <div id="schedule-all-day-row" class="schedule-all-day-row hidden"><span class="schedule-row-name">◷　終日</span><input id="schedule-all-day" type="checkbox" class="schedule-switch" onchange="toggleScheduleAllDay()"></div>
+        <div class="schedule-date-row" id="schedule-start-row"><span class="schedule-date-caption" id="schedule-start-caption">開始</span><button type="button" id="schedule-start-date-btn" onclick="showSchedulePicker('start','date')"></button><button type="button" id="schedule-start-time-btn" onclick="showSchedulePicker('start','time')"></button></div>
+        <div class="schedule-date-row hidden" id="schedule-end-row"><span class="schedule-date-caption">終了</span><button type="button" id="schedule-end-date-btn" onclick="showSchedulePicker('end','date')"></button><button type="button" id="schedule-end-time-btn" onclick="showSchedulePicker('end','time')"></button></div>
+        <div id="schedule-picker-area" class="schedule-picker-area hidden"></div>
+      </div>
+      <div class="schedule-options-card">
+        <div class="schedule-option-row"><span>♧　通知する</span><input type="checkbox" class="schedule-switch" disabled aria-label="通知機能は今後追加"></div>
+        <div class="schedule-option-row"><span>⇄　繰り返し</span><span class="schedule-muted">毎日　›</span></div>
+      </div>
       <button type="button" class="schedule-clear-button" onclick="clearScheduleEditor()">設定を削除</button>
+      <input type="hidden" id="schedule-start-input"><input type="hidden" id="schedule-end-input"><input type="checkbox" id="schedule-end-toggle" class="hidden">
     </div>
   </div>
 
@@ -3184,51 +3225,83 @@
       button.setAttribute('aria-label', `${keys.label}${isEmpty ? 'を入力' : `：${formatSchedule(field)}`}`);
     }
 
+    let schedulePickerTarget = 'start';
+    let schedulePickerType = 'date';
+    let scheduleCalendarMonth = new Date();
+    function scheduleLocalDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function scheduleDefaultValue() { const d=new Date(); return `${scheduleLocalDate(d)}T${String(d.getHours()).padStart(2,'0')}:${String(Math.floor(d.getMinutes()/5)*5).padStart(2,'0')}`; }
+    function schedulePrettyDate(v) { if (!v) return '日付を選択'; const d=new Date(v.slice(0,10)+'T12:00:00');return `${d.getMonth()+1}月${d.getDate()}日 (${['日','月','火','水','木','金','土'][d.getDay()]})`; }
+    function refreshScheduleEditor() {
+      for(const part of ['start','end']) {
+        const v=document.getElementById(`schedule-${part}-input`).value;
+        document.getElementById(`schedule-${part}-date-btn`).textContent=schedulePrettyDate(v);
+        document.getElementById(`schedule-${part}-time-btn`).textContent=v.slice(11,16)||'0:00';
+      }
+      const action=scheduleEditingField==='action';
+      document.getElementById('schedule-all-day-row').classList.toggle('hidden',!action);
+      document.getElementById('schedule-end-row').classList.toggle('hidden',!action);
+      document.getElementById('schedule-start-caption').textContent=action?'開始':'';
+      const allDay=action&&document.getElementById('schedule-all-day').checked;
+      document.getElementById('schedule-start-time-btn').classList.toggle('hidden',allDay);
+      document.getElementById('schedule-end-time-btn').classList.toggle('hidden',allDay);
+    }
     function openScheduleEditor(field) {
-      const task = currentEditingTaskDraft;
-      if (!task) return;
-      const keys = getScheduleKeys(field);
-      scheduleEditingField = field;
-      document.getElementById('schedule-editor-title').textContent = keys.label;
-      document.getElementById('schedule-start-input').value = joinScheduleDateTime(task[keys.date], task[keys.time]);
-      const hasEnd = Boolean(task[keys.endDate]);
-      document.getElementById('schedule-end-toggle').checked = hasEnd;
-      document.getElementById('schedule-end-input').value = joinScheduleDateTime(task[keys.endDate], task[keys.endTime]);
-      toggleScheduleEndInput();
-      document.getElementById('schedule-editor-modal').classList.remove('hidden');
+      const task=currentEditingTaskDraft;if(!task)return;
+      const keys=getScheduleKeys(field);scheduleEditingField=field;
+      document.getElementById('schedule-editor-title').textContent=keys.label;
+      const start=joinScheduleDateTime(task[keys.date],task[keys.time])||scheduleDefaultValue();
+      const end=joinScheduleDateTime(task[keys.endDate],task[keys.endTime])||(()=>{const d=new Date(start);d.setHours(d.getHours()+1);return `${scheduleLocalDate(d)}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;})();
+      document.getElementById('schedule-start-input').value=start;
+      document.getElementById('schedule-end-input').value=end;
+      document.getElementById('schedule-end-toggle').checked=Boolean(task[keys.endDate]);
+      document.getElementById('schedule-all-day').checked=false;
+      document.getElementById('schedule-picker-area').classList.add('hidden');
+      refreshScheduleEditor();document.getElementById('schedule-editor-modal').classList.remove('hidden');
     }
-
-    function closeScheduleEditor() {
-      scheduleEditingField = null;
-      document.getElementById('schedule-editor-modal').classList.add('hidden');
+    function closeScheduleEditor() {scheduleEditingField=null;document.getElementById('schedule-editor-modal').classList.add('hidden');}
+    function toggleScheduleAllDay() {refreshScheduleEditor();}
+    function toggleScheduleEndInput() {refreshScheduleEditor();}
+    function showSchedulePicker(part,type) {
+      const area=document.getElementById('schedule-picker-area');
+      if(!area.classList.contains('hidden')&&schedulePickerTarget===part&&schedulePickerType===type){area.classList.add('hidden');return;}
+      schedulePickerTarget=part;schedulePickerType=type;
+      const v=document.getElementById(`schedule-${part}-input`).value;
+      scheduleCalendarMonth=new Date((v||scheduleDefaultValue()).slice(0,10)+'T12:00:00');
+      area.classList.remove('hidden');renderSchedulePicker();
     }
-
-    function toggleScheduleEndInput() {
-      const enabled = document.getElementById('schedule-end-toggle').checked;
-      document.getElementById('schedule-end-input').classList.toggle('hidden', !enabled);
+    function shiftScheduleMonth(n){scheduleCalendarMonth.setDate(1);scheduleCalendarMonth.setMonth(scheduleCalendarMonth.getMonth()+n);renderSchedulePicker();}
+    function chooseScheduleDate(date){const el=document.getElementById(`schedule-${schedulePickerTarget}-input`);el.value=date+'T'+(el.value.slice(11,16)||'00:00');refreshScheduleEditor();renderSchedulePicker();}
+    function chooseScheduleTime(){const h=document.getElementById('schedule-hour').value,m=document.getElementById('schedule-minute').value;const el=document.getElementById(`schedule-${schedulePickerTarget}-input`);el.value=(el.value.slice(0,10)||scheduleLocalDate(new Date()))+`T${h}:${m}`;refreshScheduleEditor();}
+    function renderSchedulePicker(){
+      const area=document.getElementById('schedule-picker-area');
+      if(schedulePickerType==='time'){
+        const v=document.getElementById(`schedule-${schedulePickerTarget}-input`).value;const hh=v.slice(11,13)||'00',mm=v.slice(14,16)||'00';
+        const opts=(count,step,selected)=>Array.from({length:count},(_,i)=>{const val=String(i*step).padStart(2,'0');return `<option value="${val}" ${val===selected?'selected':''}>${val}</option>`;}).join('');
+        area.innerHTML=`<div class="schedule-time-wheel"><select id="schedule-hour" onchange="chooseScheduleTime()" aria-label="時">${opts(24,1,hh)}</select><span>:</span><select id="schedule-minute" onchange="chooseScheduleTime()" aria-label="分">${opts(12,5,mm)}</select></div>`;return;
+      }
+      const y=scheduleCalendarMonth.getFullYear(),m=scheduleCalendarMonth.getMonth();
+      const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+      const selected=document.getElementById(`schedule-${schedulePickerTarget}-input`).value.slice(0,10);
+      let grid=['日','月','火','水','木','金','土'].map(d=>`<span>${d}</span>`).join('');
+      grid+='<span></span>'.repeat(first);
+      for(let day=1;day<=days;day++){const date=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;grid+=`<button type="button" class="${selected===date?'selected':''}" onclick="chooseScheduleDate('${date}')">${day}</button>`;}
+      area.innerHTML=`<div class="schedule-calendar-heading"><button type="button" onclick="shiftScheduleMonth(-1)">‹</button><strong>${y}年${m+1}月</strong><button type="button" onclick="shiftScheduleMonth(1)">›</button></div><div class="schedule-calendar-grid">${grid}</div>`;
     }
-
-    function saveScheduleEditor() {
-      if (!scheduleEditingField || !currentEditingTaskDraft) return;
-      const keys = getScheduleKeys(scheduleEditingField);
-      const start = splitScheduleDateTime(document.getElementById('schedule-start-input').value);
-      const end = document.getElementById('schedule-end-toggle').checked
-        ? splitScheduleDateTime(document.getElementById('schedule-end-input').value)
-        : { date: '', time: '' };
-      Object.assign(currentEditingTaskDraft, {
-        [keys.date]: start.date, [keys.time]: start.time,
-        [keys.endDate]: end.date, [keys.endTime]: end.time
-      });
-      updateScheduleButton(scheduleEditingField);
-      closeScheduleEditor();
+    function saveScheduleEditor(){
+      if(!scheduleEditingField||!currentEditingTaskDraft)return;
+      const keys=getScheduleKeys(scheduleEditingField);
+      const start=splitScheduleDateTime(document.getElementById('schedule-start-input').value);
+      const action=scheduleEditingField==='action';
+      const end=action?splitScheduleDateTime(document.getElementById('schedule-end-input').value):{date:'',time:''};
+      const allDay=action&&document.getElementById('schedule-all-day').checked;
+      Object.assign(currentEditingTaskDraft,{[keys.date]:start.date,[keys.time]:allDay?'':start.time,[keys.endDate]:end.date,[keys.endTime]:allDay?'':end.time});
+      updateScheduleButton(scheduleEditingField);closeScheduleEditor();
     }
-
-    function clearScheduleEditor() {
-      if (!scheduleEditingField || !currentEditingTaskDraft) return;
-      const keys = getScheduleKeys(scheduleEditingField);
-      Object.assign(currentEditingTaskDraft, { [keys.date]: '', [keys.time]: '', [keys.endDate]: '', [keys.endTime]: '' });
-      updateScheduleButton(scheduleEditingField);
-      closeScheduleEditor();
+    function clearScheduleEditor(){
+      if(!scheduleEditingField||!currentEditingTaskDraft)return;
+      const keys=getScheduleKeys(scheduleEditingField);
+      Object.assign(currentEditingTaskDraft,{[keys.date]:'',[keys.time]:'',[keys.endDate]:'',[keys.endTime]:''});
+      updateScheduleButton(scheduleEditingField);closeScheduleEditor();
     }
 
     function checkDateConflicts(task) {
@@ -3978,7 +4051,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV40';
+  const BUILD_CREATED_AT = '2026.10.21 DEV41';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

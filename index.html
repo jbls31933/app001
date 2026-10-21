@@ -1362,9 +1362,90 @@
       touch-action: pan-y;
     }
 
-    /* DEV62: 日ページ表示中だけ共通スクロールを停止。時間軸の高さ・配置はDEV59のまま。 */
-    body:has(#view-timetable:not(.hidden)) .main-scroll-area {
-      overflow-y: hidden;
+
+    /* DEV63: 専用ヘッダーは共通ヘッダーとメインの間に独立配置。 */
+    /* DEV64: 日ページも共通の4行を使用。非表示のトップタブの行を増設しない。 */
+    #top-tab-nav-container, #timetable-page-header { grid-row: 2; }
+    .app-container > .main-content { grid-row: 3; }
+    .app-container:has(#view-timetable:not(.hidden)) {
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+    }
+    #timetable-page-header {
+      position: relative;
+      z-index: 3;
+      background: #fff;
+      padding: 13px 10px 5px;
+      margin: 0;
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 3px 5px rgba(30, 41, 59, .12);
+    }
+    #timetable-page-header .timetable-header {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+      min-height: 0;
+      padding: 0;
+    }
+    #timetable-page-header .timetable-header strong { font-size: 17px; }
+    #timetable-page-header .timetable-date-nav { display:flex; align-items:center; justify-content:flex-start; gap:6px; }
+    #timetable-page-header .timetable-date-nav button { border:0; background:#f1f3f8; color:#2275ed; border-radius:8px; width:27px; height:28px; padding:0; font-size:21px; line-height:1; cursor:pointer; flex:0 0 auto; }
+    #view-timetable .timetable-hour:first-child, #view-timetable .timetable-hour:last-child { left:38px; }
+    @keyframes timetableDayFromLeft { from { transform:translateX(-35px); opacity:.5; } to { transform:translateX(0); opacity:1; } }
+    @keyframes timetableDayFromRight { from { transform:translateX(35px); opacity:.5; } to { transform:translateX(0); opacity:1; } }
+    #view-timetable .timetable-day-from-left { animation:timetableDayFromLeft 200ms ease-out both; }
+    #view-timetable .timetable-day-from-right { animation:timetableDayFromRight 200ms ease-out both; }
+    @media (prefers-reduced-motion:reduce) { #view-timetable .timetable-day-from-left, #view-timetable .timetable-day-from-right { animation:none; } }
+    #timetable-page-header .timetable-filters {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      gap: 10px;
+      align-items: center;
+    }
+    #timetable-page-header .timetable-filters label { font-size: 11px; font-weight: 400; gap: 4px; }
+    #timetable-page-header .timetable-filters .calendar-legend { width: 7px; height: 7px; }
+    #timetable-page-header .timetable-filters .calendar-toggle { width: 28px; height: 17px; margin-left: 2px; }
+    #timetable-page-header .timetable-filters .calendar-toggle:before { width: 13px; height: 13px; }
+    #timetable-page-header .timetable-filters input:checked+.calendar-toggle:before { transform: translateX(11px); }
+    /* 日ページだけメインの余白と角丸をなくし、内部の時間軸のみスクロール。 */
+    .app-container:has(#view-timetable:not(.hidden)) > .main-content {
+      padding: 0 0 16px;
+      margin: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .app-container:has(#view-timetable:not(.hidden)) .main-scroll-area {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      touch-action: auto;
+    }
+    #view-timetable:not(.hidden) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+    }
+    #view-timetable .timetable-card {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 0;
+      border-radius: 0;
+      padding: 0;
+    }
+    #view-timetable .timetable-all-day { flex: 0 0 auto; }
+    #view-timetable .timetable-scroll {
+      flex: 1 1 auto;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      overscroll-behavior-y: contain;
     }
 
   </style>
@@ -1409,6 +1490,17 @@
       </nav>
     </div>
 
+    <!-- DEV63: 日ページだけに表示する、メイン領域外の専用ヘッダー -->
+    <div id="timetable-page-header" class="hidden">
+      <div class="timetable-header">
+        <div class="timetable-date-nav"><button type="button" onclick="shiftTimetableDay(-1)" aria-label="前の日">‹</button><strong id="timetable-date-label"></strong><button type="button" onclick="shiftTimetableDay(1)" aria-label="次の日">›</button></div>
+        <div class="calendar-filters timetable-filters">
+          <label><span class="calendar-legend deadline-color"></span>期限を表示<input type="checkbox" id="timetable-show-deadline" checked onchange="syncCalendarFilters('deadline',this.checked)"><span class="calendar-toggle"></span></label>
+          <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="timetable-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
+        </div>
+      </div>
+    </div>
+
     <!-- メインコンテンツ領域 -->
     <main class="main-content">
       <div class="main-scroll-area">
@@ -1446,13 +1538,6 @@
       </div>
       <div id="view-timetable" class="hidden">
         <div class="card timetable-card">
-          <div class="timetable-header">
-            <strong id="timetable-date-label"></strong>
-            <div class="calendar-filters timetable-filters">
-              <label><span class="calendar-legend deadline-color"></span>期限を表示<input type="checkbox" id="timetable-show-deadline" checked onchange="syncCalendarFilters('deadline',this.checked)"><span class="calendar-toggle"></span></label>
-              <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="timetable-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
-            </div>
-          </div>
           <div class="timetable-all-day" id="timetable-all-day"></div>
           <div class="timetable-scroll"><div class="timetable-axis" id="timetable-axis"></div></div>
         </div>
@@ -2253,6 +2338,7 @@
         }
       }
 
+      document.getElementById('timetable-page-header').classList.toggle('hidden', targetView !== 'timetable');
       const tabNav = document.getElementById('top-tab-nav-container');
       if (isTargetTopGroup) {
         tabNav.classList.remove('hidden');
@@ -2446,6 +2532,7 @@
         }
       });
 
+      document.getElementById('timetable-page-header').classList.toggle('hidden', targetView !== 'timetable');
       const tabNav = document.getElementById('top-tab-nav-container');
       if (isTargetTopGroup) {
         tabNav.classList.remove('hidden');
@@ -2615,6 +2702,23 @@
       topCalendarSelectedDate = dateKey;
       switchView('timetable');
       renderTimetable();
+    }
+
+    function shiftTimetableDay(offset) {
+      if (currentActiveView !== 'timetable') return;
+      const selected = new Date(topCalendarSelectedDate + 'T12:00:00');
+      selected.setDate(selected.getDate() + offset);
+      const scroll = document.querySelector('#view-timetable .timetable-scroll');
+      const scrollTop = scroll ? scroll.scrollTop : 0;
+      topCalendarSelectedDate = topCalendarDateKey(selected);
+      renderTimetable();
+      if (scroll) scroll.scrollTop = scrollTop;
+      const dayContent = document.querySelector('#view-timetable .timetable-card');
+      if (dayContent) {
+        dayContent.classList.remove('timetable-day-from-left', 'timetable-day-from-right');
+        void dayContent.offsetWidth;
+        dayContent.classList.add(offset < 0 ? 'timetable-day-from-left' : 'timetable-day-from-right');
+      }
     }
 
     function syncCalendarFilters(kind, checked) {
@@ -4423,7 +4527,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV62';
+  const BUILD_CREATED_AT = '2026.10.21 DEV63';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

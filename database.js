@@ -1,25 +1,4003 @@
-import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.mjs';
 
-export const db = new Dexie('TaskDiaryDatabase');
-
-db.version(1).stores({
-    records: 'pageID, type, title, parentID, projectID, childID, category, status, actionDate, deadlineDate, completedAt, preDeleted, preDeletedAt, diaryMemo, taskMemo, createdAt, updatedAt, email, isSaved, path, deadlineDateCheck, actionDateCheck, deadlineCustomReminderAt, isDeadlineCustomActive, isDeadline5MinBefore, isDeadline10MinBefore, isDeadline20MinBefore, isDeadline30MinBefore, isDeadline1HourBefore, isDeadline2HoursBefore, isDeadline3HoursBefore, isDeadline4HoursBefore, isDeadline5HoursBefore, isDeadline6HoursBefore, isDeadline12HoursBefore, isDeadline1DayBefore, isDeadline3DaysBefore, isDeadline5DaysBefore, isDeadline1WeekBefore, isDeadline2WeeksBefore, isDeadline1MonthBefore, actionCustomReminderAt, isActionCustomActive, isAction5MinBefore, isAction10MinBefore, isAction20MinBefore, isAction30MinBefore, isAction1HourBefore, isAction2HoursBefore, isAction3HoursBefore, isAction4HoursBefore, isAction5HoursBefore, isAction6HoursBefore, isAction12HoursBefore, isAction1DayBefore, isAction3DaysBefore, isAction5DaysBefore, isAction1WeekBefore, isAction2WeeksBefore, isAction1MonthBefore'
-});
-
-export async function runCatchUpProcessing() {
-    const now = new Date();
-    const allRecords = await db.records.toArray();
-
-    for (const record of allRecords) {
-        if (
-            record.deadlineDate &&
-            new Date(record.deadlineDate) < now &&
-            record.status === 'pending'
-        ) {
-            await db.records.update(record.pageID, {
-                status: 'overdue',
-                updatedAt: now.toISOString()
-            });
-        }
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MakeUpper</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="application-name" content="MakeUpper">
+  <meta name="apple-mobile-web-app-title" content="MakeUpper">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1678cc">
+  <link rel="apple-touch-icon" sizes="180x180" href="./images/AppIcon.PNG">
+  <link rel="icon" type="image/png" sizes="192x192" href="./images/AppIcon.PNG">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
-}
+
+    input, textarea {
+      user-select: text;
+      -webkit-user-select: text;
+      font-size: 16px !important;
+    }
+
+    body {
+      background-color: #e8f1f8;
+      color: #333333;
+      display: flex;
+      justify-content: center;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      position: fixed;
+      width: 100%;
+      touch-action: pan-y;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      background-color: #e8f1f8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 共通固定ヘッダー（元のサイズとパディングを完全に復元） */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background-color: #e8f1f8;
+      min-height: 70px;
+      position: relative;
+    }
+
+    .header-left-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 2;
+    }
+
+    .top-nav-link {
+      font-size: 20px;
+      color: #334155;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      transition: background-color 0.2s;
+    }
+
+    .top-nav-link:active {
+      background-color: #f1f5f9;
+    }
+
+    /* メニューおよびメニュー内項目のタイトル専用：センター表示 ＆ 少し小さく */
+    .subpage-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #334155;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+    }
+
+    .app-icon {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex: 0 0 auto;
+      vertical-align: -0.14em;
+      color: currentColor;
+    }
+
+    .icon-with-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.34em;
+    }
+
+    .top-nav-link .app-icon {
+      width: 28px;
+      height: 28px;
+      vertical-align: 0;
+    }
+
+    .memo-expand-button .app-icon {
+      width: 27px;
+      height: 27px;
+      vertical-align: 0;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .app-title span {
+      font-size: 14px;
+      font-weight: normal;
+      color: #4b5563;
+    }
+
+    .btn-add-project {
+      background-color: #ffffff;
+      border: 1.5px solid #2563eb;
+      color: #1e40af;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .btn-save {
+      background-color: #2563eb;
+      border: none;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .btn-delete {
+      background-color: #dc2626;
+      border: none;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    /* タブナビゲーション */
+    .tab-nav {
+      display: flex;
+      padding: 0 16px;
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: bold;
+      background-color: #cbd5e1;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .tab-item:first-child {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    .tab-item:last-child {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .tab-item.active {
+      background-color: #0f4c81;
+      color: #ffffff;
+    }
+
+    /* スライドイン・アウトのアニメーション定義 */
+    @keyframes slideInFromRight {
+      from { transform: translateX(100%); opacity: 0.9; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutToRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0.9; }
+    }
+    @keyframes slideInFromLeft {
+      from { transform: translateX(-100%); opacity: 0.9; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutToLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100%); opacity: 0.9; }
+    }
+
+    .slide-in-right { animation: slideInFromRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-out-right { animation: slideOutToRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .slide-out-left { animation: slideOutToLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; z-index: 10; }
+    .menu-title-slide-in-right { animation: slideInFromRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .menu-title-slide-in-left { animation: slideInFromLeft 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    .back-transition-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #e8f1f8;
+      pointer-events: none;
+      animation: slideOutToRight 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .back-transition-header {
+      flex: 0 0 auto;
+    }
+
+    .back-transition-main {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* メインエリア */
+    .main-content {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+
+    .status-group {
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      border: 1px solid transparent;
+    }
+
+    .status-header {
+      padding: 8px 12px;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-body {
+      background-color: #ffffff;
+      padding: 8px 12px;
+    }
+
+    .empty-msg {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 4px 0;
+    }
+
+    .group-expired { border-color: #f87171; }
+    .group-expired .status-header { background-color: #dc2626; }
+
+    .group-today-due { border-color: #fbbf24; }
+    .group-today-due .status-header { background-color: #d97706; }
+
+    .group-today-plan { border-color: #60a5fa; }
+    .group-today-plan .status-header { background-color: #0284c7; }
+
+    .group-completed { border-color: #4ade80; }
+    .group-completed .status-header { background-color: #16a34a; }
+
+    .project-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2563eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .label-text {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .task-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: #334155;
+      background-color: #ffffff;
+      outline: none;
+    }
+
+    .task-input:focus {
+      border-color: #2563eb;
+      background-color: #ffffff;
+    }
+
+    .task-status-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 10px;
+    }
+
+    .detail-meta-text {
+      display: block;
+      font-size: 12px;
+      font-weight: normal;
+      color: #64748b;
+    }
+
+    .status-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #475569;
+    }
+
+    .task-status-picker,
+    .task-status-option {
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #475569;
+      background-color: #ffffff;
+    }
+
+    .task-status-picker {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      justify-content: flex-start;
+    }
+
+    .task-status-picker.status-completed {
+      color: #2563eb;
+    }
+
+    .task-status-picker.status-pending {
+      color: #166534;
+    }
+
+    .task-status-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 150px;
+      display: grid;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background-color: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    .task-status-option { width: 100%; padding: 7px 8px; border: 1px solid #cbd5e1; border-radius: 8px; justify-content: flex-start; }
+    .task-status-option.selected.status-completed { background-color: #2563eb; border-color: #2563eb; color: #ffffff; }
+    .task-status-option.selected.status-pending { background-color: #dcfce7; border-color: #86efac; color: #166534; }
+
+    .status-icon-spacer {
+      display: inline-block;
+      width: 18px;
+      flex: 0 0 18px;
+    }
+
+    .category-control {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .category-picker {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #475569;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .category-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 190px;
+      display: grid;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    .category-option {
+      width: 100%;
+      padding: 7px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #475569;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: left;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-option.selected { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+    .category-settings-link { justify-content: center; margin-top: 4px; color: #ffffff; border-color: #2563eb; background: #2563eb; text-align: center; }
+    .category-menu-selected { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 2px 6px; }
+    .category-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; padding: 3px 8px; border-radius: 999px; color: #ffffff; font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .category-check-option { display: flex; align-items: center; gap: 7px; }
+    .category-check-option input { width: 16px; height: 16px; accent-color: #2563eb; }
+
+    .datetime-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .datetime-label {
+      font-weight: bold;
+      width: 90px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-input-field {
+      width: auto;
+      min-width: 30px;
+      height: 30px;
+      margin-left: auto;
+      padding: 0;
+      background-color: transparent;
+      border: 0;
+      font-size: 12px;
+      color: #334155;
+      outline: none;
+      text-align: right;
+      cursor: pointer;
+    }
+
+    .date-input-field.is-empty { color: #64748b; font-size: 18px; }
+
+    .title-input-row { display: flex; align-items: center; }
+    .title-accent-bar { flex: 0 0 3px; width: 3px; height: 24px; margin-right: 7px; border-radius: 999px; background: #2563eb; }
+    #detail-title-input, #detail-title-input:focus { flex: 1; padding: 8px 0; border: 0; border-radius: 0; background: transparent; font-weight: bold; }
+    #detail-title-input::placeholder { font-weight: normal; }
+    .title-edit-button { display: flex; visibility: hidden; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #64748b; font-size: 18px; cursor: pointer; }
+    #detail-title-input:placeholder-shown + .title-edit-button { visibility: visible; }
+
+    .memo-card-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #1e293b;
+    }
+
+    .memo-card-title-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .memo-expand-button {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .memo-expand-button:active {
+      background: #f1f5f9;
+    }
+
+    .memo-textarea {
+      width: 100%;
+      height: 90px;
+      min-height: 90px;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      resize: none;
+      outline: none;
+      background-color: #ffffff;
+      overflow: hidden;
+      overflow-anchor: none;
+    }
+
+    .memo-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .reference-links-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .reference-links-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .reference-link-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .reference-link-display { min-width: 0; display: flex; align-items: center; }
+    .reference-link-display a { min-width: 0; color: #2563eb; font-size: 12px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reference-link-edit-button { align-self: center; border: 0; border-radius: 7px; padding: 4px 7px; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .reference-link-add-button { width: 100%; margin-top: 10px; padding: 8px; border: 0; border-radius: 8px; background: #eff6ff; color: #2563eb; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .reference-link-modal-fields { display: grid; gap: 10px; margin: 16px 0; text-align: left; }
+
+    .history-memo-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .history-memo-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; padding-bottom: 2px; }
+    .history-memo-row.is-filled { border-bottom: 1px solid #cbd5e1; }
+    .history-memo-row.is-filled:focus-within { border-bottom-color: #2563eb; }
+    .history-memo-input, .history-memo-input:focus { min-width: 0; flex: 1; min-height: 38px; padding: 8px 0; border: 0; border-radius: 0; resize: none; overflow: hidden; line-height: 1.45; background: transparent; }
+    .history-memo-time { flex: 0 0 auto; padding-top: 10px; color: #64748b; font-size: 10px; white-space: nowrap; }
+    .history-memo-delete-button { flex: 0 0 auto; width: 30px; height: 30px; margin-top: 4px; padding: 0; border: 0; border-radius: 7px; background: #fef2f2; color: #dc2626; cursor: pointer; }
+    .history-memo-text { min-width: 0; flex: 1; padding: 8px 0; color: #334155; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+    .history-memo-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0; }
+    .history-memo-edit-button, .history-memo-sort-button { height: 30px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #475569; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .history-memo-edit-button.is-editing { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+    .section-title-actions { display: flex; align-items: center; gap: 6px; }
+
+    .schedule-editor-box { width: min(320px, calc(100vw - 32px)); background: #ffffff; border-radius: 14px; padding: 12px; box-shadow: 0 14px 34px rgba(15,23,42,.2); }
+    .schedule-editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .schedule-editor-title { font-size: 15px; font-weight: bold; color: #334155; }
+    .schedule-editor-icon-button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #f1f5f9; color: #334155; font-size: 20px; cursor: pointer; }
+    .schedule-editor-save { color: #ffffff; background: #2563eb; font-size: 16px; }
+    .schedule-editor-input { width: 100%; height: 38px; padding: 0 8px; border: 1px solid #cbd5e1; border-radius: 8px; color: #334155; background: #ffffff; }
+    .schedule-end-toggle { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; color: #475569; font-size: 13px; font-weight: bold; }
+    .schedule-end-toggle input { width: 17px; height: 17px; accent-color: #2563eb; }
+    .schedule-clear-button { width: 100%; margin-top: 16px; padding: 8px; border: 0; border-radius: 8px; background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+    .reference-link-input {
+      min-width: 0;
+      padding: 7px 8px;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .category-settings-add {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .category-settings-add .task-input { min-width: 0; flex: 1; font-size: 13px; }
+
+    .category-settings-main {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .category-drag-handle {
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 17px;
+      line-height: 1;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .category-drag-handle:active { cursor: grabbing; }
+    .category-settings-row.is-dragging { opacity: 0.48; }
+    .category-settings-row.is-drag-over { border-top: 2px solid #2563eb; }
+
+    .category-color-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex: 0 0 10px;
+    }
+
+    .category-settings-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-settings-actions { display: flex; gap: 5px; }
+
+    .category-settings-add-button,
+    .category-settings-edit-button,
+    .category-settings-remove-button {
+      border: 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .category-settings-add-button { padding: 0 12px; color: #ffffff; background: #2563eb; }
+    .category-settings-edit-button { padding: 4px 8px; color: #1d4ed8; background: #eff6ff; }
+    .category-settings-remove-button { padding: 4px 8px; color: #dc2626; background: #fef2f2; }
+
+    .category-edit-input { width: 100%; margin-top: 12px; }
+    .category-color-label { margin: 14px 0 7px; color: #475569; font-size: 12px; font-weight: bold; }
+    .category-color-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .category-color-option {
+      width: 28px;
+      height: 28px;
+      padding: 3px;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .category-color-option.selected { border-color: #1e293b; }
+    .category-color-option .category-color-dot { width: 100%; height: 100%; }
+
+    .memo-help {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .display-setting-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      color: #334155;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .display-setting-option + .display-setting-option {
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .display-setting-option input {
+      width: 18px;
+      height: 18px;
+      accent-color: #2563eb;
+    }
+
+    .tree-card {
+      border: 1px solid #93c5fd;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .tree-header {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+
+    /* タスクページ最下部：階層型プロジェクトビュー */
+    body:has(#view-task-page:not(.hidden)),
+    body:has(#view-task-page:not(.hidden)) .app-container,
+    body:has(#view-task-page:not(.hidden)) .main-content,
+    body:has(#view-task-page:not(.hidden)) .main-scroll-area { touch-action: auto; }
+    .project-tree-section { margin-top: 18px; min-width: 0; }
+    .project-tree-section-heading { font-size: 14px; font-weight: 700; color: #334155; margin: 0 0 8px; display: flex; align-items: center; gap: 5px; }
+    .project-tree-scroll { overflow-x: auto; overflow-y: auto; max-width: 100%; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: auto; scrollbar-width: auto; scrollbar-color: #94a3b8 #e2e8f0; border: 0; border-radius: 0; }
+    .project-tree-scroll::-webkit-scrollbar { height: 12px; }
+    .project-tree-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .project-tree-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border: 2px solid #f1f5f9; border-radius: 8px; }
+    #detail-tree-list { width: max-content; min-width: 100%; }
+    .project-tree-columns, .project-tree-row {
+      display: grid;
+      grid-template-columns: minmax(240px, 2fr) 115px 140px 140px minmax(200px, 1fr);
+      min-width: 850px;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .project-tree-columns { color: #9ca3af; font-size: 15px; font-weight: 500; background: #fff; }
+    .project-tree-columns > span { padding: 13px 8px; }
+    .project-tree-row { min-height: 51px; font-size: 15px; position: relative; }
+    .project-tree-title-cell { display: flex; align-items: center; min-width: 0; gap: 5px; }
+    .project-tree-toggle { flex: 0 0 22px; border: 0; background: transparent; color: #475569; cursor: pointer; padding: 7px 0; }
+    .project-tree-toggle:disabled { cursor: default; }
+    .project-tree-title { border: 0; background: transparent; text-align: left; cursor: pointer; color: #1e293b; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; padding: 9px 2px; }
+    .project-tree-title-input { min-width: 0; width: 100%; padding: 6px; border: 1px solid #94a3b8; border-radius: 4px; font-size: 15px; }
+    .project-tree-title:hover { text-decoration: underline; }
+    .project-tree-completed { text-decoration: line-through; color: #94a3b8; }
+    .project-tree-property { padding: 8px; overflow-wrap: anywhere; color: #475569; }
+    .project-tree-add { display: block; position: relative; box-sizing: border-box; min-width: 850px; width: 100%; border: 0; border-bottom: 1px solid #e2e8f0; background: #fff; text-align: left; padding-top: 10px; padding-bottom: 10px; color: #94a3b8; font-size: 12px; cursor: pointer; }
+    .project-tree-add:hover { background: #f8fafc; }
+    .project-tree-branch { position: absolute; pointer-events: none; width: 1px; background: #b7c0cc; top: 0; bottom: 0; }
+    .project-tree-branch-end { position: absolute; pointer-events: none; height: 1px; background: #b7c0cc; top: 50%; }
+    .project-tree-add { font-size: 10px; }
+    .project-tree-columns { position: sticky; top: 0; z-index: 15; background: white; }
+    .project-tree-title-cell { position: relative; padding-left: 0 !important; }
+    .project-tree-drag { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 4; width: 20px; }
+    .project-tree-toggle, .project-tree-title, .project-tree-edit { position: relative; z-index: 2; background: white; }
+    .project-tree-edit { border: 0; color: #64748b; padding: 5px; cursor: pointer; font-size: 15px; }
+    .project-tree-branch, .project-tree-branch-end { z-index: 0; }
+    .project-tree-add-label { position: relative; z-index: 2; background: white; }
+    .project-tree-edit-fields { display: grid; gap: 10px; text-align: left; margin: 12px 0; }
+    .project-tree-edit-fields label { display: grid; gap: 4px; font-size: 13px; }
+    .project-tree-edit-fields input, .project-tree-edit-fields textarea { box-sizing: border-box; width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 5px; font: inherit; }
+    .project-tree-edit-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .project-tree-edit-actions button { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 5px; background: white; cursor: pointer; }
+    .project-tree-edit-actions .save { background: #2563eb; color: white; }
+    .project-tree-edit-actions .delete { color: #b91c1c; margin-right: auto; }
+    .project-tree-drag { flex: 0 0 20px; border: 0; background: transparent; color: #94a3b8; cursor: grab; padding: 8px 0; touch-action: none; user-select: none; }
+    .project-tree-drag:active { cursor: grabbing; }
+    .project-tree-drag:disabled { opacity: .2; cursor: default; }
+    .project-tree-row.project-tree-drop-before { box-shadow: inset 0 3px #2563eb; }
+    .project-tree-row.project-tree-drop-after { box-shadow: inset 0 -3px #2563eb; }
+    .project-tree-row.project-tree-drop-inside { background: #dbeafe; outline: 1px solid #2563eb; }
+    .project-tree-drag-ghost { position: fixed; pointer-events: none; z-index: 99999; background: white; border: 1px solid #93c5fd; border-radius: 6px; padding: 7px 12px; box-shadow: 0 4px 16px #0002; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+\n    .tree-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+    }
+
+    .settings-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 10px;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #334155;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+    }
+
+    .settings-menu-item:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    #view-settings .settings-menu-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .menu-item-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 全ページ共通フッター
+       設定内のサブ項目だけJavaScriptで .hidden を付けて非表示にする */
+    .footer-nav {
+      grid-row: 4;
+      display: flex;
+      flex: 0 0 auto;
+      justify-self: center;
+      justify-content: space-around;
+      width: 89%;
+      margin: 8px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+      padding: 7px 5px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .footer-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 25%;
+      min-width: 0;
+      padding: 4px 1px;
+      border-radius: 999px;
+      gap: 1px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .footer-item:active {
+      background: #eef0f2;
+    }
+
+    .footer-icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      min-width: 34px;
+      height: 30px;
+      margin-bottom: 1px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: transparent;
+      color: #334155;
+      font-size: 21px;
+    }
+
+    .footer-icon-box .app-icon {
+      width: 22px;
+      height: 22px;
+      vertical-align: 0;
+    }
+
+    .footer-text {
+      color: #334155;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    /* iPhoneのホーム画面追加（PWA）向けのヘッダー・フッター調整 */
+    .app-container {
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      min-height: 0;
+    }
+
+    /* ヘッダーとタブは固定し、コンテンツ領域だけをスクロールさせる */
+    .header,
+    #top-tab-nav-container,
+    .footer-nav {
+      flex: 0 0 auto;
+      touch-action: none;
+    }
+
+    .header {
+      padding-top: calc(20px + env(safe-area-inset-top, 0px));
+      padding-bottom: 20px;
+    }
+
+    .main-content {
+      /* 画面内にスクロール領域を固定し、タスクが増えてもこの中だけをスクロール */
+      flex: 1 1 0%;
+      height: 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+      scroll-padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .completed-title {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+
+    /* 共通モーダル（削除確認・日付警告用） */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      position: relative;
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      width: 85%;
+      max-width: 320px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .modal-message {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-modal-cancel {
+      flex: 1;
+      padding: 10px 0;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-modal-confirm {
+      flex: 1;
+      padding: 10px 0;
+      background-color: #dc2626;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-modal-save {
+      flex: 1;
+      padding: 10px 0;
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-close-button {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #64748b;
+      font-size: 21px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    /* 画面を「上部 / メイン / 下部」の4行に固定する */
+    .app-container {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    /* ヘッダー */
+    .header {
+      min-height: 70px;
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+      padding-bottom: 16px;
+    }
+
+    /* トップ画面のタブ。非表示なら高さは自動で0になる */
+    #top-tab-nav-container {
+      min-height: 0;
+    }
+
+    /* ゴミ箱：既存ヘッダーと下部ナビはそのまま利用 */
+    /* タイトルはヘッダー中央、ゴミ箱専用操作はヘッダー右端に独立配置 */
+    .menu-title-actions { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); white-space:nowrap; pointer-events:none; }
+    .menu-title-actions .subpage-title { position:static; margin:0; pointer-events:auto; }
+    #header-menu-sub-group .trash-header-select { position:absolute; right:0; top:50%; transform:translateY(-50%); left:auto; margin:0; z-index:2; background:#fff; border:0; border-radius:999px; color:#334155; padding:10px 18px; font-size:13px; font-weight:700; box-shadow:0 3px 12px #1e293b0d; cursor:pointer; white-space:nowrap; }
+    @media (max-width:480px) { #header-menu-sub-group .trash-header-select { font-size:11px; padding:9px 12px; } }
+    .trash-card { padding: 8px 16px !important; }
+    .trash-entry { display:flex; gap:14px; align-items:center; padding:17px 0; border-bottom:1px solid #e2e8f0; }
+    .trash-entry:last-child { border-bottom:0; }
+    .trash-entry input { width:21px; height:21px; accent-color:#1672f7; flex:none; }
+    .trash-entry-main { flex:1; min-width:0; background:none; border:0; text-align:left; color:#1e293b; padding:0; cursor:pointer; }
+    .trash-entry-main strong { display:block; font-size:15px; }
+    .trash-entry-main small { display:block; color:#94a3b8; margin-top:5px; font-size:12px; }
+    .trash-entry-chevron { color:#64748b; font-size:22px; }
+    .trash-actions { display:flex; justify-content:space-between; padding:22px 8px 12px; }
+    .trash-round-action { display:flex; flex-direction:column; align-items:center; gap:7px; border:0; background:transparent; color:#334155; font-weight:700; cursor:pointer; }
+    .trash-action-circle { display:flex; align-items:center; justify-content:center; width:66px; height:66px; border-radius:50%; background:#fff; box-shadow:0 5px 20px #1e293b13; font-size:37px; font-weight:400; }
+    .trash-action-circle .app-icon { width:30px; height:30px; }
+    .trash-round-action.danger { color:#dc2626; }
+    /* ゴミ箱の操作はスクロール領域の外、下部ナビの上に固定 */
+    .app-container { position: relative; }
+    #view-trash { padding-bottom: 125px; }
+    #trash-fixed-actions.trash-actions {
+      position: absolute;
+      z-index: 30;
+      left: 18px;
+      right: 18px;
+      bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      justify-content: space-between;
+      padding: 0;
+      pointer-events: none;
+    }
+    #trash-fixed-actions.hidden { display: none; }
+    .app-container:has(#view-trash:not(.hidden)) #trash-fixed-actions { display: flex; }
+    .app-container:has(#view-trash.hidden) #trash-fixed-actions { display: none; }
+    #trash-fixed-actions .trash-round-action {
+      width: 83px;
+      height: 83px;
+      flex: 0 0 83px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .19), 0 2px 6px rgba(15, 23, 42, .07);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      pointer-events: auto;
+      font-size: 13px;
+      line-height: 1.2;
+      transition: transform .15s, box-shadow .15s;
+    }
+    #trash-fixed-actions .trash-round-action:active { transform: scale(.96); }
+    #trash-fixed-actions .trash-round-action .app-icon { width: 28px; height: 28px; }
+    #trash-fixed-actions .trash-action-glyph { font-size: 31px; line-height: 30px; font-weight: 400; }
+
+    .trash-detail-dialog { max-height:82vh; overflow:auto; }
+    .trash-detail-row { display:grid; grid-template-columns:34% 1fr; gap:8px; background:#f1f5f9; border-radius:9px; padding:10px; margin:5px 0; font-size:13px; overflow-wrap:anywhere; }
+    .trash-detail-row .trash-detail-label { color:#94a3b8; }
+    .trash-detail-row a { color:#2563eb; }
+    .trash-dialog-title { text-align:center; font-size:19px; font-weight:700; margin:0 0 18px; color:#1e293b; }
+    .trash-dialog-text { text-align:center; color:#64748b; line-height:1.7; margin-bottom:20px; }
+    .trash-dialog-buttons { display:flex; gap:10px; }
+    .trash-dialog-buttons button { flex:1; border:1px solid #cbd5e1; border-radius:12px; background:#f1f5f9; color:#475569; font-weight:700; padding:13px 6px; }
+    .trash-dialog-buttons button.danger { background:#dc2626; color:#fff; border-color:#dc2626; }
+    /* 各ページの本体。ここだけをスクロールさせる */
+    .main-content {
+      display: block;
+      min-height: 0;
+      height: auto;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      overscroll-behavior: none;
+      padding: 16px;
+    }
+
+    /* 上部の余白より内側を、実際のスクロールと見切れの開始位置にする */
+    .main-scroll-area {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+      touch-action: pan-y;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- 共通固定ヘッダー -->
+    <header class="header">
+      <div id="header-left-area" style="width: 100%; position: relative; display: flex; align-items: center;">
+        <!-- メニューおよびその中の項目ページ専用ヘッダー（戻るボタン ＋ センターのタイトル） -->
+        <div id="header-menu-sub-group" class="header-left-group hidden" style="width: 100%; position: relative;">
+          <span class="top-nav-link" onclick="goBack()"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></span>
+          <div class="menu-title-actions"><h2 class="subpage-title" id="header-menu-page-title">メニュー</h2></div><button id="trash-select-all" class="trash-header-select hidden" type="button" onclick="toggleTrashSelectAll()">✓ すべて選択</button>
+        </div>
+        <!-- その他のサブページ・詳細ページ用ヘッダー -->
+        <div id="header-sub-group" class="header-left-group hidden">
+          <span class="top-nav-link" onclick="goBack()"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></span>
+        </div>
+        <!-- トップ画面専用のロゴ -->
+        <div id="global-logo" class="logo-area">
+          <span class="logo-icon">🗼</span>
+          <h1 class="app-title">MakeUpper</h1>
+        </div>
+      </div>
+      
+      <!-- 右側ボタンエリア -->
+      <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 2;">
+        <button id="global-add-proj-btn" class="btn-add-project" onclick="openNewProjectPage()"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#plus"></use></svg>新規プロジェクト追加</span></button>
+        <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
+        <button id="global-delete-btn" class="btn-delete hidden" onclick="confirmDeleteCurrentTask()">削除</button>
+      </div>
+    </header>
+
+    <!-- トップページ専用タブナビゲーション -->
+    <div id="top-tab-nav-container">
+      <nav class="tab-nav">
+        <div class="tab-item active" id="tab-btn-quickstatus" onclick="switchMainTab('quickstatus')">今日のタスク</div>
+        <div class="tab-item" id="tab-btn-calendar" onclick="switchMainTab('calendar')">カレンダー</div>
+        <div class="tab-item" id="tab-btn-project" onclick="switchMainTab('project')">プロジェクト</div>
+      </nav>
+    </div>
+
+    <!-- メインコンテンツ領域 -->
+    <main class="main-content">
+      <div class="main-scroll-area">
+      <!-- 【固定ページ】1. トップページ: タブビュー (task, calendar, project) -->
+      <div id="view-quickstatus">
+        <div class="card">
+          <div class="status-group group-expired">
+            <div class="status-header"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alarm"></use></svg>期限切れ</span> (<span id="count-expired">0</span>件)</div>
+            <div class="status-body" id="list-expired"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-today-due">
+            <div class="status-header"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar-alert"></use></svg>今日期限</span> (<span id="count-today-due">0</span>件)</div>
+            <div class="status-body" id="list-today-due"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-today-plan">
+            <div class="status-header"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar-check"></use></svg>今日完了予定</span> (<span id="count-today-plan">0</span>件)</div>
+            <div class="status-body" id="list-today-plan"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+          <div class="status-group group-completed">
+            <div class="status-header"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了済み</span> (<span id="count-completed">0</span>件)</div>
+            <div class="status-body" id="list-completed"><div class="empty-msg">タスクはありません</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-calendar" class="hidden">
+        <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="status-btn completed" id="cal-btn-due" onclick="switchCalendarMode('due')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alarm"></use></svg>期限で表示</span></button>
+            <button class="status-btn uncompleted" id="cal-btn-plan" onclick="switchCalendarMode('plan')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar-check"></use></svg>完了予定日で表示</span></button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="section-title icon-with-text" id="calendar-title-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar"></use></svg>カレンダー (期限)</h2>
+          <div id="calendar-content-list" class="space-y-2">
+            <div class="empty-msg">カレンダーの予定はありません</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-project" class="hidden">
+        <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="status-btn uncompleted" id="subview-btn-data" onclick="switchProjectSubview('data')">進捗データ</button>
+            <button class="status-btn uncompleted" id="subview-btn-list" onclick="switchProjectSubview('list')">リスト</button>
+          </div>
+        </div>
+
+        <div id="proj-subview-data" class="card">
+          <h2 class="section-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chart"></use></svg>プロジェクトごとの進捗データ</h2>
+          <div class="empty-msg">進捗データは今後実装予定です</div>
+        </div>
+
+        <div id="proj-subview-list" class="hidden">
+          <div class="card">
+            <h2 class="section-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#folder"></use></svg>登録プロジェクト一覧</h2>
+            <div id="top-project-list" class="space-y-3"><div class="empty-msg">プロジェクトがありません</div></div>
+          </div>
+          <div class="card" style="margin-top: 12px;">
+            <h2 class="section-title">リンク</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button onclick="switchView('all')" style="text-align: left; background: none; border: none; color: #2563eb; font-weight: bold; cursor: pointer;"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#list-tree"></use></svg>すべてのプロジェクトとタスクを見る (view-all)</span></button>
+              <button onclick="switchView('trash')" style="text-align: left; background: none; border: none; color: #dc2626; font-weight: bold; cursor: pointer;"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>最近削除した項目 (view-trash)</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】2. view-Q2 -->
+      <div id="view-Q2" class="hidden">
+        <div class="card">
+          <div id="list-nice" class="space-y-2"><div class="empty-msg">該当する項目はありません</div></div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】3. view-pending -->
+      <div id="view-pending" class="hidden">
+        <div class="card">
+          <div id="list-pending" class="space-y-2"><div class="empty-msg">保留中の項目はありません</div></div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】4. view-diary -->
+      <div id="view-diary" class="hidden">
+        <div class="card">
+          <div id="list-diary" class="empty-msg">日記の記録はありません</div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】5. 設定（メニュー） -->
+      <div id="view-settings" class="hidden">
+        <div class="card">
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-help')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#help"></use></svg><span>使い方</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-theme')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#sliders"></use></svg><span>表示設定</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-category')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#tag"></use></svg><span>カテゴリ設定</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-email')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#mail"></use></svg><span>メール通知設定</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="switchView('trash')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg><span>最近削除した項目</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('action-templates')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#puzzle"></use></svg><span>アクションテンプレート</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-backup')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#archive"></use></svg><span>データのバックアップ・復元</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+          <div class="settings-menu-item" onclick="openSettingsPage('settings-terms')">
+            <div class="menu-item-content"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg><span>規約</span></div>
+            <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-right"></use></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 【固定ページ】6. view-trash -->
+      <div id="view-trash" class="hidden">
+        
+        <div class="card trash-card"><div id="list-trash"><div class="empty-msg">削除された項目はありません</div></div></div>
+
+      </div>
+
+      <!-- 設定内の各項目ページ -->
+      <div id="view-settings-help" class="hidden settings-subpage"><div class="card"><div class="empty-msg">使い方ページ</div></div></div>
+      <div id="view-settings-theme" class="hidden settings-subpage">
+        <div class="card">
+          <div class="section-title">メモの初期表示</div>
+          <label class="display-setting-option">
+            <input type="radio" name="memo-default-expanded" value="open" onchange="setMemoDefaultExpanded(true)">
+            <span>開く</span>
+          </label>
+          <label class="display-setting-option">
+            <input type="radio" name="memo-default-expanded" value="closed" onchange="setMemoDefaultExpanded(false)">
+            <span>隠す</span>
+          </label>
+        </div>
+      </div>
+      <div id="view-settings-category" class="hidden settings-subpage">
+        <div class="card">
+          <div class="category-settings-add">
+            <input type="text" id="category-settings-input" class="task-input" placeholder="カテゴリ名を入力">
+            <button type="button" class="category-settings-add-button" onclick="addCategorySetting()">追加</button>
+          </div>
+          <div id="category-settings-list"></div>
+        </div>
+      </div>
+      <div id="view-settings-email" class="hidden settings-subpage"><div class="card"><div class="empty-msg">メール通知設定</div></div></div>
+      <div id="view-action-templates" class="hidden settings-subpage"><div class="card"><div class="empty-msg">アクションテンプレートはまだ登録されていません</div></div></div>
+      <div id="view-settings-backup" class="hidden settings-subpage"><div class="card"><div class="empty-msg">データのバックアップ・復元</div></div></div>
+      <div id="view-settings-terms" class="hidden settings-subpage"><div class="card"><div class="empty-msg">規約ページ</div></div></div>
+
+      <!-- 内部リンク用 view-all -->
+      <div id="view-all" class="hidden">
+        <div class="card">
+          <div id="list-all-tasks" class="space-y-2"><div class="empty-msg">タスクはありません</div></div>
+        </div>
+      </div>
+
+      <!-- 【投稿ページ】1. task-page -->
+      <div id="view-task-page" class="hidden">
+        <div class="card">
+          <div class="form-group">
+            <div class="title-input-row">
+              <span class="title-accent-bar" aria-hidden="true"></span>
+              <input type="text" id="detail-title-input" class="task-input" placeholder="タイトルを入力…" oninput="updateCurrentTaskField('title', this.value)">
+              <button type="button" class="title-edit-button" onclick="document.getElementById('detail-title-input').focus()" aria-label="タイトルを入力">✏︎</button>
+            </div>
+          </div>
+
+          <div class="form-group hidden" id="detail-updated-at-row" style="margin-top: 8px; font-size: 12px; color: #64748b;">
+            前回更新日時：<span id="detail-updated-at-text">-</span>
+          </div>
+
+          <div class="form-group">
+            <span class="detail-meta-text" id="detail-project-label">プロジェクト：[-]</span>
+          </div>
+
+          <div class="task-status-control" onclick="toggleTaskStatusMenu(event)">
+            <span class="status-label icon-with-text"><span aria-hidden="true">🔘</span>ステータス</span>
+            <button type="button" id="task-status-picker" class="task-status-picker" aria-label="ステータスを選択" aria-expanded="false">
+              <span id="task-status-picker-label"></span>
+              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
+            </button>
+            <div id="task-status-menu" class="task-status-menu hidden">
+              <button type="button" class="task-status-option" data-status="todo" onclick="selectTaskStatus('todo', event)"><span class="status-icon-spacer" aria-hidden="true"></span>未完了</button>
+              <button type="button" class="task-status-option" data-status="completed" onclick="selectTaskStatus('completed', event)"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#check-circle"></use></svg>完了済み</span></button>
+              <button type="button" class="task-status-option" data-status="pending" onclick="selectTaskStatus('pending', event)"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg>保留中</span></button>
+            </div>
+          </div>
+
+          <div class="category-control">
+            <button type="button" id="category-picker" class="category-picker" onclick="toggleCategoryMenu()" aria-label="カテゴリを選択" aria-expanded="false">
+              <span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#bookmark"></use></svg><span>カテゴリ</span><span id="category-picker-label">を選択</span></span>
+              <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
+            </button>
+            <div id="category-menu" class="category-menu hidden"></div>
+          </div>
+
+          <div class="datetime-row" onclick="openScheduleEditor('deadline')">
+            <div class="datetime-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alarm"></use></svg>期限</div>
+            <button type="button" id="detail-due-date-input" class="date-input-field">設定なし</button>
+          </div>
+
+          <div class="datetime-row" onclick="openScheduleEditor('action')">
+            <div class="datetime-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar"></use></svg>対応予定日</div>
+            <button type="button" id="detail-plan-date-input" class="date-input-field">設定なし</button>
+          </div>
+
+          <div class="memo-section">
+            <div class="memo-card-title">
+              <div class="memo-card-title-label icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg>Memo</div>
+              <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
+            </div>
+            <div id="memo-content">
+              <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
+              <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ <svg class="app-icon" aria-hidden="true"><use href="icons.svg#help"></use></svg></div>
+            </div>
+          </div>
+
+          <div class="history-memo-section">
+            <div class="memo-card-title">
+              <div class="reference-links-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#file-text"></use></svg>履歴メモ</div>
+              <div class="section-title-actions">
+                <button type="button" id="history-memo-toggle-button" class="memo-expand-button" onclick="toggleHistoryMemoExpanded()" aria-label="履歴メモを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
+              </div>
+            </div>
+            <div id="history-memo-content">
+              <div class="history-memo-controls">
+                <button type="button" id="history-memo-sort-button" class="history-memo-sort-button" onclick="toggleHistoryMemoSort()" aria-label="履歴メモを古い順に並び替え" title="古い順に並び替え">↓ 新しい順</button>
+                <button type="button" id="history-memo-edit-button" class="history-memo-edit-button" onclick="toggleHistoryMemoEdit()">編集</button>
+              </div>
+              <div id="history-memo-container"></div>
+            </div>
+          </div>
+
+          <div class="reference-links-section">
+            <div class="memo-card-title">
+              <div class="reference-links-title icon-with-text"><span aria-hidden="true">🔗</span>参考リンク</div>
+              <button type="button" id="reference-links-toggle-button" class="memo-expand-button" onclick="toggleReferenceLinksExpanded()" aria-label="参考リンクを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
+            </div>
+            <div id="reference-links-content">
+              <div id="reference-links-container"></div>
+            </div>
+          </div>
+
+          <section class="project-tree-section" aria-label="タスク一覧">
+            <h3 class="project-tree-section-heading"><span aria-hidden="true">📋</span> タスク一覧</h3>
+            <div class="project-tree-scroll" id="project-tree-scroll" tabindex="0" aria-label="タスク一覧（左右にスクロールできます）">
+              <div id="detail-tree-list"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- 【投稿ページ】2. diary-page -->
+      <div id="view-diary-page" class="hidden">
+        <div class="card">
+          <div class="empty-msg">日記の詳細・編集機能は今後実装予定です</div>
+        </div>
+      </div>
+      </div>
+    </main>
+
+    <!-- 最近削除した項目専用：スクロール領域の外に置く固定操作ボタン -->
+    <div id="trash-fixed-actions" class="trash-actions">
+      <button class="trash-round-action" type="button" onclick="restoreSelectedTrash()" aria-label="選択した項目を復旧">
+        <span class="trash-action-glyph" aria-hidden="true">↶</span><span>復旧</span>
+      </button>
+      <button class="trash-round-action danger" type="button" onclick="confirmPermanentTrashDelete()" aria-label="選択した項目を完全削除">
+        <svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg><span>削除</span>
+      </button>
+    </div>
+
+    <!-- 下部フッターナビゲーション -->
+    <footer id="global-footer" class="footer-nav">
+      <div class="footer-item" onclick="switchView('Q2')">
+        <div class="footer-icon-box"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#bookmark"></use></svg></div>
+        <div class="footer-text">余裕があれば</div>
+      </div>
+      <div class="footer-item" onclick="switchView('pending')">
+        <div class="footer-icon-box"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#inbox"></use></svg></div>
+        <div class="footer-text">保留・下書き</div>
+      </div>
+      <div class="footer-item" onclick="switchView('diary')">
+        <div class="footer-icon-box"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#book"></use></svg></div>
+        <div class="footer-text">日記一覧</div>
+      </div>
+      <div class="footer-item" onclick="switchView('settings')">
+        <div class="footer-icon-box"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#more"></use></svg></div>
+        <div class="footer-text">メニュー</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- 1. 削除確認モーダル -->
+  <div id="trash-detail-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="項目の詳細">
+    <div class="modal-box trash-detail-dialog" style="max-width:480px; width:calc(100% - 36px);">
+      <button type="button" onclick="closeTrashDetail()" style="border:0;background:none;font-size:27px;color:#64748b;float:left;">×</button>
+      <h3 class="trash-dialog-title">項目の詳細</h3>
+      <div id="trash-detail-body"></div>
+    </div>
+  </div>
+  <div id="trash-permanent-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="項目の完全削除">
+    <div class="modal-box" style="max-width:420px; width:calc(100% - 36px);">
+      <h3 class="trash-dialog-title">項目の完全削除</h3>
+      <p class="trash-dialog-text">選択した項目を完全に削除しますか？<br>この操作は取り消せません。</p>
+      <div class="trash-dialog-buttons">
+        <button type="button" onclick="closePermanentTrashDelete()">戻る</button>
+        <button type="button" class="danger" onclick="executePermanentTrashDelete()">完全に削除する</button>
+      </div>
+    </div>
+  </div>
+  <div id="delete-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">項目の削除</div>
+      <div class="modal-message">この項目をゴミ箱へ移動しますか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeDeleteModal()">戻る</button>
+        <button class="btn-modal-confirm" onclick="executeDeleteCurrentTask()">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 日付前後矛盾警告モーダル -->
+  <div id="date-warning-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alert-triangle"></use></svg>スケジュールの確認</span></div>
+      <div class="modal-message" id="date-warning-message"></div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeDateWarningModal()">戻る</button>
+        <button class="btn-modal-save" onclick="executeSaveWithDateWarning()">そのまま登録</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 日付未入力の保存確認モーダル -->
+  <div id="project-tree-open-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="project-tree-open-title">
+    <div class="modal-box" style="max-width:420px">
+      <div class="modal-title" id="project-tree-open-title">タスクの簡易編集</div>
+      <div class="project-tree-edit-fields">
+        <label>タスク名<input id="project-tree-edit-name" type="text"></label>
+        <label>期限<input id="project-tree-edit-deadline" type="date"></label>
+        <label>対応予定日<input id="project-tree-edit-action" type="date"></label>
+        <label>メモ<textarea id="project-tree-edit-memo" rows="3"></textarea></label>
+      </div>
+      <div class="project-tree-edit-actions">
+        <button type="button" class="delete" onclick="deleteProjectTreeItem()">削除</button>
+        <button type="button" onclick="closeProjectTreeOpenModal()">閉じる</button>
+        <button type="button" onclick="confirmProjectTreeOpen()">ページに飛ぶ</button>
+        <button type="button" class="save" onclick="saveProjectTreeQuickEdit()">更新</button>
+      </div>
+    </div>
+  </div>
+  <div id="missing-date-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">日付の確認</div>
+      <div class="modal-message">期限、完了予定日が入力されていませんが保存してもいいですか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeMissingDateConfirmModal()">戻る</button>
+        <button class="btn-modal-save" onclick="executeSaveWithoutDates()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. カテゴリ編集モーダル -->
+  <div id="category-edit-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">カテゴリを編集</div>
+      <input type="text" id="category-edit-input" class="task-input category-edit-input" placeholder="カテゴリ名を入力">
+      <div class="category-color-label">色</div>
+      <div id="category-color-options" class="category-color-options"></div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="closeCategoryEditModal()">戻る</button>
+        <button class="btn-modal-save" onclick="saveCategoryEdit()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reference-link-edit-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div id="reference-link-modal-title" class="modal-title">参考リンクを追加</div>
+      <div class="reference-link-modal-fields">
+        <input type="text" id="reference-link-title-input" class="task-input" placeholder="リンクタイトル">
+        <input type="url" id="reference-link-url-input" class="task-input" placeholder="URL">
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-modal-cancel" onclick="closeReferenceLinkModal()">戻る</button>
+        <button type="button" class="btn-modal-save" onclick="saveReferenceLinkModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="schedule-editor-modal" class="modal-overlay hidden">
+    <div class="schedule-editor-box">
+      <div class="schedule-editor-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="closeScheduleEditor()" aria-label="閉じる">×</button>
+        <div id="schedule-editor-title" class="schedule-editor-title"></div>
+        <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="saveScheduleEditor()" aria-label="保存">✓</button>
+      </div>
+      <input type="datetime-local" id="schedule-start-input" class="schedule-editor-input">
+      <label class="schedule-end-toggle"><input type="checkbox" id="schedule-end-toggle" onchange="toggleScheduleEndInput()">終了日時を設定</label>
+      <input type="datetime-local" id="schedule-end-input" class="schedule-editor-input hidden">
+      <button type="button" class="schedule-clear-button" onclick="clearScheduleEditor()">設定を削除</button>
+    </div>
+  </div>
+
+  <div id="unsaved-task-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button type="button" class="modal-close-button" onclick="closeUnsavedTaskModal()" aria-label="閉じる">×</button>
+      <div class="modal-title">未保存の変更があります</div>
+      <div class="modal-message">入力した項目が保存されていません。保存して移動しますか？</div>
+      <div class="modal-buttons">
+        <button class="btn-modal-cancel" onclick="discardAndContinueNavigation()">無視して移動する</button>
+        <button class="btn-modal-save" onclick="saveAndContinueNavigation()">保存して移動</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [];
+    let nextIdCounter = 1;
+    let currentEditingTaskId = null;
+    let currentEditingTaskDraft = null;
+    let currentActiveView = 'quickstatus';
+    let previousView = 'quickstatus';
+    let currentProjectSubview = 'data';
+    let currentCalendarMode = 'due';
+    let displaySettings = { memoDefaultExpanded: true };
+    let taskCategories = [];
+    let editingCategoryIndex = null;
+    let editingCategoryColor = '';
+    let categoryPointerDrag = null;
+    let scheduleEditingField = null;
+    let pendingNavigationTarget = null;
+    let taskReturnView = 'quickstatus';
+    let referenceLinkEditingIndexes = new Set();
+    let editingReferenceLinkIndex = null;
+    let historyMemoSortOrder = 'desc';
+    let isHistoryMemoEditing = false;
+
+    const CATEGORY_COLOR_OPTIONS = ['#2563eb', '#7c3aed', '#db2777', '#e11d48', '#ea580c', '#d97706', '#16a34a', '#0f766e', '#0891b2', '#4f46e5'];
+    const DEFAULT_TASK_CATEGORIES = [
+      { name: '仕事', color: '#2563eb' },
+      { name: 'プライベート', color: '#7c3aed' },
+      { name: '家庭', color: '#db2777' },
+      { name: '健康', color: '#16a34a' },
+      { name: '学習', color: '#0f766e' },
+      { name: '趣味', color: '#ea580c' },
+      { name: '人間関係', color: '#e11d48' },
+      { name: 'お金', color: '#d97706' },
+      { name: '目標・夢', color: '#4f46e5' }
+    ];
+
+    function iconMarkup(name, extraClass = '') {
+      return `<svg class="app-icon ${extraClass}" aria-hidden="true"><use href="icons.svg#${name}"></use></svg>`;
+    }
+
+    const SETTINGS_SUBPAGES = ['settings-help', 'settings-theme', 'settings-category', 'settings-email', 'settings-backup', 'settings-terms', 'action-templates'];
+    const FOOTER_HIDDEN_VIEWS = ['settings', ...SETTINGS_SUBPAGES];
+    const ALL_VIEWS = ['quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
+    
+    const TOP_TABS = ['quickstatus', 'calendar', 'project'];
+
+    const PAGE_TITLES = {
+      'settings': 'メニュー',
+      'trash': '最近削除した項目',
+      'settings-help': '使い方',
+      'settings-theme': '表示設定',
+      'settings-category': 'カテゴリ設定',
+      'settings-email': 'メール通知設定',
+      'action-templates': 'アクションテンプレート',
+      'settings-backup': 'データのバックアップ・復元',
+      'settings-terms': '規約'
+    };
+
+    function createBackTransitionOverlay(currentEl, currentScrollTop) {
+      const appContainer = document.querySelector('.app-container');
+      const header = document.querySelector('.header');
+      const tabNav = document.getElementById('top-tab-nav-container');
+      const overlay = document.createElement('div');
+      const headerClone = header.cloneNode(true);
+      const mainClone = document.createElement('main');
+      const scrollClone = document.createElement('div');
+      const pageClone = currentEl.cloneNode(true);
+
+      [headerClone, pageClone].forEach(element => {
+        element.removeAttribute('id');
+        element.querySelectorAll('[id]').forEach(child => child.removeAttribute('id'));
+      });
+
+      // 押した戻るボタンは遷移用の元ページから消す。
+      headerClone.querySelectorAll('.top-nav-link').forEach(button => button.remove());
+      pageClone.classList.remove('hidden', 'slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
+      headerClone.classList.add('back-transition-header');
+      mainClone.className = 'main-content back-transition-main';
+      scrollClone.className = 'main-scroll-area';
+      scrollClone.appendChild(pageClone);
+      mainClone.appendChild(scrollClone);
+      scrollClone.scrollTop = currentScrollTop;
+
+      overlay.className = 'back-transition-overlay';
+      overlay.appendChild(headerClone);
+
+      if (!tabNav.classList.contains('hidden')) {
+        const tabClone = tabNav.cloneNode(true);
+        tabClone.removeAttribute('id');
+        tabClone.querySelectorAll('[id]').forEach(child => child.removeAttribute('id'));
+        overlay.appendChild(tabClone);
+      }
+
+      overlay.appendChild(mainClone);
+      return { appContainer, overlay };
+    }
+
+    function loadDisplaySettings() {
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem('coach_app_display_settings') || '{}');
+        displaySettings.memoDefaultExpanded = savedSettings.memoDefaultExpanded !== false;
+      } catch (e) {
+        displaySettings = { memoDefaultExpanded: true };
+      }
+      syncDisplaySettingsUI();
+    }
+
+    function saveDisplaySettings() {
+      localStorage.setItem('coach_app_display_settings', JSON.stringify(displaySettings));
+    }
+
+    function syncDisplaySettingsUI() {
+      const openOption = document.querySelector('input[name="memo-default-expanded"][value="open"]');
+      const closedOption = document.querySelector('input[name="memo-default-expanded"][value="closed"]');
+      if (openOption) openOption.checked = displaySettings.memoDefaultExpanded;
+      if (closedOption) closedOption.checked = !displaySettings.memoDefaultExpanded;
+    }
+
+    function setMemoDefaultExpanded(expanded) {
+      displaySettings.memoDefaultExpanded = expanded;
+      saveDisplaySettings();
+      syncDisplaySettingsUI();
+    }
+
+    function loadTaskCategories() {
+      try {
+        const savedCategories = JSON.parse(localStorage.getItem('coach_app_task_categories') || 'null');
+        if (!Array.isArray(savedCategories) || savedCategories.length === 0) {
+          taskCategories = DEFAULT_TASK_CATEGORIES.map(category => ({ ...category }));
+        } else {
+          const isLegacyFormat = savedCategories.some(category => typeof category === 'string');
+          const normalizedCategories = savedCategories
+            .map((category, index) => normalizeCategorySetting(category, index))
+            .filter(Boolean);
+          const uniqueCategories = normalizedCategories.filter((category, index, categories) =>
+            categories.findIndex(item => item.name === category.name) === index
+          );
+          taskCategories = isLegacyFormat
+            ? [...DEFAULT_TASK_CATEGORIES.map(category => ({ ...category })), ...uniqueCategories.filter(category => !DEFAULT_TASK_CATEGORIES.some(defaultCategory => defaultCategory.name === category.name))]
+            : uniqueCategories;
+        }
+      } catch (e) {
+        taskCategories = DEFAULT_TASK_CATEGORIES.map(category => ({ ...category }));
+      }
+      saveTaskCategories();
+    }
+
+    function saveTaskCategories() {
+      localStorage.setItem('coach_app_task_categories', JSON.stringify(taskCategories));
+    }
+
+    function normalizeCategorySetting(category, index = 0) {
+      const name = typeof category === 'object' && category !== null
+        ? String(category.name || '').trim()
+        : String(category || '').trim();
+      if (!name) return null;
+      const defaultCategory = DEFAULT_TASK_CATEGORIES.find(item => item.name === name);
+      const color = typeof category === 'object' && category !== null && CATEGORY_COLOR_OPTIONS.includes(category.color)
+        ? category.color
+        : (defaultCategory?.color || CATEGORY_COLOR_OPTIONS[index % CATEGORY_COLOR_OPTIONS.length]);
+      return { name, color };
+    }
+
+    function getCategorySetting(name) {
+      return taskCategories.find(category => category.name === name) || null;
+    }
+
+    function escapeHtml(value) {
+      const element = document.createElement('div');
+      element.textContent = String(value ?? '');
+      return element.innerHTML;
+    }
+
+    function normalizeRecord(record, fallbackId) {
+      const pageID = String(record.pageID ?? record.id ?? fallbackId);
+      const parentIDValue = record.parentID ?? record.parentId ?? null;
+      const parentID = parentIDValue === null || parentIDValue === '' ? null : String(parentIDValue);
+      const childSource = record.childID ?? record.childrenIds ?? [];
+      const childID = Array.isArray(childSource) ? childSource.map(String) : [];
+      const normalized = {
+        pageID,
+        type: record.type === 'diary' ? 'diary' : 'task',
+        title: record.title ?? '',
+        parentID,
+        projectID: record.projectID == null ? null : String(record.projectID),
+        childID,
+        category: normalizeTaskCategories(record.category),
+        status: record.status === 'uncompleted' ? 'todo' : (record.status ?? 'todo'),
+        actionDate: record.actionDate ?? record.planDate ?? '',
+        deadlineDate: record.deadlineDate ?? record.dueDate ?? '',
+        completedAt: record.completedAt ?? null,
+        preDeleted: Boolean(record.preDeleted ?? false),
+        preDeletedAt: record.preDeletedAt ?? null,
+        diaryMemo: record.diaryMemo ?? '',
+        taskMemo: record.taskMemo ?? record.memo ?? '',
+        referenceLinks: Array.isArray(record.referenceLinks) ? record.referenceLinks.map(link => ({ title: link?.title ?? '', url: link?.url ?? '', confirmed: Boolean(link?.confirmed) })) : [],
+        historyMemo: Array.isArray(record.historyMemo) ? record.historyMemo.map(value => String(value ?? '')) : [],
+        historyMemoAt: Array.isArray(record.historyMemoAt) ? record.historyMemoAt.map(value => String(value ?? '')) : [],
+        deadlineTime: record.deadlineTime ?? '',
+        deadlineEndDate: record.deadlineEndDate ?? '',
+        deadlineEndTime: record.deadlineEndTime ?? '',
+        actionTime: record.actionTime ?? '',
+        actionEndDate: record.actionEndDate ?? '',
+        actionEndTime: record.actionEndTime ?? '',
+        createdAt: record.createdAt ?? new Date().toISOString(),
+        updatedAt: record.updatedAt ?? null,
+        previousUpdatedAt: record.previousUpdatedAt ?? record.updatedAt ?? null,
+        email: record.email ?? '',
+        isSaved: Boolean(record.isSaved ?? false),
+        path: record.path ?? '',
+        deadlineDateCheck: Array.isArray(record.deadlineDateCheck) ? record.deadlineDateCheck : [],
+        actionDateCheck: Array.isArray(record.actionDateCheck) ? record.actionDateCheck : [],
+        deadlineCustomReminderAt: record.deadlineCustomReminderAt ?? '',
+        isDeadlineCustomActive: Boolean(record.isDeadlineCustomActive ?? false),
+        actionCustomReminderAt: record.actionCustomReminderAt ?? '',
+        isActionCustomActive: Boolean(record.isActionCustomActive ?? false)
+      };
+      return normalized;
+    }
+
+    function normalizeTaskCategories(value) {
+      const source = Array.isArray(value) ? value : (value ? [value] : []);
+      return [...new Set(source.map(item => String(item).trim()).filter(Boolean))];
+    }
+
+    function cloneTaskForEditing(task) {
+      return {
+        ...task,
+        childID: [...task.childID],
+        category: normalizeTaskCategories(task.category),
+        referenceLinks: (task.referenceLinks || []).map(link => ({ ...link })),
+        historyMemo: [...(task.historyMemo || [])],
+        historyMemoAt: [...(task.historyMemoAt || [])]
+      };
+    }
+
+    function refreshProjectProperties() {
+      const byId = new Map(tasks.map(task => [String(task.pageID), task]));
+      const resolving = new Set();
+      const resolved = new Set();
+
+      function resolve(task) {
+        if (!task || resolved.has(task.pageID)) return;
+        if (resolving.has(task.pageID)) {
+          task.parentID = null;
+          task.projectID = task.pageID;
+          task.path = task.pageID;
+          resolved.add(task.pageID);
+          return;
+        }
+        resolving.add(task.pageID);
+        if (task.parentID === null || task.parentID === '') {
+          task.parentID = null;
+          task.projectID = task.pageID;
+          task.path = task.pageID;
+        } else {
+          task.parentID = String(task.parentID);
+          const parent = byId.get(task.parentID);
+          if (parent) {
+            resolve(parent);
+            task.projectID = parent.projectID || parent.pageID;
+            task.path = `${parent.path || parent.pageID}/${task.pageID}`;
+          } else {
+            task.projectID = null;
+            task.path = task.pageID;
+          }
+        }
+        resolving.delete(task.pageID);
+        resolved.add(task.pageID);
+      }
+
+      tasks.forEach(resolve);
+    }
+
+    // 操作により確定した変更のみ履歴化する。内部管理値と履歴メモ自体は対象外。
+    const auditFields = [
+      ['title', 'タスク名'], ['status', 'ステータス'], ['category', 'カテゴリ'],
+      ['deadlineDate', '期限'], ['deadlineTime', '期限時刻'], ['deadlineEndDate', '期限終了日'], ['deadlineEndTime', '期限終了時刻'],
+      ['actionDate', '対応予定日'], ['actionTime', '対応予定時刻'], ['actionEndDate', '対応予定終了日'], ['actionEndTime', '対応予定終了時刻'],
+      ['taskMemo', 'メモ'], ['diaryMemo', '日記メモ'], ['referenceLinks', '参考リンク'],
+      ['parentID', '親タスク']
+    ];
+    function auditValue(value) {
+      if (value == null || value === '') return '未設定';
+      if (Array.isArray(value)) return value.length ? value.map(v => typeof v === 'object' ? JSON.stringify(v) : String(v)).join('、') : '未設定';
+      return String(value);
+    }
+    function appendTaskAudit(task, message, at = new Date().toISOString()) {
+      if (!Array.isArray(task.historyMemo)) task.historyMemo = [];
+      if (!Array.isArray(task.historyMemoAt)) task.historyMemoAt = [];
+      // 編集画面に存在する空の入力行は履歴として保存しない。
+      const entries = task.historyMemo.map((memo, i) => ({memo, at: task.historyMemoAt[i] || ''})).filter(entry => entry.memo);
+      entries.push({memo: message, at});
+      task.historyMemo = entries.map(entry => entry.memo);
+      task.historyMemoAt = entries.map(entry => entry.at);
+    }
+    function recordUserTaskSave(before, after, isCreation = false) {
+      if (isCreation) { appendTaskAudit(after, 'タスクが作成されました'); return; }
+      const changes = auditFields.filter(([key]) => JSON.stringify(before[key] ?? null) !== JSON.stringify(after[key] ?? null))
+        .map(([key, label]) => `${label}を「${auditValue(before[key])}」から「${auditValue(after[key])}」に変更しました`);
+      if (changes.length) appendTaskAudit(after, changes.join('\n'));
+    }
+
+    function saveTasksToStorage() {
+      try {
+        refreshProjectProperties();
+        localStorage.setItem('coach_app_tasks', JSON.stringify(tasks));
+        localStorage.removeItem('coach_app_trash');
+      } catch (e) {
+        console.error('データの保存に失敗しました', e);
+      }
+    }
+
+    function loadTasksFromStorage() {
+      try {
+        const savedTasks = localStorage.getItem('coach_app_tasks');
+        const savedTrash = localStorage.getItem('coach_app_trash');
+        const parsedTasks = savedTasks ? JSON.parse(savedTasks) : [];
+        const parsedTrash = savedTrash ? JSON.parse(savedTrash) : [];
+        const combined = [...parsedTasks, ...parsedTrash.map(record => ({ ...record, preDeleted: true, preDeletedAt: record.preDeletedAt ?? new Date().toISOString() }))];
+        tasks = combined.map((record, index) => normalizeRecord(record, index + 1));
+        const numericIds = tasks.map(record => Number(record.pageID)).filter(Number.isFinite);
+        nextIdCounter = numericIds.length ? Math.max(...numericIds) + 1 : tasks.length + 1;
+        refreshProjectProperties();
+        saveTasksToStorage();
+      } catch (e) {
+        console.error('データの読み込みに失敗しました', e);
+      }
+    }
+
+    function openSettingsPage(targetView) { switchView(targetView); }
+
+    function animateMenuTitle(direction) {
+      const title = document.getElementById('header-menu-page-title');
+      if (!title) return;
+      title.classList.remove('menu-title-slide-in-right', 'menu-title-slide-in-left');
+      void title.offsetWidth;
+      title.classList.add(direction === 'left' ? 'menu-title-slide-in-left' : 'menu-title-slide-in-right');
+      window.setTimeout(() => {
+        title.classList.remove('menu-title-slide-in-right', 'menu-title-slide-in-left');
+      }, 260);
+    }
+
+    function switchView(targetView, options = {}) {
+      if (currentActiveView === targetView && !options.force) return;
+
+      if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft && hasTaskDraftChanges()) {
+        pendingNavigationTarget = targetView;
+        document.getElementById('unsaved-task-modal').classList.remove('hidden');
+        return;
+      }
+
+      if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft) {
+        currentEditingTaskId = null;
+        currentEditingTaskDraft = null;
+      }
+
+      const isTopGroup = TOP_TABS.includes(currentActiveView);
+      const isTargetTopGroup = TOP_TABS.includes(targetView);
+
+      if (!isTopGroup || !isTargetTopGroup) {
+        previousView = currentActiveView;
+      }
+
+      let animClass = 'slide-in-right';
+      if (isTopGroup && isTargetTopGroup) {
+        const currentIndex = TOP_TABS.indexOf(currentActiveView);
+        const targetIndex = TOP_TABS.indexOf(targetView);
+        if (targetIndex < currentIndex) {
+          animClass = 'slide-in-left';
+        }
+      }
+
+      currentActiveView = targetView;
+
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) {
+          el.classList.remove('slide-in-right', 'slide-out-right', 'slide-in-left', 'slide-out-left');
+          if (v !== targetView) {
+            el.classList.add('hidden');
+          }
+        }
+      });
+
+      const targetEl = document.getElementById('view-' + targetView);
+      if (targetEl) {
+        targetEl.classList.remove('hidden');
+        if (isTargetTopGroup && isTopGroup) {
+          targetEl.classList.add(animClass);
+        } else if (!isTargetTopGroup) {
+          targetEl.classList.add('slide-in-right');
+        }
+      }
+
+      const tabNav = document.getElementById('top-tab-nav-container');
+      if (isTargetTopGroup) {
+        tabNav.classList.remove('hidden');
+        TOP_TABS.forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
+        });
+      } else {
+        tabNav.classList.add('hidden');
+      }
+
+      const footerNav = document.getElementById('global-footer');
+      if (FOOTER_HIDDEN_VIEWS.includes(targetView)) {
+        footerNav.classList.add('hidden');
+      } else {
+        footerNav.classList.remove('hidden');
+      }
+
+      const menuSubGroup = document.getElementById('header-menu-sub-group');
+      const subGroup = document.getElementById('header-sub-group');
+      const logo = document.getElementById('global-logo');
+
+      document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
+      const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
+
+      if (isTargetTopGroup) {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else if (isMenuGroup) {
+        menuSubGroup.classList.remove('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.add('hidden');
+        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+        document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
+        if (SETTINGS_SUBPAGES.includes(targetView) && previousView === 'settings') {
+          animateMenuTitle('right');
+        }
+      } else {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.remove('hidden');
+        logo.classList.add('hidden');
+      }
+
+      const addBtn = document.getElementById('global-add-proj-btn');
+      const hideAddBtnViews = ['settings', 'trash', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
+      if (hideAddBtnViews.includes(targetView)) {
+        addBtn.classList.add('hidden');
+      } else {
+        addBtn.classList.remove('hidden');
+      }
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const deleteBtn = document.getElementById('global-delete-btn');
+      if (targetView === 'task-page') {
+        saveBtn.classList.remove('hidden');
+        deleteBtn.classList.remove('hidden');
+      } else {
+        saveBtn.classList.add('hidden');
+        deleteBtn.classList.add('hidden');
+      }
+
+      renderApp();
+    }
+
+    function switchMainTab(tabName) {
+      switchView(tabName);
+    }
+
+    function switchProjectSubview(subview) {
+      currentProjectSubview = subview;
+      const dataEl = document.getElementById('proj-subview-data');
+      const listEl = document.getElementById('proj-subview-list');
+      const btnData = document.getElementById('subview-btn-data');
+      const btnList = document.getElementById('subview-btn-list');
+
+      if (subview === 'data') {
+        dataEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+        btnData.className = 'status-btn completed';
+        btnList.className = 'status-btn uncompleted';
+      } else {
+        dataEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        btnData.className = 'status-btn uncompleted';
+        btnList.className = 'status-btn completed';
+      }
+    }
+
+    function switchCalendarMode(mode) {
+      currentCalendarMode = mode;
+      const btnDue = document.getElementById('cal-btn-due');
+      const btnPlan = document.getElementById('cal-btn-plan');
+      const titleText = document.getElementById('calendar-title-text');
+
+      if (mode === 'due') {
+        btnDue.className = 'status-btn completed';
+        btnPlan.className = 'status-btn uncompleted';
+        titleText.innerHTML = `${iconMarkup('calendar')} カレンダー (期限)`;
+      } else {
+        btnDue.className = 'status-btn uncompleted';
+        btnPlan.className = 'status-btn completed';
+        titleText.innerHTML = `${iconMarkup('calendar')} カレンダー (完了予定日)`;
+      }
+      renderCalendar();
+    }
+
+    function goBack() {
+      let target = 'quickstatus';
+      if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') {
+        target = currentActiveView === 'settings-category' && taskReturnView === 'task-page' ? 'task-page' : 'settings';
+      } else if (currentActiveView === 'task-page') {
+        target = taskReturnView || 'quickstatus';
+        if (hasTaskDraftChanges()) {
+          pendingNavigationTarget = target;
+          document.getElementById('unsaved-task-modal').classList.remove('hidden');
+          return;
+        }
+      } else {
+        target = 'quickstatus';
+      }
+
+      const currentEl = document.getElementById('view-' + currentActiveView);
+      const targetEl = document.getElementById('view-' + target);
+      if (!currentEl || !targetEl) {
+        switchView(target);
+        return;
+      }
+
+      // 戻り先はその場で通常表示し、元ページの見た目だけを上から右へ抜けさせる。
+      const mainContent = document.querySelector('.main-scroll-area');
+      const { appContainer, overlay } = createBackTransitionOverlay(currentEl, mainContent.scrollTop);
+
+      if (currentActiveView === 'task-page' && target !== 'task-page') {
+        currentEditingTaskId = null;
+        currentEditingTaskDraft = null;
+      }
+      switchViewDirect(target);
+
+      const footerNav = document.getElementById('global-footer');
+      if (footerNav.classList.contains('hidden')) {
+        overlay.style.bottom = '0';
+      } else {
+        const appRect = appContainer.getBoundingClientRect();
+        const footerRect = footerNav.getBoundingClientRect();
+        overlay.style.bottom = `${Math.max(0, appRect.bottom - footerRect.top)}px`;
+      }
+
+      appContainer.appendChild(overlay);
+      window.setTimeout(() => overlay.remove(), 250);
+    }
+
+    function hasTaskDraftChanges() {
+      const savedTask = tasks.find(task => task.pageID === String(currentEditingTaskId));
+      const draft = currentEditingTaskDraft;
+      if (!savedTask || !draft) return false;
+      const comparable = task => ({
+        title: task.title || '', status: task.status || 'todo', category: normalizeTaskCategories(task.category),
+        deadlineDate: task.deadlineDate || '', deadlineTime: task.deadlineTime || '', deadlineEndDate: task.deadlineEndDate || '', deadlineEndTime: task.deadlineEndTime || '',
+        actionDate: task.actionDate || '', actionTime: task.actionTime || '', actionEndDate: task.actionEndDate || '', actionEndTime: task.actionEndTime || '',
+        taskMemo: task.taskMemo || '', referenceLinks: (task.referenceLinks || []).filter(link => link.title || link.url).map(link => ({ title: link.title || '', url: link.url || '' })),
+        historyMemo: (task.historyMemo || []).filter(Boolean), historyMemoAt: (task.historyMemoAt || []).slice(0, (task.historyMemo || []).filter(Boolean).length)
+      });
+      return JSON.stringify(comparable(savedTask)) !== JSON.stringify(comparable(draft));
+    }
+
+    function closeUnsavedTaskModal() {
+      pendingNavigationTarget = null;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+    }
+
+    function discardAndContinueNavigation() {
+      const target = pendingNavigationTarget;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+      pendingNavigationTarget = null;
+      if (!target) return;
+      currentEditingTaskId = null;
+      currentEditingTaskDraft = null;
+      switchView(target, { force: true });
+    }
+
+    function saveAndContinueNavigation() {
+      const target = pendingNavigationTarget;
+      document.getElementById('unsaved-task-modal').classList.add('hidden');
+      if (!target || !currentEditingTaskDraft) return;
+      executeFinalSave(currentEditingTaskDraft, true);
+      pendingNavigationTarget = null;
+      currentEditingTaskId = null;
+      currentEditingTaskDraft = null;
+      switchView(target, { force: true });
+    }
+
+    function switchViewDirect(targetView) {
+      currentActiveView = targetView;
+      const isTargetTopGroup = TOP_TABS.includes(targetView);
+
+      ALL_VIEWS.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) {
+          if (v !== targetView) el.classList.add('hidden');
+          else el.classList.remove('hidden');
+        }
+      });
+
+      const tabNav = document.getElementById('top-tab-nav-container');
+      if (isTargetTopGroup) {
+        tabNav.classList.remove('hidden');
+        TOP_TABS.forEach(name => {
+          const btn = document.getElementById('tab-btn-' + name);
+          if (btn) btn.className = (name === targetView) ? 'tab-item active' : 'tab-item';
+        });
+      } else {
+        tabNav.classList.add('hidden');
+      }
+
+      const footerNav = document.getElementById('global-footer');
+      if (FOOTER_HIDDEN_VIEWS.includes(targetView)) {
+        footerNav.classList.add('hidden');
+      } else {
+        footerNav.classList.remove('hidden');
+      }
+
+      const menuSubGroup = document.getElementById('header-menu-sub-group');
+      const subGroup = document.getElementById('header-sub-group');
+      const logo = document.getElementById('global-logo');
+
+      document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
+      const isMenuGroup = ['settings', 'trash', ...SETTINGS_SUBPAGES].includes(targetView);
+
+      if (isTargetTopGroup) {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.remove('hidden');
+      } else if (isMenuGroup) {
+        menuSubGroup.classList.remove('hidden');
+        subGroup.classList.add('hidden');
+        logo.classList.add('hidden');
+        document.getElementById('header-menu-page-title').innerText = PAGE_TITLES[targetView] || 'メニュー';
+        document.getElementById('trash-select-all').classList.toggle('hidden', targetView !== 'trash');
+      } else {
+        menuSubGroup.classList.add('hidden');
+        subGroup.classList.remove('hidden');
+        logo.classList.add('hidden');
+      }
+
+      const addBtn = document.getElementById('global-add-proj-btn');
+      const hideAddBtnViews = ['settings', 'trash', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
+      if (hideAddBtnViews.includes(targetView)) {
+        addBtn.classList.add('hidden');
+      } else {
+        addBtn.classList.remove('hidden');
+      }
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const deleteBtn = document.getElementById('global-delete-btn');
+      if (targetView === 'task-page') {
+        saveBtn.classList.remove('hidden');
+        deleteBtn.classList.remove('hidden');
+      } else {
+        saveBtn.classList.add('hidden');
+        deleteBtn.classList.add('hidden');
+      }
+      renderApp();
+    }
+
+    function getRootParentId(taskId, taskList) {
+      const current = taskList.find(t => t.pageID === String(taskId));
+      if (!current) return null;
+      if (current.parentID === null || current.parentID === '') return current.pageID;
+      return getRootParentId(current.parentID, taskList);
+    }
+
+    function getFlattenedTree(parentID, taskList, depth = 0, result = []) {
+      const children = taskList.filter(t => t.parentID === String(parentID));
+      children.forEach(child => {
+        result.push({ ...child, depth: depth });
+        getFlattenedTree(child.pageID, taskList, depth + 1, result);
+      });
+      return result;
+    }
+
+    function getAncestorIds(taskId, taskList, ancestors = []) {
+      const current = taskList.find(t => t.pageID === String(taskId));
+      if (!current || current.parentID === null || current.parentID === '') return ancestors;
+      ancestors.push(current.parentID);
+      return getAncestorIds(current.parentID, taskList, ancestors);
+    }
+
+    function renderApp() {
+      renderQuickStatus();
+      renderTopProjectTab();
+      renderCalendar();
+      renderFooterPages();
+      renderCategorySettings();
+    }
+
+    function renderQuickStatus() {
+      const expiredContainer = document.getElementById('list-expired');
+      const todayDueContainer = document.getElementById('list-today-due');
+      const todayPlanContainer = document.getElementById('list-today-plan');
+      const completedContainer = document.getElementById('list-completed');
+
+      expiredContainer.innerHTML = '';
+      todayDueContainer.innerHTML = '';
+      todayPlanContainer.innerHTML = '';
+      completedContainer.innerHTML = '';
+
+      let expiredCount = 0, todayDueCount = 0, todayPlanCount = 0, completedCount = 0;
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
+
+      const appendTask = (container, task) => {
+        const isCompleted = task.status === 'completed';
+        const pendingLabel = task.status === 'pending' ? '<div style="margin-top:2px;color:#94a3b8;font-size:10px">保留中</div>' : '';
+        const itemDiv = document.createElement('div');
+        itemDiv.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;color:#334155;font-size:13px;cursor:pointer';
+        itemDiv.innerHTML = `
+          <input type="checkbox" style="flex:0 0 auto;margin-top:2px" ${isCompleted ? 'checked' : ''} onclick='event.stopPropagation(); toggleTaskComplete("${task.pageID}")'>
+          <div style="min-width:0">
+            <div style="${isCompleted ? 'text-decoration:line-through;color:#94a3b8;' : ''}">${task.title || '（無題のタスク）'} (ID:${task.pageID})</div>
+            ${pendingLabel}
+          </div>
+        `;
+        itemDiv.onclick = () => openDetailView(task.pageID);
+        container.appendChild(itemDiv);
+      };
+
+      validTasks.forEach(task => {
+        const isTodoOrPending = task.status === 'todo' || task.status === 'pending';
+        if (isTodoOrPending && task.deadlineDate && task.deadlineDate < today) {
+          expiredCount++;
+          appendTask(expiredContainer, task);
+        }
+        if (isTodoOrPending && task.deadlineDate === today) {
+          todayDueCount++;
+          appendTask(todayDueContainer, task);
+        }
+        if (isTodoOrPending && task.actionDate === today) {
+          todayPlanCount++;
+          appendTask(todayPlanContainer, task);
+        }
+        if (task.status === 'completed') {
+          completedCount++;
+          appendTask(completedContainer, task);
+        }
+      });
+
+      if (expiredCount === 0) expiredContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayDueCount === 0) todayDueContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (todayPlanCount === 0) todayPlanContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      if (completedCount === 0) completedContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+
+      document.getElementById('count-expired').innerText = expiredCount;
+      document.getElementById('count-today-due').innerText = todayDueCount;
+      document.getElementById('count-today-plan').innerText = todayPlanCount;
+      document.getElementById('count-completed').innerText = completedCount;
+    }
+
+    function renderCalendar() {
+      const calendarContainer = document.getElementById('calendar-content-list');
+      calendarContainer.innerHTML = '';
+
+      const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
+      if (validTasks.length === 0) {
+        calendarContainer.innerHTML = `<div class="empty-msg">登録されているタスクはありません (${currentCalendarMode === 'due' ? '期限' : '完了予定日'})</div>`;
+        return;
+      }
+
+      validTasks.forEach(task => {
+        const isCompleted = task.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+        const displayDate = currentCalendarMode === 'due' ? (task.deadlineDate || '未設定') : (task.actionDate || '未設定');
+
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title || '（無題のタスク）'} (ID:${task.pageID})</span>
+            <div class="text-[10px] text-slate-500 mt-0.5">${iconMarkup(currentCalendarMode === 'due' ? 'alarm' : 'calendar-check')} ${currentCalendarMode === 'due' ? '期限: ' : '完了予定日: '}${displayDate}</div>
+          </div>
+          <button onclick='openDetailView("${task.pageID}")' class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
+        `;
+        calendarContainer.appendChild(div);
+      });
+    }
+
+    function renderTopProjectTab() {
+      const container = document.getElementById('top-project-list');
+      container.innerHTML = '';
+      const projects = tasks.filter(t => t.parentID === null && t.isSaved && !t.preDeleted);
+
+      if (projects.length === 0) {
+        container.innerHTML = `<div class="empty-msg text-center py-4">プロジェクトがありません。「${iconMarkup('plus')} 新規プロジェクト追加」から作成してください。</div>`;
+        return;
+      }
+
+      projects.forEach(proj => {
+        const isCompleted = proj.status === 'completed';
+        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : 'color: #1e3a8a;';
+
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-sm" style="${titleStyle}">${iconMarkup('folder')} ${proj.title || '（無題のプロジェクト）'} (ID:${proj.pageID})</span>
+            <div class="flex gap-1">
+              <button onclick='openSubTaskCreateForm("${proj.pageID}")' class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">${iconMarkup('plus')}子タスク</button>
+              <button onclick='openDetailView("${proj.pageID}")' class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderFooterPages() {
+      document.getElementById('list-nice').innerHTML = '<div class="empty-msg">項目はありません</div>';
+
+      const pendingContainer = document.getElementById('list-pending');
+      pendingContainer.innerHTML = '';
+      const pendingTasks = tasks.filter(t => t.status === 'pending' && t.isSaved && !t.preDeleted);
+      if (pendingTasks.length > 0) {
+        pendingTasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span style="${titleStyle}">${t.title || '（無題）'} (ID:${t.pageID})</span><button onclick='openDetailView("${t.pageID}")' class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          pendingContainer.appendChild(div);
+        });
+      } else {
+        pendingContainer.innerHTML = '<div class="empty-msg">保留中の項目はありません</div>';
+      }
+
+      const allContainer = document.getElementById('list-all-tasks');
+      allContainer.innerHTML = '';
+      const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
+      if (validTasks.length > 0) {
+        validTasks.forEach(t => {
+          const isCompleted = t.status === 'completed';
+          const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs';
+          div.innerHTML = `<span style="${titleStyle}">[ID:${t.pageID}] ${t.title || '（無題）'} (親:${t.parentID ?? 'なし'})</span><button onclick='openDetailView("${t.pageID}")' class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>`;
+          allContainer.appendChild(div);
+        });
+      } else {
+        allContainer.innerHTML = '<div class="empty-msg">タスクはありません</div>';
+      }
+
+      renderTrashList();
+
+    }
+
+    const selectedTrashIds = new Set();
+    function escapeTrashHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function formatTrashDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? String(value) : date.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    }
+    function renderTrashList() {
+      const container = document.getElementById('list-trash');
+      if (!container) return;
+      const deleted = tasks.filter(t => t.preDeleted);
+      for (const id of [...selectedTrashIds]) if (!deleted.some(t => String(t.pageID) === id)) selectedTrashIds.delete(id);
+      container.replaceChildren();
+      if (!deleted.length) container.innerHTML = '<div class="empty-msg">削除された項目はありません</div>';
+      deleted.forEach(t => {
+        const id = String(t.pageID);
+        const row = document.createElement('div');
+        row.className = 'trash-entry';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = selectedTrashIds.has(id);
+        check.setAttribute('aria-label', `${t.title || '無題'}を選択`);
+        check.addEventListener('change', () => {
+          if (check.checked) selectedTrashIds.add(id); else selectedTrashIds.delete(id);
+          updateTrashSelectAllButton();
+        });
+        const main = document.createElement('button');
+        main.type = 'button';
+        main.className = 'trash-entry-main';
+        main.innerHTML = `<strong>${escapeTrashHtml(t.title || '（無題）')}</strong><small>削除日時：${escapeTrashHtml(formatTrashDate(t.preDeletedAt))}</small>`;
+        main.addEventListener('click', () => openTrashDetail(id));
+        const arrow = document.createElement('span');
+        arrow.className = 'trash-entry-chevron';
+        arrow.textContent = '›';
+        row.append(check, main, arrow);
+        container.appendChild(row);
+      });
+      updateTrashSelectAllButton();
+    }
+    function updateTrashSelectAllButton() {
+      const deleted = tasks.filter(t => t.preDeleted);
+      const all = deleted.length > 0 && deleted.every(t => selectedTrashIds.has(String(t.pageID)));
+      const button = document.getElementById('trash-select-all');
+      if (button) button.textContent = all ? '✓ 選択解除' : '✓ すべて選択';
+    }
+    function toggleTrashSelectAll() {
+      const deleted = tasks.filter(t => t.preDeleted);
+      const all = deleted.length > 0 && deleted.every(t => selectedTrashIds.has(String(t.pageID)));
+      deleted.forEach(t => { if (all) selectedTrashIds.delete(String(t.pageID)); else selectedTrashIds.add(String(t.pageID)); });
+      renderTrashList();
+    }
+    function restoreSelectedTrash() {
+      if (!selectedTrashIds.size) return;
+      tasks.forEach(t => {
+        if (selectedTrashIds.has(String(t.pageID)) && t.preDeleted) {
+          t.preDeleted = false;
+          t.preDeletedAt = null;
+        }
+      });
+      selectedTrashIds.clear();
+      saveTasksToStorage();
+      renderApp();
+    }
+    function trashDetailField(label, value) {
+      return `<div class="trash-detail-row"><span class="trash-detail-label">${escapeTrashHtml(label)}</span><div>${value || '—'}</div></div>`;
+    }
+    function openTrashDetail(id) {
+      const t = tasks.find(t => t.preDeleted && String(t.pageID) === String(id));
+      if (!t) return;
+      const parentProject = tasks.find(p => String(p.pageID) === String(t.projectID));
+      const projectName = parentProject?.title || (t.parentID === null ? t.title : '無題');
+      const statuses = {todo:'未完了',pending:'保留',in_progress:'進行中',completed:'完了'};
+      const history = (t.historyMemo || []).map((memo,i) => `${escapeTrashHtml(formatTrashDate(t.historyMemoAt?.[i]))}<div>${escapeTrashHtml(memo).replace(/\n/g,'<br>')}</div>`).join('<hr style="margin:8px 0;border:0;border-top:1px solid #e2e8f0">');
+      const links = (t.referenceLinks || []).map(link => {
+        const url = String(link.url || '');
+        const safe = /^https?:\/\//i.test(url) ? escapeTrashHtml(url) : '';
+        return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${escapeTrashHtml(link.title || url)}</a>` : escapeTrashHtml(link.title || url);
+      }).join('<br>');
+      const html = [
+        trashDetailField('タイトル',escapeTrashHtml(t.title)),
+        trashDetailField('削除日時',escapeTrashHtml(formatTrashDate(t.preDeletedAt))),
+        trashDetailField('プロジェクト',escapeTrashHtml(projectName)),
+        trashDetailField('ステータス',escapeTrashHtml(statuses[t.status] || t.status)),
+        trashDetailField('カテゴリ',escapeTrashHtml(t.category)),
+        trashDetailField('期限',escapeTrashHtml(t.deadlineDate || '')),
+        trashDetailField('対応予定日',escapeTrashHtml(t.actionDate || '')),
+        trashDetailField('メモ',escapeTrashHtml(t.taskMemo).replace(/\n/g,'<br>')),
+        trashDetailField('履歴メモ',history),
+        trashDetailField('参考リンク',links)
+      ].join('');
+      document.getElementById('trash-detail-body').innerHTML = html;
+      document.getElementById('trash-detail-modal').classList.remove('hidden');
+    }
+    function closeTrashDetail() { document.getElementById('trash-detail-modal').classList.add('hidden'); }
+    function confirmPermanentTrashDelete() {
+      if (!selectedTrashIds.size) return;
+      document.getElementById('trash-permanent-modal').classList.remove('hidden');
+    }
+    function closePermanentTrashDelete() { document.getElementById('trash-permanent-modal').classList.add('hidden'); }
+    function executePermanentTrashDelete() {
+      tasks = tasks.filter(t => !(t.preDeleted && selectedTrashIds.has(String(t.pageID))));
+      selectedTrashIds.clear();
+      saveTasksToStorage();
+      closePermanentTrashDelete();
+      renderApp();
+    }
+
+    function openDetailView(taskId) {
+      const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
+      if (!task) return;
+      if (currentActiveView === 'task-page' && String(currentEditingTaskId) !== String(taskId) && hasTaskDraftChanges()) {
+        alert('現在のページに未保存の変更があります。先に保存してください。');
+        return;
+      }
+      taskReturnView = currentActiveView;
+      currentEditingTaskId = String(taskId);
+      currentEditingTaskDraft = cloneTaskForEditing(task);
+      referenceLinkEditingIndexes = new Set();
+      isHistoryMemoEditing = false;
+
+      document.getElementById('detail-title-input').value = task.title || '';
+      document.getElementById('detail-memo-input').value = task.taskMemo || '';
+      updateScheduleButton('deadline');
+      updateScheduleButton('action');
+      renderReferenceLinkFields();
+      renderHistoryMemoFields();
+      syncTaskStatusPicker();
+      syncCategoryPicker();
+      setMemoExpanded(displaySettings.memoDefaultExpanded);
+      setReferenceLinksExpanded(true);
+      setHistoryMemoExpanded(true);
+      
+      const rootId = getRootParentId(taskId, tasks);
+      const rootTask = tasks.find(t => t.pageID === String(rootId));
+      document.getElementById('detail-project-label').innerText = `プロジェクト：${rootTask ? (rootTask.title || '無題') : 'なし'}`;
+
+      const saveBtn = document.getElementById('global-save-btn');
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+
+      if (task.isSaved) {
+        saveBtn.innerText = '更新';
+        updatedAtRow.classList.remove('hidden');
+        updatedAtText.innerText = task.updatedAt || '未更新';
+      } else {
+        saveBtn.innerText = '保存';
+        updatedAtRow.classList.add('hidden');
+      }
+
+      renderProjectTree(rootId);
+
+      switchView('task-page', { force: true });
+      const scrollArea = document.querySelector('#view-task-page .main-scroll-area') || document.querySelector('.main-scroll-area');
+      if (scrollArea) scrollArea.scrollTop = 0;
+    }
+
+    // プロジェクトビュー：親子関係と兄弟順は parentID / childID で管理する。
+    const projectTreeExpanded = new Set();
+    let projectTreeDrag = null;
+
+    function projectTreeChildren(parent, members) {
+      const children = members.filter(t => String(t.parentID) === String(parent.pageID) && String(t.pageID) !== String(parent.pageID));
+      const order = Array.isArray(parent.childID) ? parent.childID.map(String) : [];
+      return children.sort((a, b) => {
+        const ai = order.indexOf(String(a.pageID)), bi = order.indexOf(String(b.pageID));
+        return (ai < 0 ? Number.MAX_SAFE_INTEGER : ai) - (bi < 0 ? Number.MAX_SAFE_INTEGER : bi);
+      });
+    }
+
+    function projectTreeMove(sourceId, targetId, position, rootId) {
+      sourceId = String(sourceId); targetId = String(targetId);
+      if (sourceId === targetId || sourceId === String(rootId)) return false;
+      const source = tasks.find(t => String(t.pageID) === sourceId && !t.preDeleted);
+      const target = tasks.find(t => String(t.pageID) === targetId && !t.preDeleted);
+      if (!source || !target || String(source.projectID) !== String(target.projectID)) return false;
+      const destination = position === 'inside' ? target : tasks.find(t => String(t.pageID) === String(target.parentID));
+      if (!destination) return false;
+      // 自分自身・子孫の下への移動は禁止。
+      let ancestor = destination;
+      const seen = new Set();
+      while (ancestor) {
+        if (String(ancestor.pageID) === sourceId) return false;
+        if (seen.has(String(ancestor.pageID))) return false;
+        seen.add(String(ancestor.pageID));
+        ancestor = tasks.find(t => String(t.pageID) === String(ancestor.parentID));
+      }
+      const oldParent = tasks.find(t => String(t.pageID) === String(source.parentID));
+      if (oldParent) oldParent.childID = (oldParent.childID || []).map(String).filter(id => id !== sourceId);
+      const next = (destination.childID || []).map(String).filter(id => id !== sourceId);
+      if (position === 'inside') next.push(sourceId);
+      else {
+        const index = next.indexOf(targetId);
+        if (index < 0) return false;
+        next.splice(index + (position === 'after' ? 1 : 0), 0, sourceId);
+      }
+      destination.childID = next;
+      source.parentID = String(destination.pageID);
+      // 移動先の親のカテゴリを継承する（子孫の既存カテゴリは変更しない）。
+      if (oldParent && String(oldParent.pageID) !== String(destination.pageID)) {
+        source.category = [...normalizeTaskCategories(destination.category)];
+      }
+      saveTasksToStorage(); // projectID と path は既存処理で子孫まで更新
+      projectTreeExpanded.add(String(destination.pageID));
+      renderProjectTree(rootId);
+      return true;
+    }
+
+    function renderProjectTree(rootId) {
+      const container = document.getElementById('detail-tree-list');
+      if (!container) return;
+      container.replaceChildren();
+      const root = tasks.find(t => String(t.pageID) === String(rootId) && !t.preDeleted);
+      if (!root) return;
+      const projectId = String(root.projectID || root.pageID);
+      const members = tasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
+      const visited = new Set();
+      const heading = document.createElement('div');
+      heading.className = 'project-tree-columns';
+      heading.innerHTML = '<span>▾ タスク</span><span>◉ ステータス</span><span>▣ 期限</span><span>▣ 対応予定日</span><span>▤ メモ</span>';
+      container.appendChild(heading);
+
+      // 各階層の親から、その階層の「新規サブアイテム」まで線を通す。
+      // DOM上の並び順やインデントは変えず、線だけを重ねる。
+      function drawTreeBranches(element, ancestorDepths, endDepth = null) {
+        ancestorDepths.forEach(d => {
+          const line = document.createElement('span');
+          line.className = 'project-tree-branch';
+          line.style.left = `${44 + Math.min(d, 30) * 18}px`;
+          element.appendChild(line);
+        });
+        if (endDepth !== null) {
+          const x = 44 + Math.min(endDepth, 30) * 18;
+          const line = document.createElement('span');
+          line.className = 'project-tree-branch';
+          line.style.left = `${x}px`;
+          line.style.bottom = '50%';
+          element.appendChild(line);
+          const elbow = document.createElement('span');
+          elbow.className = 'project-tree-branch-end';
+          elbow.style.left = `${x}px`;
+          elbow.style.width = `${Math.max(12, 18)}px`;
+          element.appendChild(elbow);
+        }
+      }
+
+      function addNode(task, depth, ancestors = []) {
+        const id = String(task.pageID);
+        if (visited.has(id)) return;
+        visited.add(id);
+        const children = projectTreeChildren(task, members);
+        const row = document.createElement('div');
+        row.className = 'project-tree-row';
+        row.dataset.pageId = id;
+        const titleCell = document.createElement('div');
+        titleCell.className = 'project-tree-title-cell';
+        titleCell.style.paddingLeft = '0px';
+
+        const handle = document.createElement('button');
+        handle.type = 'button'; handle.className = 'project-tree-drag';
+        handle.textContent = '⠿'; handle.title = 'ドラッグして移動';
+        handle.setAttribute('aria-label', 'ドラッグして移動');
+        handle.disabled = id === String(rootId);
+        handle.draggable = !handle.disabled;
+        handle.addEventListener('dragstart', e => {
+          if (handle.disabled) { e.preventDefault(); return; }
+          projectTreeDrag = { sourceId: id, rootId: String(rootId) };
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', id);
+        });
+        handle.addEventListener('dragend', () => { projectTreeDrag = null; clearProjectTreeDrop(); });
+        handle.addEventListener('pointerdown', e => {
+          if (e.pointerType === 'mouse' || handle.disabled || e.button !== 0) return;
+          e.preventDefault();
+          startProjectTreeTouchDrag(e, id, rootId, handle);
+        });
+        titleCell.appendChild(handle);
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button'; toggle.className = 'project-tree-toggle';
+        toggle.textContent = projectTreeExpanded.has(id) ? '▼' : '▶';
+        toggle.setAttribute('aria-label', '子ページの展開・折りたたみ');
+        toggle.onclick = () => {
+          if (projectTreeExpanded.has(id)) projectTreeExpanded.delete(id);
+          else projectTreeExpanded.add(id);
+          renderProjectTree(rootId);
+        };
+        if (id === String(rootId)) {
+          toggle.disabled = true;
+          toggle.setAttribute('aria-label', '最上位親は常に展開');
+        }
+        toggle.style.marginLeft = `${20 + Math.min(depth, 30) * 18}px`;
+        titleCell.appendChild(toggle);
+
+        const title = document.createElement('button');
+        title.type = 'button'; title.className = 'project-tree-title';
+        title.dataset.pageId = id;
+        title.textContent = task.title || '（無題）';
+        if (task.status === 'completed') title.classList.add('project-tree-completed');
+        title.onclick = () => editProjectTreeTitle(id, rootId);
+        titleCell.appendChild(title);
+        const edit = document.createElement('button');
+        edit.type = 'button'; edit.className = 'project-tree-edit';
+        edit.textContent = '✎'; edit.title = '簡易編集';
+        edit.setAttribute('aria-label', '簡易編集');
+        edit.onclick = () => showProjectTreeOpenModal(id, rootId);
+        titleCell.appendChild(edit);
+        row.appendChild(titleCell);
+        [task.status || '', task.deadlineDate || '', task.actionDate || '', task.taskMemo || ''].forEach(value => {
+          const cell = document.createElement('span');
+          cell.className = 'project-tree-property';
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        row.addEventListener('dragover', e => {
+          if (!projectTreeDrag) return;
+          e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+          markProjectTreeDrop(row, e.clientY);
+        });
+        row.addEventListener('drop', e => {
+          if (!projectTreeDrag) return;
+          e.preventDefault();
+          const drag = projectTreeDrag;
+          const position = projectTreeDropPosition(row, e.clientY);
+          projectTreeDrag = null;
+          clearProjectTreeDrop();
+          projectTreeMove(drag.sourceId, id, position, rootId);
+        });
+        // 親から子への線は、子の行では曲がり角を表示する。
+        drawTreeBranches(row, ancestors.slice(0, -1), depth ? depth - 1 : null);
+        container.appendChild(row);
+
+        if (projectTreeExpanded.has(id)) {
+          children.forEach(child => addNode(child, depth + 1, [...ancestors, depth]));
+          const add = document.createElement('button');
+          add.type = 'button'; add.className = 'project-tree-add';
+          add.style.paddingLeft = `${Math.min(depth + 1, 30) * 18 + 30}px`;
+          add.innerHTML = '<span class="project-tree-add-label">＋ 新規サブアイテム</span>';
+          add.onclick = () => createProjectChildInline(id, rootId);
+          drawTreeBranches(add, ancestors, depth);
+          container.appendChild(add);
+        }
+      }
+      projectTreeExpanded.add(String(root.pageID));
+      addNode(root, 0);
+    }
+
+    // タイトルタップはインライン編集。編集アイコンは簡易編集ポップアップ。
+    function editProjectTreeTitle(pageId, rootId) {
+      const task = tasks.find(t => String(t.pageID) === String(pageId) && !t.preDeleted);
+      const button = Array.from(document.querySelectorAll('#detail-tree-list .project-tree-title'))
+        .find(el => el.dataset.pageId === String(pageId));
+      if (!task || !button) return;
+      const input = document.createElement('input');
+      input.type = 'text'; input.className = 'project-tree-title-input';
+      input.value = task.title || ''; input.setAttribute('aria-label', 'タスク名');
+      button.replaceWith(input);
+      let done = false;
+      const finish = (save = true) => {
+        if (done) return;
+        done = true;
+        if (save) { const before = cloneTaskForEditing(task); task.title = input.value.trim(); recordUserTaskSave(before, task); saveTasksToStorage(); }
+        renderProjectTree(rootId);
+      };
+      input.addEventListener('blur', () => finish());
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+      });
+      input.focus(); input.select();
+    }
+    let pendingProjectTreeOpenId = null;
+    let pendingProjectTreeRootId = null;
+    function showProjectTreeOpenModal(pageId, rootId) {
+      const task = tasks.find(t => String(t.pageID) === String(pageId) && !t.preDeleted);
+      if (!task) return;
+      pendingProjectTreeOpenId = String(pageId);
+      pendingProjectTreeRootId = String(rootId);
+      document.getElementById('project-tree-edit-name').value = task.title || '';
+      document.getElementById('project-tree-edit-deadline').value = /^\d{4}-\d{2}-\d{2}$/.test(task.deadlineDate || '') ? task.deadlineDate : '';
+      document.getElementById('project-tree-edit-action').value = /^\d{4}-\d{2}-\d{2}$/.test(task.actionDate || '') ? task.actionDate : '';
+      document.getElementById('project-tree-edit-memo').value = task.taskMemo || '';
+      document.getElementById('project-tree-open-modal').classList.remove('hidden');
+    }
+    function closeProjectTreeOpenModal() {
+      document.getElementById('project-tree-open-modal').classList.add('hidden');
+      pendingProjectTreeOpenId = null;
+      pendingProjectTreeRootId = null;
+    }
+    function saveProjectTreeQuickEdit() {
+      const task = tasks.find(t => String(t.pageID) === pendingProjectTreeOpenId && !t.preDeleted);
+      if (!task) return;
+      const rootId = pendingProjectTreeRootId;
+      const before = cloneTaskForEditing(task);
+      task.title = document.getElementById('project-tree-edit-name').value.trim();
+      task.deadlineDate = document.getElementById('project-tree-edit-deadline').value;
+      task.actionDate = document.getElementById('project-tree-edit-action').value;
+      task.taskMemo = document.getElementById('project-tree-edit-memo').value;
+      recordUserTaskSave(before, task);
+      saveTasksToStorage();
+      closeProjectTreeOpenModal();
+      renderProjectTree(rootId);
+    }
+    function deleteProjectTreeItem() {
+      const id = pendingProjectTreeOpenId;
+      const rootId = pendingProjectTreeRootId;
+      if (!id || id === rootId) { alert('最上位の親ページは一覧から削除できません。'); return; }
+      if (!confirm('このタスクを削除しますか？')) return;
+      const target = tasks.find(t => String(t.pageID) === id && !t.preDeleted);
+      if (!target) return;
+      const parent = tasks.find(t => String(t.pageID) === String(target.parentID));
+      if (parent) parent.childID = (parent.childID || []).map(String).filter(childId => childId !== id);
+      const now = new Date().toISOString();
+      const stack = [id]; const visited = new Set();
+      while (stack.length) {
+        const current = stack.pop();
+        if (visited.has(current)) continue;
+        visited.add(current);
+        const item = tasks.find(t => String(t.pageID) === current);
+        if (!item) continue;
+        item.preDeleted = true; item.preDeletedAt = now;
+        tasks.filter(t => String(t.parentID) === current).forEach(child => stack.push(String(child.pageID)));
+      }
+      saveTasksToStorage(); closeProjectTreeOpenModal(); renderProjectTree(rootId);
+    }
+    function confirmProjectTreeOpen() {
+      const id = pendingProjectTreeOpenId;
+      closeProjectTreeOpenModal();
+      if (id !== null) openDetailView(id);
+    }
+
+    function projectTreeDropPosition(row, y) {
+      const r = row.getBoundingClientRect();
+      const ratio = (y - r.top) / Math.max(r.height, 1);
+      return ratio < .25 ? 'before' : ratio > .75 ? 'after' : 'inside';
+    }
+    function clearProjectTreeDrop() {
+      document.querySelectorAll('#detail-tree-list .project-tree-row').forEach(row =>
+        row.classList.remove('project-tree-drop-before', 'project-tree-drop-after', 'project-tree-drop-inside'));
+    }
+    function markProjectTreeDrop(row, y) {
+      clearProjectTreeDrop();
+      row.classList.add('project-tree-drop-' + projectTreeDropPosition(row, y));
+    }
+    function startProjectTreeTouchDrag(event, sourceId, rootId, handle) {
+      const ghost = document.createElement('div');
+      ghost.className = 'project-tree-drag-ghost';
+      ghost.textContent = handle.parentElement.querySelector('.project-tree-title')?.textContent || 'ページ';
+      document.body.appendChild(ghost);
+      const move = e => {
+        if (e.pointerId !== event.pointerId) return;
+        e.preventDefault();
+        ghost.style.left = `${e.clientX + 12}px`;
+        ghost.style.top = `${e.clientY + 12}px`;
+        const row = document.elementFromPoint(e.clientX, e.clientY)?.closest('.project-tree-row');
+        if (row && row.closest('#detail-tree-list')) markProjectTreeDrop(row, e.clientY);
+        else clearProjectTreeDrop();
+      };
+      const end = e => {
+        if (e.pointerId !== event.pointerId) return;
+        const row = document.elementFromPoint(e.clientX, e.clientY)?.closest('.project-tree-row');
+        const targetId = row?.closest('#detail-tree-list') ? row.dataset.pageId : null;
+        const position = row ? projectTreeDropPosition(row, e.clientY) : null;
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', cancel);
+        ghost.remove(); clearProjectTreeDrop();
+        if (targetId) projectTreeMove(sourceId, targetId, position, rootId);
+      };
+      const cancel = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', cancel);
+        ghost.remove(); clearProjectTreeDrop();
+      };
+      handle.setPointerCapture(event.pointerId);
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', end);
+      handle.addEventListener('pointercancel', cancel);
+      move(event);
+    }
+
+    // 子ページを通常のタスクと同じ34プロパティで作成し、即時保存する。
+    // 追加直後はプロジェクトビュー内でタイトルを入力できる。
+    function createProjectChildInline(parentID, rootId) {
+      const parent = tasks.find(t => t.pageID === String(parentID) && !t.preDeleted);
+      if (!parent) return;
+      const newId = String(nextIdCounter++);
+      const newTask = normalizeRecord({
+        pageID: newId, type: 'task', title: '', parentID: String(parent.pageID),
+        projectID: String(parent.projectID || parent.pageID), childID: [],
+        path: `${parent.path || parent.pageID}/${newId}`, category: [...normalizeTaskCategories(parent.category)], status: 'todo',
+        actionDate: '', actionTime: '', actionEndDate: '', actionEndTime: '',
+        deadlineDate: '', deadlineTime: '', deadlineEndDate: '', deadlineEndTime: '',
+        completedAt: null, taskMemo: '', diaryMemo: '', referenceLinks: [],
+        historyMemo: [], historyMemoAt: [], createdAt: new Date().toISOString(),
+        updatedAt: null, previousUpdatedAt: null, email: '', isSaved: true,
+        preDeleted: false, preDeletedAt: null, actionDateCheck: [], deadlineDateCheck: [],
+        actionCustomReminderAt: '', deadlineCustomReminderAt: '',
+        isActionCustomActive: false, isDeadlineCustomActive: false
+      }, newId);
+      if (!Array.isArray(parent.childID)) parent.childID = [];
+      if (!parent.childID.map(String).includes(newId)) parent.childID.push(newId);
+      tasks.push(newTask);
+      saveTasksToStorage();
+      projectTreeExpanded.add(String(parent.pageID));
+      projectTreeExpanded.delete(newId);
+      renderProjectTree(rootId);
+      const titleButton = Array.from(document.querySelectorAll('#detail-tree-list .project-tree-title'))
+        .find(el => el.dataset.pageId === newId);
+      if (!titleButton) return;
+      const input = document.createElement('input');
+      input.className = 'project-tree-title-input';
+      input.type = 'text';
+      input.placeholder = 'タスク名を入力';
+      input.setAttribute('aria-label', '新しいタスクのタイトル');
+      titleButton.replaceWith(input);
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        newTask.title = input.value.trim();
+        recordUserTaskSave(null, newTask, true);
+        saveTasksToStorage();
+        renderProjectTree(rootId);
+      };
+      input.addEventListener('blur', finish);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); input.blur(); }
+      });
+      input.focus();
+    }
+
+    function openNewProjectPage() {
+      const newId = String(nextIdCounter++);
+      const newProj = {
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+      };
+      tasks.push(newProj);
+      openDetailView(newId);
+    }
+
+    function openSubTaskCreateForm(parentID) {
+      const newId = String(nextIdCounter++);
+      const parentTask = tasks.find(t => t.pageID === String(parentID));
+      const newSub = {
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: String(parentID), projectID: parentTask ? (parentTask.projectID || parentTask.pageID) : null, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: parentTask ? `${parentTask.path || parentTask.pageID}/${newId}` : newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+      };
+      if (parentTask) parentTask.childID.push(newId);
+      tasks.push(newSub);
+      saveTasksToStorage();
+      openDetailView(newId);
+    }
+
+    function resizeMemoTextarea() {
+      const memoInput = document.getElementById('detail-memo-input');
+      if (!memoInput) return;
+
+      const defaultHeight = 90;
+      memoInput.style.height = `${defaultHeight}px`;
+
+      if (memoInput.scrollHeight > defaultHeight) {
+        memoInput.style.height = `${memoInput.scrollHeight}px`;
+      }
+    }
+
+    function setMemoExpanded(expanded) {
+      const memoContent = document.getElementById('memo-content');
+      const toggleButton = document.getElementById('memo-toggle-button');
+      if (!memoContent || !toggleButton) return;
+
+      memoContent.classList.toggle('hidden', !expanded);
+      toggleButton.innerHTML = iconMarkup(expanded ? 'chevron-up' : 'chevron-down');
+      toggleButton.setAttribute('aria-expanded', String(expanded));
+      toggleButton.setAttribute('aria-label', expanded ? 'メモを隠す' : 'メモを開く');
+
+      if (expanded) window.requestAnimationFrame(resizeMemoTextarea);
+    }
+
+    function toggleMemoExpanded() {
+      const memoContent = document.getElementById('memo-content');
+      if (!memoContent) return;
+      setMemoExpanded(memoContent.classList.contains('hidden'));
+    }
+
+    function setReferenceLinksExpanded(expanded) {
+      const content = document.getElementById('reference-links-content');
+      const button = document.getElementById('reference-links-toggle-button');
+      if (!content || !button) return;
+      content.classList.toggle('hidden', !expanded);
+      button.setAttribute('aria-expanded', String(expanded));
+      button.setAttribute('aria-label', expanded ? '参考リンクを閉じる' : '参考リンクを開く');
+      button.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#${expanded ? 'chevron-up' : 'chevron-down'}"></use></svg>`;
+    }
+
+    function toggleReferenceLinksExpanded() {
+      const content = document.getElementById('reference-links-content');
+      if (!content) return;
+      setReferenceLinksExpanded(content.classList.contains('hidden'));
+    }
+
+    function updateCurrentTaskField(field, value) {
+      if (currentEditingTaskDraft) {
+        currentEditingTaskDraft[field] = value;
+        if (field === 'taskMemo') {
+          resizeMemoTextarea();
+        }
+      }
+    }
+
+    function getScheduleKeys(field) {
+      return field === 'deadline'
+        ? { date: 'deadlineDate', time: 'deadlineTime', endDate: 'deadlineEndDate', endTime: 'deadlineEndTime', label: '期限' }
+        : { date: 'actionDate', time: 'actionTime', endDate: 'actionEndDate', endTime: 'actionEndTime', label: '対応予定日' };
+    }
+
+    function joinScheduleDateTime(date, time) {
+      return date ? `${date}T${time || '00:00'}` : '';
+    }
+
+    function splitScheduleDateTime(value) {
+      return { date: value ? value.slice(0, 10) : '', time: value ? value.slice(11, 16) : '' };
+    }
+
+    function formatSchedule(field) {
+      const task = currentEditingTaskDraft;
+      const keys = getScheduleKeys(field);
+      if (!task?.[keys.date]) return '設定なし';
+      const start = `${task[keys.date].replaceAll('-', '/')} ${task[keys.time] || ''}`.trim();
+      if (!task[keys.endDate]) return start;
+      const end = `${task[keys.endDate].replaceAll('-', '/')} ${task[keys.endTime] || ''}`.trim();
+      return `${start}〜${end}`;
+    }
+
+    function updateScheduleButton(field) {
+      const button = document.getElementById(field === 'deadline' ? 'detail-due-date-input' : 'detail-plan-date-input');
+      if (!button) return;
+      const keys = getScheduleKeys(field);
+      const isEmpty = !currentEditingTaskDraft?.[keys.date];
+      button.classList.toggle('is-empty', isEmpty);
+      button.innerHTML = isEmpty ? '<span aria-hidden="true">✏︎</span>' : escapeHtml(formatSchedule(field));
+      button.setAttribute('aria-label', `${keys.label}${isEmpty ? 'を入力' : `：${formatSchedule(field)}`}`);
+    }
+
+    function openScheduleEditor(field) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      const keys = getScheduleKeys(field);
+      scheduleEditingField = field;
+      document.getElementById('schedule-editor-title').textContent = keys.label;
+      document.getElementById('schedule-start-input').value = joinScheduleDateTime(task[keys.date], task[keys.time]);
+      const hasEnd = Boolean(task[keys.endDate]);
+      document.getElementById('schedule-end-toggle').checked = hasEnd;
+      document.getElementById('schedule-end-input').value = joinScheduleDateTime(task[keys.endDate], task[keys.endTime]);
+      toggleScheduleEndInput();
+      document.getElementById('schedule-editor-modal').classList.remove('hidden');
+    }
+
+    function closeScheduleEditor() {
+      scheduleEditingField = null;
+      document.getElementById('schedule-editor-modal').classList.add('hidden');
+    }
+
+    function toggleScheduleEndInput() {
+      const enabled = document.getElementById('schedule-end-toggle').checked;
+      document.getElementById('schedule-end-input').classList.toggle('hidden', !enabled);
+    }
+
+    function saveScheduleEditor() {
+      if (!scheduleEditingField || !currentEditingTaskDraft) return;
+      const keys = getScheduleKeys(scheduleEditingField);
+      const start = splitScheduleDateTime(document.getElementById('schedule-start-input').value);
+      const end = document.getElementById('schedule-end-toggle').checked
+        ? splitScheduleDateTime(document.getElementById('schedule-end-input').value)
+        : { date: '', time: '' };
+      Object.assign(currentEditingTaskDraft, {
+        [keys.date]: start.date, [keys.time]: start.time,
+        [keys.endDate]: end.date, [keys.endTime]: end.time
+      });
+      updateScheduleButton(scheduleEditingField);
+      closeScheduleEditor();
+    }
+
+    function clearScheduleEditor() {
+      if (!scheduleEditingField || !currentEditingTaskDraft) return;
+      const keys = getScheduleKeys(scheduleEditingField);
+      Object.assign(currentEditingTaskDraft, { [keys.date]: '', [keys.time]: '', [keys.endDate]: '', [keys.endTime]: '' });
+      updateScheduleButton(scheduleEditingField);
+      closeScheduleEditor();
+    }
+
+    function checkDateConflicts(task) {
+      if (task.parentID === null || task.parentID === '') return { invalidDues: [], invalidPlans: [] };
+
+      const ancestorIds = getAncestorIds(task.pageID, tasks);
+      const invalidDues = [];
+      const invalidPlans = [];
+
+      ancestorIds.forEach(ancestorId => {
+        const ancestor = tasks.find(t => t.pageID === String(ancestorId));
+        if (!ancestor) return;
+
+        if (task.deadlineDate && ancestor.deadlineDate && task.deadlineDate > ancestor.deadlineDate) {
+          invalidDues.push(ancestor.title || '（無題の項目）');
+        }
+
+        if (task.actionDate && ancestor.actionDate && task.actionDate > ancestor.actionDate) {
+          invalidPlans.push(ancestor.title || '（無題の項目）');
+        }
+      });
+
+      return { invalidDues, invalidPlans };
+    }
+
+    function saveOrUpdateCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+
+      if (!task.deadlineDate && !task.actionDate) {
+        document.getElementById('missing-date-confirm-modal').classList.remove('hidden');
+        return;
+      }
+
+      const conflicts = checkDateConflicts(task);
+
+      if (conflicts.invalidDues.length > 0 || conflicts.invalidPlans.length > 0) {
+        let msgParts = [];
+        if (conflicts.invalidDues.length > 0) {
+          msgParts.push(`「${conflicts.invalidDues.join('、')}」より期限が後の日にち`);
+        }
+        if (conflicts.invalidPlans.length > 0) {
+          msgParts.push(`「${conflicts.invalidPlans.join('、')}」より完了予定日が後の日にち`);
+        }
+
+        const warningMsg = `${msgParts.join('、および')}になっていますが、そのまま登録しますか？`;
+        document.getElementById('date-warning-message').innerText = warningMsg;
+        document.getElementById('date-warning-modal').classList.remove('hidden');
+        return;
+      }
+
+      executeFinalSave(task);
+    }
+
+    function executeSaveWithDateWarning() {
+      document.getElementById('date-warning-modal').classList.add('hidden');
+      const task = currentEditingTaskDraft;
+      if (task) {
+        executeFinalSave(task);
+      }
+    }
+
+    function closeDateWarningModal() {
+      document.getElementById('date-warning-modal').classList.add('hidden');
+    }
+
+    function executeSaveWithoutDates() {
+      document.getElementById('missing-date-confirm-modal').classList.add('hidden');
+      const task = currentEditingTaskDraft;
+      if (task) executeFinalSave(task);
+    }
+
+    function closeMissingDateConfirmModal() {
+      document.getElementById('missing-date-confirm-modal').classList.add('hidden');
+    }
+
+    function executeFinalSave(task, silent = false) {
+      const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
+      if (!savedTask) return;
+      const isFirstTime = !savedTask.isSaved;
+      const before = cloneTaskForEditing(savedTask);
+      
+      const previousUpdatedAt = savedTask.updatedAt || null;
+      Object.assign(savedTask, task, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
+      recordUserTaskSave(before, savedTask, isFirstTime);
+      currentEditingTaskDraft = cloneTaskForEditing(savedTask);
+      referenceLinkEditingIndexes = new Set();
+
+      saveTasksToStorage();
+
+      const saveBtn = document.getElementById('global-save-btn');
+      saveBtn.innerText = '更新';
+      
+      const updatedAtRow = document.getElementById('detail-updated-at-row');
+      const updatedAtText = document.getElementById('detail-updated-at-text');
+      updatedAtRow.classList.remove('hidden');
+      updatedAtText.innerText = savedTask.updatedAt;
+
+      renderReferenceLinkFields();
+      renderHistoryMemoFields();
+      if (!silent && isFirstTime) {
+        alert('保存しました。');
+      } else if (!silent) {
+        alert('更新しました。');
+      }
+    }
+
+    function updateCurrentTaskStatus(status) {
+      const task = currentEditingTaskDraft;
+      if (task) {
+        task.status = status;
+        task.completedAt = status === 'completed' ? (task.completedAt || new Date().toISOString()) : null;
+        syncTaskStatusPicker();
+      }
+    }
+
+    function syncCategoryPicker() {
+      const task = currentEditingTaskDraft;
+      const label = document.getElementById('category-picker-label');
+      if (!task || !label) return;
+      const selected = normalizeTaskCategories(task.category);
+      label.innerHTML = selected.length
+        ? selected.map(name => {
+          const category = getCategorySetting(name);
+          return `<span class="category-chip" style="background:${category?.color || '#64748b'}">${escapeHtml(name)}</span>`;
+        }).join('')
+        : '<span>を選択</span>';
+    }
+
+    function toggleCategoryMenu() {
+      const menu = document.getElementById('category-menu');
+      const picker = document.getElementById('category-picker');
+      const isOpen = !menu.classList.contains('hidden');
+      if (!isOpen) renderCategoryMenu();
+      menu.classList.toggle('hidden', isOpen);
+      picker.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function renderCategoryMenu() {
+      const menu = document.getElementById('category-menu');
+      const task = currentEditingTaskDraft;
+      if (!menu || !task) return;
+      menu.innerHTML = '';
+      const selectedCategories = normalizeTaskCategories(task.category);
+
+      const selectedBox = document.createElement('div');
+      selectedBox.className = 'category-menu-selected';
+      selectedBox.innerHTML = selectedCategories.map(name => {
+        const category = getCategorySetting(name);
+        return `<span class="category-chip" style="background:${category?.color || '#64748b'}">${escapeHtml(name)}</span>`;
+      }).join('');
+      if (selectedCategories.length) menu.appendChild(selectedBox);
+
+      taskCategories.forEach(category => {
+        const option = document.createElement('label');
+        option.className = `category-option category-check-option${selectedCategories.includes(category.name) ? ' selected' : ''}`;
+        option.innerHTML = `<input type="checkbox" ${selectedCategories.includes(category.name) ? 'checked' : ''}><span class="category-color-dot" style="background:${category.color}"></span><span>${escapeHtml(category.name)}</span>`;
+        option.querySelector('input').onchange = event => selectTaskCategory(category.name, event.target.checked);
+        menu.appendChild(option);
+      });
+
+      const settingsLink = document.createElement('button');
+      settingsLink.type = 'button';
+      settingsLink.className = 'category-option category-settings-link icon-with-text';
+      settingsLink.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#sliders"></use></svg>カテゴリを管理`;
+      settingsLink.onclick = openCategorySettingsFromTask;
+      menu.appendChild(settingsLink);
+    }
+
+    function selectTaskCategory(category, checked) {
+      const selected = normalizeTaskCategories(currentEditingTaskDraft?.category);
+      const next = checked ? [...new Set([...selected, category])] : selected.filter(item => item !== category);
+      updateCurrentTaskField('category', next);
+      syncCategoryPicker();
+      renderCategoryMenu();
+    }
+
+    function openCategorySettingsFromTask() {
+      document.getElementById('category-menu').classList.add('hidden');
+      document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
+      taskReturnView = 'task-page';
+      switchView('settings-category', { preserveTaskDraft: true });
+    }
+
+    function renderCategorySettings() {
+      const list = document.getElementById('category-settings-list');
+      if (!list) return;
+      list.innerHTML = '';
+
+      if (taskCategories.length === 0) {
+        list.innerHTML = '<div class="empty-msg">カテゴリはまだありません</div>';
+        return;
+      }
+
+      taskCategories.forEach((category, index) => {
+        const row = document.createElement('div');
+        row.className = 'category-settings-row';
+        row.dataset.categoryIndex = String(index);
+        row.draggable = true;
+
+        const main = document.createElement('div');
+        main.className = 'category-settings-main';
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = 'category-drag-handle';
+        handle.textContent = '⠿';
+        handle.setAttribute('aria-label', `${category.name}を並び替える`);
+        const color = document.createElement('span');
+        color.className = 'category-color-dot';
+        color.style.background = category.color;
+        const name = document.createElement('span');
+        name.className = 'category-settings-name';
+        name.textContent = category.name;
+
+        const actions = document.createElement('div');
+        actions.className = 'category-settings-actions';
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'category-settings-edit-button';
+        edit.textContent = '編集';
+        edit.onclick = () => openCategoryEditModal(index);
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'category-settings-remove-button';
+        remove.textContent = '削除';
+        remove.onclick = () => deleteCategorySetting(index);
+        main.append(handle, color, name);
+        actions.append(edit, remove);
+        row.append(main, actions);
+        bindCategoryRowDragEvents(row, handle, index);
+        list.appendChild(row);
+      });
+    }
+
+    function addCategorySetting() {
+      const input = document.getElementById('category-settings-input');
+      const category = input.value.trim();
+      if (!category || taskCategories.some(item => item.name === category)) return;
+      taskCategories.push({ name: category, color: getNextCategoryColor() });
+      saveTaskCategories();
+      input.value = '';
+      renderCategorySettings();
+    }
+
+    function deleteCategorySetting(index) {
+      taskCategories.splice(index, 1);
+      saveTaskCategories();
+      renderCategorySettings();
+    }
+
+    function getNextCategoryColor() {
+      return CATEGORY_COLOR_OPTIONS[taskCategories.length % CATEGORY_COLOR_OPTIONS.length];
+    }
+
+    function openCategoryEditModal(index) {
+      const category = taskCategories[index];
+      if (!category) return;
+      editingCategoryIndex = index;
+      editingCategoryColor = category.color;
+      document.getElementById('category-edit-input').value = category.name;
+      renderCategoryColorOptions();
+      document.getElementById('category-edit-modal').classList.remove('hidden');
+    }
+
+    function closeCategoryEditModal() {
+      editingCategoryIndex = null;
+      editingCategoryColor = '';
+      document.getElementById('category-edit-modal').classList.add('hidden');
+    }
+
+    function renderCategoryColorOptions() {
+      const container = document.getElementById('category-color-options');
+      if (!container) return;
+      container.innerHTML = '';
+      CATEGORY_COLOR_OPTIONS.forEach(color => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = `category-color-option${color === editingCategoryColor ? ' selected' : ''}`;
+        option.setAttribute('aria-label', `色を選択`);
+        option.innerHTML = `<span class="category-color-dot" style="background:${color}"></span>`;
+        option.onclick = () => {
+          editingCategoryColor = color;
+          renderCategoryColorOptions();
+        };
+        container.appendChild(option);
+      });
+    }
+
+    function saveCategoryEdit() {
+      const category = taskCategories[editingCategoryIndex];
+      const input = document.getElementById('category-edit-input');
+      const name = input.value.trim();
+      if (!category || !name) return;
+      if (taskCategories.some((item, index) => index !== editingCategoryIndex && item.name === name)) return;
+
+      const previousName = category.name;
+      category.name = name;
+      category.color = editingCategoryColor || category.color;
+      if (previousName !== name) {
+        tasks.forEach(task => {
+          task.category = normalizeTaskCategories(task.category).map(item => item === previousName ? name : item);
+        });
+        saveTasksToStorage();
+      }
+      saveTaskCategories();
+      closeCategoryEditModal();
+      renderCategorySettings();
+      syncCategoryPicker();
+    }
+
+    function bindCategoryRowDragEvents(row, handle, index) {
+      row.addEventListener('dragstart', event => {
+        categoryPointerDrag = { fromIndex: index };
+        row.classList.add('is-dragging');
+        event.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => {
+        categoryPointerDrag = null;
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.remove('is-dragging', 'is-drag-over'));
+      });
+      row.addEventListener('dragover', event => {
+        event.preventDefault();
+        row.classList.add('is-drag-over');
+      });
+      row.addEventListener('dragleave', () => row.classList.remove('is-drag-over'));
+      row.addEventListener('drop', event => {
+        event.preventDefault();
+        const fromIndex = categoryPointerDrag?.fromIndex;
+        if (Number.isInteger(fromIndex)) reorderCategorySettings(fromIndex, index);
+      });
+
+      handle.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        categoryPointerDrag = { fromIndex: index, pointerId: event.pointerId };
+        handle.setPointerCapture(event.pointerId);
+        row.classList.add('is-dragging');
+      });
+      handle.addEventListener('pointermove', event => {
+        if (categoryPointerDrag?.pointerId !== event.pointerId) return;
+        const targetRow = document.elementFromPoint(event.clientX, event.clientY)?.closest('.category-settings-row');
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.toggle('is-drag-over', item === targetRow && item !== row));
+      });
+      const finishPointerDrag = event => {
+        if (categoryPointerDrag?.pointerId !== event.pointerId) return;
+        const fromIndex = categoryPointerDrag.fromIndex;
+        const targetRow = document.elementFromPoint(event.clientX, event.clientY)?.closest('.category-settings-row');
+        const toIndex = Number(targetRow?.dataset.categoryIndex);
+        if (Number.isInteger(toIndex)) reorderCategorySettings(fromIndex, toIndex);
+        categoryPointerDrag = null;
+        document.querySelectorAll('.category-settings-row').forEach(item => item.classList.remove('is-dragging', 'is-drag-over'));
+      };
+      handle.addEventListener('pointerup', finishPointerDrag);
+      handle.addEventListener('pointercancel', finishPointerDrag);
+    }
+
+    function reorderCategorySettings(fromIndex, toIndex) {
+      if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || fromIndex === toIndex) return;
+      const [movedCategory] = taskCategories.splice(fromIndex, 1);
+      taskCategories.splice(toIndex, 0, movedCategory);
+      saveTaskCategories();
+      renderCategorySettings();
+    }
+
+    function renderReferenceLinkFields() {
+      const container = document.getElementById('reference-links-container');
+      const task = currentEditingTaskDraft;
+      if (!container || !task) return;
+
+      if (!Array.isArray(task.referenceLinks)) task.referenceLinks = [];
+      task.referenceLinks = task.referenceLinks.filter(link => link?.title || link?.url);
+
+      container.innerHTML = '';
+      task.referenceLinks.forEach((link, index) => appendReferenceLinkRow(container, link, index));
+      const addButton = document.createElement('button');
+      addButton.type = 'button';
+      addButton.className = 'reference-link-add-button';
+      addButton.textContent = '＋ リンクを追加する';
+      addButton.onclick = () => openReferenceLinkModal();
+      container.appendChild(addButton);
+    }
+
+    function appendReferenceLinkRow(container, link, index) {
+      const row = document.createElement('div');
+      row.className = 'reference-link-row';
+      const display = document.createElement('div');
+      display.className = 'reference-link-display';
+      const anchor = document.createElement('a');
+      anchor.href = link.url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = link.title || link.url;
+      display.appendChild(anchor);
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'reference-link-edit-button';
+      edit.textContent = '編集';
+      edit.onclick = () => openReferenceLinkModal(index);
+      row.append(display, edit);
+      container.appendChild(row);
+    }
+
+    function openReferenceLinkModal(index = null) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      editingReferenceLinkIndex = index;
+      const link = index === null ? null : task.referenceLinks?.[index];
+      document.getElementById('reference-link-modal-title').textContent = index === null ? '参考リンクを追加' : '参考リンクを編集';
+      document.getElementById('reference-link-title-input').value = link?.title || '';
+      document.getElementById('reference-link-url-input').value = link?.url || '';
+      document.getElementById('reference-link-edit-modal').classList.remove('hidden');
+    }
+
+    function closeReferenceLinkModal() {
+      editingReferenceLinkIndex = null;
+      document.getElementById('reference-link-edit-modal').classList.add('hidden');
+    }
+
+    function saveReferenceLinkModal() {
+      const task = currentEditingTaskDraft;
+      const title = document.getElementById('reference-link-title-input').value.trim();
+      const url = document.getElementById('reference-link-url-input').value.trim();
+      if (!task || !title || !url) {
+        alert('リンクタイトルとURLを入力してください。');
+        return;
+      }
+      const link = { title, url, confirmed: true };
+      if (editingReferenceLinkIndex === null) task.referenceLinks.push(link);
+      else task.referenceLinks[editingReferenceLinkIndex] = link;
+      closeReferenceLinkModal();
+      renderReferenceLinkFields();
+    }
+
+    function setHistoryMemoExpanded(expanded) {
+      const content = document.getElementById('history-memo-content');
+      const button = document.getElementById('history-memo-toggle-button');
+      if (!content || !button) return;
+      content.classList.toggle('hidden', !expanded);
+      button.setAttribute('aria-expanded', String(expanded));
+      button.setAttribute('aria-label', expanded ? '履歴メモを閉じる' : '履歴メモを開く');
+      button.innerHTML = `<svg class="app-icon" aria-hidden="true"><use href="icons.svg#${expanded ? 'chevron-up' : 'chevron-down'}"></use></svg>`;
+    }
+
+    function toggleHistoryMemoExpanded() {
+      const content = document.getElementById('history-memo-content');
+      if (content) setHistoryMemoExpanded(content.classList.contains('hidden'));
+    }
+
+    function syncHistoryMemoSortButton() {
+      const button = document.getElementById('history-memo-sort-button');
+      if (!button) return;
+      const isAscending = historyMemoSortOrder === 'asc';
+      button.textContent = isAscending ? '↑ 古い順' : '↓ 新しい順';
+      button.title = isAscending ? '新しい順に並び替え' : '古い順に並び替え';
+      button.setAttribute('aria-label', button.title);
+    }
+
+    function syncHistoryMemoEditButton() {
+      const button = document.getElementById('history-memo-edit-button');
+      if (!button) return;
+      button.textContent = isHistoryMemoEditing ? '完了' : '編集';
+      button.classList.toggle('is-editing', isHistoryMemoEditing);
+      button.setAttribute('aria-label', isHistoryMemoEditing ? '履歴メモの編集を完了' : '履歴メモを編集');
+    }
+
+    function toggleHistoryMemoEdit() {
+      isHistoryMemoEditing = !isHistoryMemoEditing;
+      syncHistoryMemoEditButton();
+      renderHistoryMemoFields();
+    }
+
+    function historyMemoTimestamp(value) {
+      if (!value) return 0;
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function formatHistoryMemoTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value).replace(/:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?$/, '');
+      return date.toLocaleString('ja-JP', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function sortHistoryMemoEntries() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      const rows = (task.historyMemo || []).map((memo, index) => ({ memo, at: task.historyMemoAt?.[index] || '' })).filter(row => row.memo);
+      rows.sort((a, b) => historyMemoTimestamp(a.at) - historyMemoTimestamp(b.at));
+      if (historyMemoSortOrder === 'desc') rows.reverse();
+      task.historyMemo = rows.map(row => row.memo);
+      task.historyMemoAt = rows.map(row => row.at);
+      task.historyMemo.push('');
+      task.historyMemoAt.push('');
+    }
+
+    function toggleHistoryMemoSort() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      historyMemoSortOrder = historyMemoSortOrder === 'asc' ? 'desc' : 'asc';
+      sortHistoryMemoEntries();
+      syncHistoryMemoSortButton();
+      renderHistoryMemoFields();
+    }
+
+    function renderHistoryMemoFields() {
+      const task = currentEditingTaskDraft;
+      const container = document.getElementById('history-memo-container');
+      if (!task || !container) return;
+      if (!Array.isArray(task.historyMemo)) task.historyMemo = [];
+      if (!Array.isArray(task.historyMemoAt)) task.historyMemoAt = [];
+      while (task.historyMemoAt.length < task.historyMemo.length) task.historyMemoAt.push('');
+      if (task.historyMemo.length === 0 || task.historyMemo[task.historyMemo.length - 1]) task.historyMemo.push('');
+      container.innerHTML = '';
+      const entries = task.historyMemo.map((memo, index) => ({ memo, at: task.historyMemoAt[index] || '', index }));
+      // 新規入力欄は並び順に関係なく先頭に配置する。
+      const newEntries = entries.filter(entry => !entry.memo);
+      const savedEntries = entries.filter(entry => entry.memo).sort((a, b) => {
+        const difference = historyMemoTimestamp(a.at) - historyMemoTimestamp(b.at);
+        return difference === 0 ? a.index - b.index : difference * (historyMemoSortOrder === 'asc' ? 1 : -1);
+      });
+      const displayEntries = [...newEntries, ...savedEntries];
+      displayEntries.forEach(({ memo, at, index }) => {
+        const row = document.createElement('div');
+        row.className = `history-memo-row${memo ? ' is-filled' : ''}`;
+        const time = document.createElement('span');
+        time.className = 'history-memo-time';
+        time.textContent = formatHistoryMemoTime(at);
+        const canEdit = !at || isHistoryMemoEditing;
+        if (canEdit) {
+          const input = document.createElement('textarea');
+          input.className = 'task-input history-memo-input';
+          input.rows = 1;
+          input.placeholder = '履歴メモを入力…';
+          input.value = memo || '';
+          input.addEventListener('input', event => {
+            row.classList.toggle('is-filled', Boolean(event.target.value));
+            resizeHistoryMemoInput(event.target);
+            updateHistoryMemo(index, event.target.value);
+          });
+          input.addEventListener('blur', () => commitHistoryMemo(index));
+          row.append(input, time);
+          resizeHistoryMemoInput(input);
+        } else {
+          const text = document.createElement('div');
+          text.className = 'history-memo-text';
+          text.textContent = memo;
+          row.append(text, time);
+        }
+        if (isHistoryMemoEditing && at) {
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'history-memo-delete-button';
+          remove.innerHTML = '<svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>';
+          remove.setAttribute('aria-label', 'この履歴メモを削除');
+          remove.onclick = () => deleteHistoryMemo(index);
+          row.appendChild(remove);
+        }
+        container.appendChild(row);
+      });
+      syncHistoryMemoSortButton();
+      syncHistoryMemoEditButton();
+    }
+
+    function resizeHistoryMemoInput(input) {
+      input.style.height = 'auto';
+      input.style.height = `${Math.max(38, input.scrollHeight)}px`;
+    }
+
+    function updateHistoryMemo(index, value) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      task.historyMemo[index] = value;
+    }
+
+    function commitHistoryMemo(index) {
+      const task = currentEditingTaskDraft;
+      if (!task || task.historyMemoAt[index] || !task.historyMemo[index]) return;
+      task.historyMemoAt[index] = new Date().toISOString();
+      sortHistoryMemoEntries();
+      renderHistoryMemoFields();
+    }
+
+    function deleteHistoryMemo(index) {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+      task.historyMemo.splice(index, 1);
+      task.historyMemoAt.splice(index, 1);
+      renderHistoryMemoFields();
+    }
+
+    function toggleTaskStatusMenu(event) {
+      if (event?.target?.closest('.task-status-menu')) return;
+      const menu = document.getElementById('task-status-menu');
+      const picker = document.getElementById('task-status-picker');
+      const isOpen = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', isOpen);
+      picker.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function selectTaskStatus(status, event) {
+      event?.stopPropagation();
+      updateCurrentTaskStatus(status);
+      document.getElementById('task-status-menu').classList.add('hidden');
+      document.getElementById('task-status-picker').setAttribute('aria-expanded', 'false');
+    }
+
+    function syncTaskStatusPicker() {
+      const task = currentEditingTaskDraft;
+      if (!task) return;
+
+      const status = task.status === 'completed' || task.status === 'pending' ? task.status : 'todo';
+      const labels = { todo: '未完了', completed: '完了済み', pending: '保留中' };
+      const icons = { completed: 'check-circle', pending: 'inbox' };
+      const picker = document.getElementById('task-status-picker');
+      const label = document.getElementById('task-status-picker-label');
+
+      picker.className = `task-status-picker status-${status}`;
+      label.innerHTML = status === 'todo'
+        ? `<span class="status-icon-spacer" aria-hidden="true"></span>${labels.todo}`
+        : `<span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#${icons[status]}"></use></svg>${labels[status]}</span>`;
+      document.querySelectorAll('.task-status-option').forEach(option => {
+        const optionStatus = option.dataset.status;
+        option.className = `task-status-option${optionStatus === status ? ` selected status-${status}` : ''}`;
+      });
+    }
+
+    function toggleTaskComplete(taskId) {
+      const task = tasks.find(t => t.pageID === String(taskId));
+      if (task) {
+        task.status = task.status === 'completed' ? 'todo' : 'completed';
+        task.completedAt = task.status === 'completed' ? new Date().toISOString() : null;
+        // ステータス切替はユーザー操作として記録する。
+        recordUserTaskSave({status: task.status === 'completed' ? 'todo' : 'completed'}, task);
+        saveTasksToStorage();
+        renderApp();
+      }
+    }
+
+    function confirmDeleteCurrentTask() {
+      if (currentEditingTaskId === null) return;
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-confirm-modal').classList.add('hidden');
+    }
+
+    function executeDeleteCurrentTask() {
+      if (currentEditingTaskId !== null) {
+        const target = tasks.find(t => t.pageID === String(currentEditingTaskId));
+        if (target) {
+          target.preDeleted = true;
+          target.preDeletedAt = new Date().toISOString();
+          tasks = tasks.filter(t => t.pageID === target.pageID || t.parentID !== target.pageID);
+          saveTasksToStorage();
+        }
+        currentEditingTaskId = null;
+      }
+      closeDeleteModal();
+      switchView('quickstatus');
+    }
+
+    function restoreTask(taskId) {
+      const target = tasks.find(t => t.pageID === String(taskId) && t.preDeleted);
+      if (target) {
+        target.preDeleted = false;
+        target.preDeletedAt = null;
+        saveTasksToStorage();
+        renderApp();
+      }
+    }
+
+    loadDisplaySettings();
+    loadTaskCategories();
+    loadTasksFromStorage();
+    // アプリ起動時は画面遷移アニメーションを行わず、今日のタスクを直接表示する。
+    switchViewDirect('quickstatus');
+    switchProjectSubview('data');
+    switchCalendarMode('due');
+
+    // メイン領域に収まるページは動かさず、長いページだけ縦スクロールする。
+    const mainContent = document.querySelector('.main-scroll-area');
+    const appContainer = document.querySelector('.app-container');
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    mainContent.addEventListener('pointerdown', event => {
+      if (currentActiveView !== 'task-page') return;
+      if (!event.target.closest('.category-control')) {
+        document.getElementById('category-menu')?.classList.add('hidden');
+        document.getElementById('category-picker')?.setAttribute('aria-expanded', 'false');
+      }
+      if (!event.target.closest('.task-status-control')) {
+        document.getElementById('task-status-menu')?.classList.add('hidden');
+        document.getElementById('task-status-picker')?.setAttribute('aria-expanded', 'false');
+      }
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && event.target !== active) active.blur();
+    });
+
+    mainContent.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) return;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    }, { passive: true });
+
+    mainContent.addEventListener('touchmove', event => {
+      if (event.touches.length !== 1 || !event.cancelable) return;
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      // タスク一覧内の横スクロールはブラウザ標準動作に任せる。
+      if (event.target.closest('#project-tree-scroll')) return;
+
+      // 横方向のドラッグではページを動かさない。
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        event.preventDefault();
+        return;
+      }
+
+      const maxScrollTop = mainContent.scrollHeight - mainContent.clientHeight;
+      // 内容が画面内に収まる場合は、上下のバウンドも発生させない。
+      if (maxScrollTop <= 1) {
+        event.preventDefault();
+        return;
+      }
+
+      const isPullingDownAtTop = deltaY > 0 && mainContent.scrollTop <= 0;
+      const isPushingUpAtBottom = deltaY < 0 && mainContent.scrollTop >= maxScrollTop - 1;
+      if (isPullingDownAtTop || isPushingUpAtBottom) {
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    // ヘッダー・タブ・フッターをドラッグしても、アプリ全体を上下左右へ動かさない。
+    appContainer.addEventListener('touchmove', event => {
+      if (!event.cancelable || event.target.closest('.main-scroll-area')) return;
+      event.preventDefault();
+    }, { passive: false });
+
+    // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
+    const devBadge = document.createElement('div');
+  const BUILD_CREATED_AT = '2026.10.21 DEV40';
+
+    devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
+    devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
+    devBadge.style.cssText = [
+      'position:fixed',
+      'right:8px',
+      'top:calc(8px + env(safe-area-inset-top, 0px))',
+      'z-index:9999',
+      'padding:4px 8px',
+      'border-radius:999px',
+      'background:#dc2626',
+      'color:#ffffff',
+      'font-size:10px',
+      'font-weight:700',
+      'line-height:1',
+      'pointer-events:none'
+    ].join(';');
+    document.body.appendChild(devBadge);
+
+  </script>
+</body>
+</html>

@@ -731,6 +731,20 @@
     .timetable-scroll::-webkit-scrollbar{display:none}
     .top-month-day{justify-content:flex-start;min-height:65px}
     @media(max-width:370px){.calendar-filters{gap:6px}.calendar-filters label{font-size:12px}.timetable-header strong{font-size:15px}.timetable-filters label{font-size:9px}}
+    /* DEV59: filter controls only; DEV55 timetable scrolling untouched */
+    .calendar-inline-filters{margin:0 0 7px;padding:0 2px}
+    #view-calendar .calendar-inline-filters label,
+    #view-timetable .timetable-filters label{font-size:11px;font-weight:400;gap:4px}
+    #view-calendar .calendar-inline-filters .calendar-legend,
+    #view-timetable .timetable-filters .calendar-legend{width:7px;height:7px}
+    #view-calendar .calendar-inline-filters .calendar-toggle,
+    #view-timetable .timetable-filters .calendar-toggle{width:28px;height:17px;margin-left:2px}
+    #view-calendar .calendar-inline-filters .calendar-toggle:before,
+    #view-timetable .timetable-filters .calendar-toggle:before{width:13px;height:13px}
+    #view-calendar .calendar-inline-filters input:checked+.calendar-toggle:before,
+    #view-timetable .timetable-filters input:checked+.calendar-toggle:before{transform:translateX(11px)}
+    #view-timetable .timetable-header{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:5px;min-height:0}
+    #view-timetable .timetable-filters{flex-direction:row;justify-content:flex-end;align-items:center;gap:10px}
     /* DEV51: show event details at the top of each event card */
     .timetable-hour:first-child{border-top:1px solid #e0e4e9}
     .timetable-event{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:2px;padding:5px 4px;overflow:hidden}
@@ -1348,6 +1362,11 @@
       touch-action: pan-y;
     }
 
+    /* DEV62: 日ページ表示中だけ共通スクロールを停止。時間軸の高さ・配置はDEV59のまま。 */
+    body:has(#view-timetable:not(.hidden)) .main-scroll-area {
+      overflow-y: hidden;
+    }
+
   </style>
 </head>
 <body>
@@ -1416,14 +1435,12 @@
       </div>
 
       <div id="view-calendar" class="hidden">
-        <div class="card calendar-filter-card">
-          <div class="calendar-filters">
+        <div class="card">
+          <div class="top-month-nav"><button type="button" onclick="shiftTopCalendarMonth(-1)" aria-label="前の月">‹</button><strong id="top-month-label"></strong><button type="button" onclick="shiftTopCalendarMonth(1)" aria-label="次の月">›</button></div>
+          <div class="calendar-filters calendar-inline-filters">
             <label><span class="calendar-legend deadline-color"></span>期限を表示<input type="checkbox" id="calendar-show-deadline" checked onchange="syncCalendarFilters('deadline',this.checked)"><span class="calendar-toggle"></span></label>
             <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="calendar-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
           </div>
-        </div>
-        <div class="card">
-          <div class="top-month-nav"><button type="button" onclick="shiftTopCalendarMonth(-1)" aria-label="前の月">‹</button><strong id="top-month-label"></strong><button type="button" onclick="shiftTopCalendarMonth(1)" aria-label="次の月">›</button></div>
           <div class="top-month-grid" id="top-month-grid"></div>
         </div>
       </div>
@@ -4406,7 +4423,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV55';
+  const BUILD_CREATED_AT = '2026.10.21 DEV62';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

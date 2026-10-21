@@ -1408,44 +1408,25 @@
     #timetable-page-header .timetable-filters .calendar-toggle { width: 28px; height: 17px; margin-left: 2px; }
     #timetable-page-header .timetable-filters .calendar-toggle:before { width: 13px; height: 13px; }
     #timetable-page-header .timetable-filters input:checked+.calendar-toggle:before { transform: translateX(11px); }
-    /* 日ページだけメインの余白と角丸をなくし、内部の時間軸のみスクロール。 */
+    /* DEV68: 日ページも共通のメインスクロール領域をそのまま使用する。 */
     .app-container:has(#view-timetable:not(.hidden)) > .main-content {
       padding: 0 16px 16px;
-      margin: 0;
-      min-height: 0;
-      overflow: hidden;
-    }
-    .app-container:has(#view-timetable:not(.hidden)) .main-scroll-area {
-      height: 100%;
-      min-height: 0;
-      overflow: hidden;
-      touch-action: auto;
     }
     #view-timetable:not(.hidden) {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
+      display: block;
       margin: 0;
     }
     #view-timetable .timetable-card {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-      min-height: 0;
+      display: block;
       margin: 0;
       border-radius: 0;
       padding: 0;
     }
-    #view-timetable .timetable-all-day { flex: 0 0 auto; }
     #view-timetable .timetable-scroll {
-      flex: 1 1 auto;
-      height: 100%;
+      height: auto;
       min-height: 0;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: visible;
       touch-action: pan-y;
-      overscroll-behavior-y: contain;
     }
 
   </style>
@@ -2708,7 +2689,7 @@
       if (currentActiveView !== 'timetable') return;
       const selected = new Date(topCalendarSelectedDate + 'T12:00:00');
       selected.setDate(selected.getDate() + offset);
-      const scroll = document.querySelector('#view-timetable .timetable-scroll');
+      const scroll = document.querySelector('.main-scroll-area');
       const scrollTop = scroll ? scroll.scrollTop : 0;
       topCalendarSelectedDate = topCalendarDateKey(selected);
       renderTimetable();
@@ -4527,7 +4508,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV63';
+  const BUILD_CREATED_AT = '2026.10.22 DEV68';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

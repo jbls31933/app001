@@ -681,6 +681,21 @@
     .schedule-date-row button:nth-of-type(1) {flex:0 0 auto;text-align:left;}
     .schedule-date-row button:nth-of-type(2) {flex:0 0 auto;text-align:right;min-width:0;margin-left:20px;font-variant-numeric:tabular-nums;}
     .schedule-picker-area {padding:4px 10px 7px;border-top:1px solid #eee;}
+    /* Top page month calendar */
+    .top-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;}
+    .top-month-nav strong{font-size:16px;}
+    .top-month-nav button{border:0;background:#f1f3f8;border-radius:9px;min-width:38px;height:36px;font-size:22px;color:#2275ed;}
+    .top-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+    .top-month-weekday{text-align:center;color:#737985;font-size:12px;padding:7px 0;}
+    .top-month-day{border:0;background:transparent;border-radius:10px;min-height:49px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:14px;color:inherit;}
+    .top-month-day.today .top-month-number{font-weight:700;color:#2275ed;}
+    .top-month-day.selected{background:#e8f1ff;}
+    .top-month-day.selected .top-month-number{background:#2275ed;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+    .top-month-day .top-month-number{width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+    .top-month-dot{width:5px;height:5px;border-radius:50%;background:#2275ed;}
+    .top-month-day.selected .top-month-dot{background:#1859b7;}
+    .top-month-empty{min-height:49px;}
+    .top-calendar-selected-label{font-size:13px;color:#687385;margin:14px 0 8px;}
     .schedule-calendar-heading {display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px;}
     .schedule-calendar-heading button {border:0;background:#f1f3f8;border-radius:8px;padding:5px 12px;font-size:18px;}
     .schedule-calendar-grid {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center;}
@@ -1331,6 +1346,9 @@
         </div>
         <div class="card">
           <h2 class="section-title icon-with-text" id="calendar-title-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar"></use></svg>カレンダー (期限)</h2>
+          <div class="top-month-nav"><button type="button" onclick="shiftTopCalendarMonth(-1)" aria-label="前の月">‹</button><strong id="top-month-label"></strong><button type="button" onclick="shiftTopCalendarMonth(1)" aria-label="次の月">›</button></div>
+          <div class="top-month-grid" id="top-month-grid"></div>
+          <div class="top-calendar-selected-label" id="top-calendar-selected-label"></div>
           <div id="calendar-content-list" class="space-y-2">
             <div class="empty-msg">カレンダーの予定はありません</div>
           </div>
@@ -1745,6 +1763,8 @@
     let previousView = 'quickstatus';
     let currentProjectSubview = 'data';
     let currentCalendarMode = 'due';
+    let topCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let topCalendarSelectedDate = new Date().toLocaleDateString('sv-SE');
     let displaySettings = { memoDefaultExpanded: true };
     let taskCategories = [];
     let editingCategoryIndex = null;
@@ -2489,30 +2509,73 @@
       document.getElementById('count-completed').innerText = completedCount;
     }
 
+    function topCalendarDateKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    }
+
+    function shiftTopCalendarMonth(offset) {
+      topCalendarMonth = new Date(topCalendarMonth.getFullYear(), topCalendarMonth.getMonth()+offset, 1);
+      topCalendarSelectedDate = topCalendarDateKey(topCalendarMonth);
+      renderCalendar();
+    }
+
+    function selectTopCalendarDate(dateKey) {
+      topCalendarSelectedDate = dateKey;
+      renderCalendar();
+    }
+
     function renderCalendar() {
       const calendarContainer = document.getElementById('calendar-content-list');
-      calendarContainer.innerHTML = '';
-
+      const grid = document.getElementById('top-month-grid');
+      if (!calendarContainer || !grid) return;
+      const year = topCalendarMonth.getFullYear();
+      const month = topCalendarMonth.getMonth();
+      document.getElementById('top-month-label').textContent = `${year}年${month+1}月`;
       const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
-      if (validTasks.length === 0) {
-        calendarContainer.innerHTML = `<div class="empty-msg">登録されているタスクはありません (${currentCalendarMode === 'due' ? '期限' : '完了予定日'})</div>`;
+      const dateField = currentCalendarMode === 'due' ? 'deadlineDate' : 'actionDate';
+      const counts = new Map();
+      validTasks.forEach(t => {
+        const key = String(t[dateField] || '').slice(0,10);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(key)) counts.set(key,(counts.get(key)||0)+1);
+      });
+      const today = topCalendarDateKey(new Date());
+      const firstDay = new Date(year,month,1).getDay();
+      const daysInMonth = new Date(year,month+1,0).getDate();
+      let markup = ['日','月','火','水','木','金','土'].map(d=>`<div class="top-month-weekday">${d}</div>`).join('');
+      for(let i=0;i<firstDay;i++) markup += '<div class="top-month-empty"></div>';
+      for(let day=1;day<=daysInMonth;day++) {
+        const key=topCalendarDateKey(new Date(year,month,day));
+        const selected=key===topCalendarSelectedDate;
+        markup+=`<button type="button" class="top-month-day${selected?' selected':''}${key===today?' today':''}" onclick="selectTopCalendarDate('${key}')" aria-label="${month+1}月${day}日、${counts.get(key)||0}件" aria-pressed="${selected}"><span class="top-month-number">${day}</span>${counts.has(key)?'<span class="top-month-dot"></span>':''}</button>`;
+      }
+      grid.innerHTML=markup;
+      const selected = new Date(topCalendarSelectedDate+'T12:00:00');
+      document.getElementById('top-calendar-selected-label').textContent=`${selected.getMonth()+1}月${selected.getDate()}日 (${['日','月','火','水','木','金','土'][selected.getDay()]}) のタスク`;
+      const matching=validTasks.filter(t=>String(t[dateField]||'').slice(0,10)===topCalendarSelectedDate);
+      calendarContainer.innerHTML='';
+      if (!matching.length) {
+        calendarContainer.innerHTML='<div class="empty-msg">この日のタスクはありません</div>';
         return;
       }
-
-      validTasks.forEach(task => {
-        const isCompleted = task.status === 'completed';
-        const titleStyle = isCompleted ? 'text-decoration: line-through; color: #94a3b8;' : '';
-        const displayDate = currentCalendarMode === 'due' ? (task.deadlineDate || '未設定') : (task.actionDate || '未設定');
-
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
-        div.innerHTML = `
-          <div>
-            <span class="font-bold text-slate-800" style="${titleStyle}">${task.title || '（無題のタスク）'} (ID:${task.pageID})</span>
-            <div class="text-[10px] text-slate-500 mt-0.5">${iconMarkup(currentCalendarMode === 'due' ? 'alarm' : 'calendar-check')} ${currentCalendarMode === 'due' ? '期限: ' : '完了予定日: '}${displayDate}</div>
-          </div>
-          <button onclick='openDetailView("${task.pageID}")' class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">詳細</button>
-        `;
+      matching.forEach(task=>{
+        const div=document.createElement('div');
+        div.className='flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
+        const text=document.createElement('div');
+        const title=document.createElement('span');
+        title.className='font-bold text-slate-800';
+        title.textContent=task.title||'（無題のタスク）';
+        if(task.status==='completed'){title.style.textDecoration='line-through';title.style.color='#94a3b8';}
+        text.appendChild(title);
+        const time=document.createElement('div');
+        time.className='text-[10px] text-slate-500 mt-0.5';
+        time.textContent=String(task[dateField]||'').slice(11,16);
+        text.appendChild(time);
+        div.appendChild(text);
+        const button=document.createElement('button');
+        button.className='text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded';
+        button.textContent='詳細';
+        button.onclick=()=>openDetailView(String(task.pageID));
+        div.appendChild(button);
         calendarContainer.appendChild(div);
       });
     }
@@ -4106,7 +4169,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV45';
+  const BUILD_CREATED_AT = '2026.10.21 DEV46';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

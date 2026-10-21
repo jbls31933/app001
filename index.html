@@ -661,8 +661,8 @@
 
 
     /* DEV41: task date/time editor */
-    .schedule-editor-box {width:min(390px,calc(100vw - 28px)); padding:18px 16px; border-radius:22px; background:#f7f7fb; max-height:calc(100dvh - 35px); overflow-y:auto;}
-    .schedule-editor-header {margin-bottom:16px;}
+    .schedule-editor-box {width:min(390px,calc(100vw - 28px)); padding:14px 14px; border-radius:22px; background:#f7f7fb; max-height:calc(100dvh - 35px); overflow-y:auto;}
+    .schedule-editor-header {margin-bottom:11px;}
     .schedule-editor-icon-button {width:38px;height:38px;background:#f4f5fa;color:#1e293b;font-size:26px;}
     .schedule-editor-save {background:#2864f5;color:white;font-size:23px;}
     .schedule-editor-title {font-size:17px;color:#1f2937;}
@@ -675,12 +675,12 @@
     .schedule-switch:before {content:'';position:absolute;width:26px;height:26px;top:2px;left:2px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .15s;}
     .schedule-switch:checked {background:#34c759;}
     .schedule-switch:checked:before {transform:translateX(19px);}
-    .schedule-date-row {display:flex;align-items:center;gap:7px;min-height:54px;padding:0 16px;}
-    .schedule-date-caption {font-size:12px;color:#888;min-width:27px;}
-    .schedule-date-row button {background:transparent;border:0;font-size:16px;color:#202124;cursor:pointer;padding:10px 0;white-space:nowrap;}
-    .schedule-date-row button:nth-of-type(1) {flex:1;text-align:left;}
-    .schedule-date-row button:nth-of-type(2) {text-align:right;min-width:50px;}
-    .schedule-picker-area {padding:8px 12px 14px;border-top:1px solid #eee;}
+    .schedule-date-row {display:flex;align-items:center;justify-content:center;gap:0;min-height:43px;padding:0 10px;}
+    .schedule-date-caption {font-size:12px;color:#888;min-width:34px;flex-shrink:0;}
+    .schedule-date-row button {background:transparent;border:0;font-size:14px;color:#202124;cursor:pointer;padding:7px 0;white-space:nowrap;}
+    .schedule-date-row button:nth-of-type(1) {flex:0 0 auto;text-align:left;}
+    .schedule-date-row button:nth-of-type(2) {flex:0 0 auto;text-align:right;min-width:0;margin-left:20px;font-variant-numeric:tabular-nums;}
+    .schedule-picker-area {padding:4px 10px 7px;border-top:1px solid #eee;}
     .schedule-calendar-heading {display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px;}
     .schedule-calendar-heading button {border:0;background:#f1f3f8;border-radius:8px;padding:5px 12px;font-size:18px;}
     .schedule-calendar-grid {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center;}
@@ -689,13 +689,13 @@
     .schedule-calendar-grid button {border:0;border-radius:50%;background:transparent;color:#222;}
     .schedule-calendar-grid button.selected {background:#2275ed;color:white;}
     .schedule-time-wheel {display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 0;}
-    .schedule-time-wheel {position:relative;height:216px;gap:0;overflow:hidden;}
-    .schedule-wheel-selection {position:absolute;left:8px;right:8px;top:84px;height:48px;border-radius:30px;background:#f3f3f5;pointer-events:none;}
-    .schedule-wheel-column {height:216px;width:76px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:none;position:relative;z-index:1;-webkit-overflow-scrolling:touch;}
+    .schedule-time-wheel {position:relative;height:168px;gap:0;overflow:hidden;padding:0;}
+    .schedule-wheel-selection {position:absolute;left:8px;right:8px;top:66px;height:36px;border-radius:24px;background:#f3f3f5;pointer-events:none;}
+    .schedule-wheel-column {height:168px;width:60px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y proximity;scrollbar-width:none;position:relative;z-index:1;-webkit-overflow-scrolling:touch;}
     .schedule-wheel-column::-webkit-scrollbar {display:none;}
-    .schedule-wheel-item {height:48px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:24px;color:#b8b8bc;user-select:none;}
+    .schedule-wheel-item {height:36px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:14px;color:#b8b8bc;user-select:none;}
     .schedule-wheel-item.active {color:#3d3d42;}
-    .schedule-wheel-colon {position:relative;z-index:1;font-size:22px;color:#555;align-self:center;}
+    .schedule-wheel-colon {position:relative;z-index:1;font-size:14px;color:#555;align-self:center;}
     .schedule-clear-button {margin-top:2px;padding:17px;border-radius:15px;font-size:16px;font-weight:600;background:#fff0f1;color:#e22;}
 
     .reference-link-input {
@@ -3241,7 +3241,7 @@
       for(const part of ['start','end']) {
         const v=document.getElementById(`schedule-${part}-input`).value;
         document.getElementById(`schedule-${part}-date-btn`).textContent=schedulePrettyDate(v);
-        document.getElementById(`schedule-${part}-time-btn`).textContent=v.slice(11,16)||'0:00';
+        document.getElementById(`schedule-${part}-time-btn`).textContent=(()=>{const t=v.slice(11,16);if(!t)return '00:00';const [h,m]=t.split(':');return `${String(Number(h)||0).padStart(2,'0')}:${String(Number(m)||0).padStart(2,'0')}`;})();
       }
       const action=scheduleEditingField==='action';
       const withEnd=action&&document.getElementById('schedule-all-day').checked;
@@ -3290,22 +3290,48 @@
       refreshScheduleEditor();
     }
     let scheduleWheelValues={hour:0,minute:0};
-    function onScheduleWheelScroll(kind) {
-      const el=document.getElementById(`schedule-wheel-${kind}`);if(!el)return;
-      const max=kind==='hour'?23:59;
-      const value=Math.max(0,Math.min(max,Math.round(el.scrollTop/48)));
+    const SCHEDULE_WHEEL_ROW=36;
+    const SCHEDULE_WHEEL_CYCLES=9;
+    const scheduleWheelIdleTimers={hour:null,minute:null};
+    function scheduleWheelCount(kind){return kind==='hour'?24:60;}
+    function scheduleWheelModulo(n,count){return ((n%count)+count)%count;}
+    function scheduleWheelSetActive(kind,index){
+      const wheel=document.getElementById(`schedule-wheel-${kind}`);if(!wheel)return;
+      const count=scheduleWheelCount(kind);
+      const value=scheduleWheelModulo(index,count);
       scheduleWheelValues[kind]=value;
-      el.querySelectorAll('.schedule-wheel-item').forEach((item,i)=>item.classList.toggle('active',i===value));
+      wheel.querySelectorAll('.schedule-wheel-item').forEach(item=>item.classList.toggle('active',Number(item.dataset.value)===value&&Number(item.dataset.index)===index));
       chooseScheduleTime();
+    }
+    function onScheduleWheelScroll(kind){
+      const wheel=document.getElementById(`schedule-wheel-${kind}`);if(!wheel)return;
+      const index=Math.round(wheel.scrollTop/SCHEDULE_WHEEL_ROW);
+      scheduleWheelSetActive(kind,index);
+      clearTimeout(scheduleWheelIdleTimers[kind]);
+      scheduleWheelIdleTimers[kind]=setTimeout(()=>{
+        const current=document.getElementById(`schedule-wheel-${kind}`);if(!current)return;
+        const count=scheduleWheelCount(kind);
+        const position=Math.round(current.scrollTop/SCHEDULE_WHEEL_ROW);
+        const normalized=scheduleWheelModulo(position,count);
+        // Keep a large runway in both directions without visibly jumping values.
+        if(position<count*2||position>=count*7){
+          current.scrollTop=(count*4+normalized)*SCHEDULE_WHEEL_ROW;
+        }
+      },140);
+    }
+    function selectScheduleWheelItem(kind,index){
+      const wheel=document.getElementById(`schedule-wheel-${kind}`);if(!wheel)return;
+      wheel.scrollTo({top:index*SCHEDULE_WHEEL_ROW,behavior:'smooth'});
+      scheduleWheelSetActive(kind,index);
     }
     function renderSchedulePicker(){
       const area=document.getElementById('schedule-picker-area');
       if(schedulePickerType==='time'){
         const v=document.getElementById(`schedule-${schedulePickerTarget}-input`).value;
         scheduleWheelValues={hour:Number(v.slice(11,13))||0,minute:Number(v.slice(14,16))||0};
-        const col=(kind,count,selected)=>`<div class="schedule-wheel-column" id="schedule-wheel-${kind}" onscroll="onScheduleWheelScroll('${kind}')"><div style="height:84px"></div>${Array.from({length:count},(_,i)=>`<div class="schedule-wheel-item ${i===selected?'active':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div style="height:84px"></div></div>`;
+        const col=(kind,count,selected)=>`<div class="schedule-wheel-column" id="schedule-wheel-${kind}" onscroll="onScheduleWheelScroll('${kind}')"><div style="height:66px;flex-shrink:0"></div>${Array.from({length:count*SCHEDULE_WHEEL_CYCLES},(_,index)=>{const value=index%count;return `<div class="schedule-wheel-item" data-value="${value}" data-index="${index}" onclick="selectScheduleWheelItem('${kind}',${index})">${String(value).padStart(2,'0')}</div>`;}).join('')}<div style="height:66px;flex-shrink:0"></div></div>`;
         area.innerHTML=`<div class="schedule-time-wheel"><div class="schedule-wheel-selection"></div>${col('hour',24,scheduleWheelValues.hour)}<span class="schedule-wheel-colon">:</span>${col('minute',60,scheduleWheelValues.minute)}</div>`;
-        requestAnimationFrame(()=>{for(const kind of ['hour','minute']){const wheel=document.getElementById(`schedule-wheel-${kind}`);if(wheel)wheel.scrollTop=scheduleWheelValues[kind]*48;}});
+        requestAnimationFrame(()=>{for(const kind of ['hour','minute']){const wheel=document.getElementById(`schedule-wheel-${kind}`);if(wheel){const index=scheduleWheelCount(kind)*4+scheduleWheelValues[kind];wheel.scrollTop=index*SCHEDULE_WHEEL_ROW;scheduleWheelSetActive(kind,index);}}});
         return;
       }
       const y=scheduleCalendarMonth.getFullYear(),m=scheduleCalendarMonth.getMonth();
@@ -4080,7 +4106,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV42';
+  const BUILD_CREATED_AT = '2026.10.21 DEV45';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

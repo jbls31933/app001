@@ -696,7 +696,6 @@
     .calendar-count{font-size:9px;line-height:17px;border-radius:4px;white-space:nowrap}
     .deadline-count:not(:empty){background:#fbe2d4;color:#a34b20}
     .action-count:not(:empty){background:#dceeff;color:#175c9e}
-    .timetable-card{padding:12px 8px}
     .timetable-header{display:flex;align-items:center;gap:12px;padding:4px 8px 14px}
     .timetable-header button{border:0;background:#f1f3f8;border-radius:9px;padding:7px 10px;color:#2275ed}
     .timetable-all-day{display:flex;gap:5px;flex-wrap:wrap;align-items:center;padding:0 8px}
@@ -1376,7 +1375,7 @@
       background: #fff;
       padding: 13px 10px 5px;
       margin: 0 16px;
-      border-radius: 12px 12px 0 0;
+      border-radius: 16px 16px 0 0;
       box-shadow: 0 3px 5px rgba(30, 41, 59, .12);
     }
     #timetable-page-header .timetable-header {
@@ -1416,17 +1415,34 @@
       display: block;
       margin: 0;
     }
+    /* 日ページのカードは共通 .card を使用。上の角だけ直角にする。 */
     #view-timetable .timetable-card {
-      display: block;
-      margin: 0;
-      border-radius: 0;
-      padding: 0;
+      border-radius: 0 0 16px 16px;
     }
     #view-timetable .timetable-scroll {
       height: auto;
       min-height: 0;
       overflow: visible;
       touch-action: pan-y;
+    }
+    /* DEV69: 時刻欄との境界線を0:00から24:00まで通し、終端を24:00に揃える。 */
+    #view-timetable .timetable-axis {
+      height: 1440px;
+      min-height: 1440px;
+    }
+    #view-timetable .timetable-axis::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 38px;
+      width: 1px;
+      background: #e0e4e9;
+      pointer-events: none;
+    }
+    #view-timetable .timetable-hour:first-child,
+    #view-timetable .timetable-hour:last-child {
+      border-top: 0;
     }
 
   </style>
@@ -2900,7 +2916,7 @@
             ? `${timeToken(item.endDate,prettyTime(item.deadlineAt))} <span class="timetable-time-token">期限</span>`
             : item.hasActionEnd
               ? `${timeToken(item.startDate,item.startTime)} <span class="timetable-time-separator">~</span> ${timeToken(item.endDate,item.endTime)}`
-              : `<span class="timetable-time-token">00:00</span> <span class="timetable-time-separator">~</span>`;
+              : `${timeToken(item.startDate,item.startTime)} <span class="timetable-time-separator">~</span>`;
           button.innerHTML=`<span class="timetable-event-title">${title}</span><span class="timetable-event-time">${subtitle}</span>`;
           button.onclick=()=>openDetailView(String(item.task.pageID));
           axis.appendChild(button);
@@ -4508,7 +4524,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.22 DEV68';
+  const BUILD_CREATED_AT = '2026.10.22 DEV71';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

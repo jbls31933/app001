@@ -681,6 +681,67 @@
     .schedule-date-row button:nth-of-type(1) {flex:0 0 auto;text-align:left;}
     .schedule-date-row button:nth-of-type(2) {flex:0 0 auto;text-align:right;min-width:0;margin-left:20px;font-variant-numeric:tabular-nums;}
     .schedule-picker-area {padding:4px 10px 7px;border-top:1px solid #eee;}
+    /* DEV47: monthly count calendar and daily timetable */
+    .calendar-filters{display:flex;flex-direction:column;gap:12px}
+    .calendar-filters label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+    .calendar-legend{display:inline-block;width:10px;height:10px;border-radius:2px}
+    .deadline-color{background:#e88b54}.action-color{background:#4c9bdf}
+    .calendar-filters input{position:absolute;opacity:0;pointer-events:none}
+    .calendar-toggle{margin-left:auto;width:43px;height:26px;border-radius:20px;background:#c8cbd0;position:relative;transition:background .15s}
+    .calendar-toggle:before{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .15s}
+    .calendar-filters input:checked+.calendar-toggle{background:#2979ee}
+    .calendar-filters input:checked+.calendar-toggle:before{transform:translateX(17px)}
+    .top-month-day{justify-content:flex-start;min-height:65px;padding:4px 0 2px;gap:5px}
+    .calendar-counts{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:2px;min-height:17px}
+    .calendar-count{font-size:9px;line-height:17px;border-radius:4px;white-space:nowrap}
+    .deadline-count:not(:empty){background:#fbe2d4;color:#a34b20}
+    .action-count:not(:empty){background:#dceeff;color:#175c9e}
+    .timetable-card{padding:12px 8px}
+    .timetable-header{display:flex;align-items:center;gap:12px;padding:4px 8px 14px}
+    .timetable-header button{border:0;background:#f1f3f8;border-radius:9px;padding:7px 10px;color:#2275ed}
+    .timetable-all-day{display:flex;gap:5px;flex-wrap:wrap;align-items:center;padding:0 8px}
+    .timetable-all-day:empty{display:none}
+    .timetable-all-day strong{font-size:12px;color:#687385;margin-right:5px}
+    .timetable-all-day-item{border:0;border-radius:5px;padding:6px 9px;font-size:12px;text-align:left}
+    .timetable-all-day-item.deadline,.timetable-event.deadline{background:#e88b54;color:#fff}
+    .timetable-all-day-item.action,.timetable-event.action{background:#4c9bdf;color:#fff}
+    .timetable-scroll{height:min(70vh,650px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+    .timetable-axis{height:1440px;position:relative;margin:0 3px}
+    .timetable-hour{position:absolute;left:0;right:0;border-top:1px solid #e0e4e9;height:1px}
+    .timetable-hour span{position:absolute;top:-9px;left:0;font-size:11px;color:#707780;background:white;padding-right:4px}
+    .timetable-event{position:absolute;border:1px solid rgba(255,255,255,.8);border-radius:5px;text-align:left;overflow:hidden;padding:4px;font-size:11px;font-weight:600;line-height:1.2;word-break:break-word}
+
+    /* DEV49: compact calendar toggles and stable day header */
+    .calendar-filter-card{margin-bottom:8px;padding:9px 14px}
+    .calendar-filters{display:flex;flex-direction:row;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px}
+    .calendar-filters label{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:400;white-space:nowrap;cursor:pointer}
+    .calendar-legend{width:9px;height:9px;flex:none}
+    .calendar-toggle{width:32px;height:19px;flex:none;margin-left:3px}
+    .calendar-toggle:before{width:15px;height:15px;left:2px;top:2px}
+    .calendar-filters input:checked+.calendar-toggle:before{transform:translateX(13px)}
+    .timetable-header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px;padding:6px 8px 12px}
+    .timetable-header strong{font-size:17px;white-space:nowrap}
+    .timetable-filters{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+    .timetable-filters label{font-size:10px;gap:4px}
+    .timetable-filters .calendar-legend{width:7px;height:7px}
+    .timetable-filters .calendar-toggle{width:28px;height:17px;margin-left:2px}
+    .timetable-filters .calendar-toggle:before{width:13px;height:13px}
+    .timetable-filters input:checked+.calendar-toggle:before{transform:translateX(11px)}
+    .timetable-scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+    .timetable-scroll::-webkit-scrollbar{display:none}
+    .top-month-day{justify-content:flex-start;min-height:65px}
+    @media(max-width:370px){.calendar-filters{gap:6px}.calendar-filters label{font-size:12px}.timetable-header strong{font-size:15px}.timetable-filters label{font-size:9px}}
+    /* DEV51: show event details at the top of each event card */
+    .timetable-hour:first-child{border-top:1px solid #e0e4e9}
+    .timetable-event{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:2px;padding:5px 4px;overflow:hidden}
+    .timetable-event-title{font-weight:700;font-size:11px;line-height:1.2;max-width:100%;overflow-wrap:anywhere}
+    .timetable-event-time{font-weight:400;font-size:10px;line-height:1.2;max-width:100%;overflow-wrap:anywhere}
+    /* DEV51: time tokens never break; keep typography constant at every width. */
+    .timetable-event-time{font-size:10px;line-height:1.2;overflow-wrap:normal;word-break:normal;white-space:normal;max-width:100%}
+    .timetable-time-token{white-space:nowrap;display:inline-block}
+    .timetable-time-separator{white-space:nowrap;display:inline-block}
+    .timetable-event-time[hidden]{display:none}
+    .timetable-event-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
     /* Top page month calendar */
     .top-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;}
     .top-month-nav strong{font-size:16px;}
@@ -1338,20 +1399,28 @@
       </div>
 
       <div id="view-calendar" class="hidden">
-        <div class="card" style="margin-bottom: 8px; padding: 8px 16px;">
-          <div style="display: flex; gap: 8px;">
-            <button class="status-btn completed" id="cal-btn-due" onclick="switchCalendarMode('due')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#alarm"></use></svg>期限で表示</span></button>
-            <button class="status-btn uncompleted" id="cal-btn-plan" onclick="switchCalendarMode('plan')"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar-check"></use></svg>完了予定日で表示</span></button>
+        <div class="card calendar-filter-card">
+          <div class="calendar-filters">
+            <label><span class="calendar-legend deadline-color"></span>期限を表示<input type="checkbox" id="calendar-show-deadline" checked onchange="syncCalendarFilters('deadline',this.checked)"><span class="calendar-toggle"></span></label>
+            <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="calendar-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
           </div>
         </div>
         <div class="card">
-          <h2 class="section-title icon-with-text" id="calendar-title-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#calendar"></use></svg>カレンダー (期限)</h2>
           <div class="top-month-nav"><button type="button" onclick="shiftTopCalendarMonth(-1)" aria-label="前の月">‹</button><strong id="top-month-label"></strong><button type="button" onclick="shiftTopCalendarMonth(1)" aria-label="次の月">›</button></div>
           <div class="top-month-grid" id="top-month-grid"></div>
-          <div class="top-calendar-selected-label" id="top-calendar-selected-label"></div>
-          <div id="calendar-content-list" class="space-y-2">
-            <div class="empty-msg">カレンダーの予定はありません</div>
+        </div>
+      </div>
+      <div id="view-timetable" class="hidden">
+        <div class="card timetable-card">
+          <div class="timetable-header">
+            <strong id="timetable-date-label"></strong>
+            <div class="calendar-filters timetable-filters">
+              <label><span class="calendar-legend deadline-color"></span>期限を表示<input type="checkbox" id="timetable-show-deadline" checked onchange="syncCalendarFilters('deadline',this.checked)"><span class="calendar-toggle"></span></label>
+              <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="timetable-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
+            </div>
           </div>
+          <div class="timetable-all-day" id="timetable-all-day"></div>
+          <div class="timetable-scroll"><div class="timetable-axis" id="timetable-axis"></div></div>
         </div>
       </div>
 
@@ -1797,7 +1866,7 @@
 
     const SETTINGS_SUBPAGES = ['settings-help', 'settings-theme', 'settings-category', 'settings-email', 'settings-backup', 'settings-terms', 'action-templates'];
     const FOOTER_HIDDEN_VIEWS = ['settings', ...SETTINGS_SUBPAGES];
-    const ALL_VIEWS = ['quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
+    const ALL_VIEWS = ['timetable', 'quickstatus', 'calendar', 'project', 'Q2', 'pending', 'diary', 'settings', 'trash', 'all', 'task-page', 'diary-page', ...SETTINGS_SUBPAGES];
     
     const TOP_TABS = ['quickstatus', 'calendar', 'project'];
 
@@ -2240,24 +2309,13 @@
     }
 
     function switchCalendarMode(mode) {
-      currentCalendarMode = mode;
-      const btnDue = document.getElementById('cal-btn-due');
-      const btnPlan = document.getElementById('cal-btn-plan');
-      const titleText = document.getElementById('calendar-title-text');
-
-      if (mode === 'due') {
-        btnDue.className = 'status-btn completed';
-        btnPlan.className = 'status-btn uncompleted';
-        titleText.innerHTML = `${iconMarkup('calendar')} カレンダー (期限)`;
-      } else {
-        btnDue.className = 'status-btn uncompleted';
-        btnPlan.className = 'status-btn completed';
-        titleText.innerHTML = `${iconMarkup('calendar')} カレンダー (完了予定日)`;
-      }
+      const checkbox = document.getElementById(mode === 'due' ? 'calendar-show-deadline' : 'calendar-show-action');
+      if (checkbox) checkbox.checked = true;
       renderCalendar();
     }
 
     function goBack() {
+      if (currentActiveView === 'timetable') { switchView('calendar'); renderCalendar(); return; }
       let target = 'quickstatus';
       if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') {
         target = currentActiveView === 'settings-category' && taskReturnView === 'task-page' ? 'task-page' : 'settings';
@@ -2521,63 +2579,193 @@
 
     function selectTopCalendarDate(dateKey) {
       topCalendarSelectedDate = dateKey;
+      switchView('timetable');
+      renderTimetable();
+    }
+
+    function syncCalendarFilters(kind, checked) {
+      const suffix = kind === 'deadline' ? 'deadline' : 'action';
+      for (const prefix of ['calendar','timetable']) {
+        const input = document.getElementById(`${prefix}-show-${suffix}`);
+        if (input) input.checked = checked;
+      }
       renderCalendar();
+      if (currentActiveView === 'timetable') renderTimetable();
+    }
+
+    function calendarVisible(field) {
+      const el = document.getElementById(field === 'deadline' ? 'calendar-show-deadline' : 'calendar-show-action');
+      return !el || el.checked;
+    }
+
+    function appDateKey(value) {
+      if (!value) return '';
+      const text = String(value);
+      const match = text.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+      return match ? `${match[1]}-${match[2].padStart(2,'0')}-${match[3].padStart(2,'0')}` : '';
+    }
+    function formatAppDate(value) {
+      if (!value) return '';
+      const date = value instanceof Date ? value : new Date(appDateKey(value)+'T12:00:00');
+      if (Number.isNaN(date.getTime())) return String(value);
+      const year = date.getFullYear();
+      const prefix = year === new Date().getFullYear() ? '' : `${year}年`;
+      return `${prefix}${date.getMonth()+1}月${date.getDate()}日（${['日','月','火','水','木','金','土'][date.getDay()]}）`;
+    }
+    function appExtractTime(value) {
+      if (!value) return '';
+      const text = String(value);
+      const match = text.match(/(?:T|\s)(\d{1,2}):(\d{2})/);
+      return match ? `${Number(match[1])}:${match[2]}` : '';
+    }
+    function calendarItems(dateKey) {
+      const items = [];
+      tasks.filter(t => t.isSaved && !t.preDeleted && t.type !== 'diary').forEach(task => {
+        for (const [kind, dateField, timeField, endDateField, endTimeField] of [
+          ['deadline','deadlineDate','deadlineTime','deadlineEndDate','deadlineEndTime'],
+          ['action','actionDate','actionTime','actionEndDate','actionEndTime']
+        ]) {
+          if (!calendarVisible(kind) || appDateKey(task[dateField]) !== dateKey) continue;
+          const startTime = task[timeField] || appExtractTime(task[dateField]);
+          const endTime = task[endTimeField] || appExtractTime(task[endDateField]);
+          items.push({task,kind,startTime,endTime,endDate:appDateKey(task[endDateField])});
+        }
+      });
+      return items;
     }
 
     function renderCalendar() {
-      const calendarContainer = document.getElementById('calendar-content-list');
       const grid = document.getElementById('top-month-grid');
-      if (!calendarContainer || !grid) return;
-      const year = topCalendarMonth.getFullYear();
-      const month = topCalendarMonth.getMonth();
+      if (!grid) return;
+      const year = topCalendarMonth.getFullYear(), month = topCalendarMonth.getMonth();
       document.getElementById('top-month-label').textContent = `${year}年${month+1}月`;
-      const validTasks = tasks.filter(t => t.isSaved && !t.preDeleted);
-      const dateField = currentCalendarMode === 'due' ? 'deadlineDate' : 'actionDate';
-      const counts = new Map();
-      validTasks.forEach(t => {
-        const key = String(t[dateField] || '').slice(0,10);
-        if (/^\d{4}-\d{2}-\d{2}$/.test(key)) counts.set(key,(counts.get(key)||0)+1);
-      });
       const today = topCalendarDateKey(new Date());
-      const firstDay = new Date(year,month,1).getDay();
-      const daysInMonth = new Date(year,month+1,0).getDate();
       let markup = ['日','月','火','水','木','金','土'].map(d=>`<div class="top-month-weekday">${d}</div>`).join('');
+      const firstDay = new Date(year,month,1).getDay();
       for(let i=0;i<firstDay;i++) markup += '<div class="top-month-empty"></div>';
-      for(let day=1;day<=daysInMonth;day++) {
+      for(let day=1;day<=new Date(year,month+1,0).getDate();day++) {
         const key=topCalendarDateKey(new Date(year,month,day));
-        const selected=key===topCalendarSelectedDate;
-        markup+=`<button type="button" class="top-month-day${selected?' selected':''}${key===today?' today':''}" onclick="selectTopCalendarDate('${key}')" aria-label="${month+1}月${day}日、${counts.get(key)||0}件" aria-pressed="${selected}"><span class="top-month-number">${day}</span>${counts.has(key)?'<span class="top-month-dot"></span>':''}</button>`;
+        const items=calendarItems(key);
+        const due=items.filter(x=>x.kind==='deadline').length;
+        const action=items.filter(x=>x.kind==='action').length;
+        markup+=`<button type="button" class="top-month-day${key===today?' today':''}" onclick="selectTopCalendarDate('${key}')" aria-label="${month+1}月${day}日、期限${due}件、対応予定${action}件"><span class="top-month-number">${day}</span><span class="calendar-counts"><span class="calendar-count deadline-count">${due?due+'件':''}</span><span class="calendar-count action-count">${action?action+'件':''}</span></span></button>`;
       }
       grid.innerHTML=markup;
-      const selected = new Date(topCalendarSelectedDate+'T12:00:00');
-      document.getElementById('top-calendar-selected-label').textContent=`${selected.getMonth()+1}月${selected.getDate()}日 (${['日','月','火','水','木','金','土'][selected.getDay()]}) のタスク`;
-      const matching=validTasks.filter(t=>String(t[dateField]||'').slice(0,10)===topCalendarSelectedDate);
-      calendarContainer.innerHTML='';
-      if (!matching.length) {
-        calendarContainer.innerHTML='<div class="empty-msg">この日のタスクはありません</div>';
-        return;
+    }
+
+    function timetableMinutes(time) {
+      if (!/^\d{1,2}:\d{2}$/.test(time||'')) return null;
+      const [h,m]=time.split(':').map(Number);
+      return h>=0&&h<24&&m>=0&&m<60 ? h*60+m : null;
+    }
+
+    function renderTimetable() {
+      const date = topCalendarSelectedDate;
+      const selected = new Date(date+'T12:00:00');
+      document.getElementById('timetable-date-label').textContent =
+        formatAppDate(selected);
+      const allDay=document.getElementById('timetable-all-day');
+      const axis=document.getElementById('timetable-axis');
+      const items=calendarItems(date);
+      const timed=[],untimed=[];
+      for(const item of items) {
+        const start=timetableMinutes(item.startTime);
+        if(start===null) {untimed.push(item);continue;}
+        const rawEnd=timetableMinutes(item.endTime);
+        let end=rawEnd===null ? start+60 : rawEnd;
+        if(item.endDate && item.endDate>date) end=1440;
+        else if(end<=start) end=start+60;
+        timed.push({...item,start,end:Math.min(1440,end)});
       }
-      matching.forEach(task=>{
-        const div=document.createElement('div');
-        div.className='flex items-center justify-between p-2 bg-slate-50 rounded text-xs border border-slate-100';
-        const text=document.createElement('div');
-        const title=document.createElement('span');
-        title.className='font-bold text-slate-800';
-        title.textContent=task.title||'（無題のタスク）';
-        if(task.status==='completed'){title.style.textDecoration='line-through';title.style.color='#94a3b8';}
-        text.appendChild(title);
-        const time=document.createElement('div');
-        time.className='text-[10px] text-slate-500 mt-0.5';
-        time.textContent=String(task[dateField]||'').slice(11,16);
-        text.appendChild(time);
-        div.appendChild(text);
-        const button=document.createElement('button');
-        button.className='text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded';
-        button.textContent='詳細';
-        button.onclick=()=>openDetailView(String(task.pageID));
-        div.appendChild(button);
-        calendarContainer.appendChild(div);
-      });
+      allDay.innerHTML=untimed.length?'<strong>終日</strong>'+untimed.map(x=>
+        `<button class="timetable-all-day-item ${x.kind}" onclick="openDetailView('${String(x.task.pageID).replace(/'/g,'')}')">${String(x.task.title||'（無題）').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;')}</button>`).join(''):'';
+      axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0?'':h+':00'}</span></div>`).join('');
+      // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
+      const ordered=[...timed].sort((a,b)=>a.start-b.start || a.end-b.end);
+      const groups=[];
+      for(const item of ordered){
+        const matching=groups.filter(g=>g.some(x=>x.start<item.end && item.start<x.end));
+        if(!matching.length){groups.push([item]);continue;}
+        const group=matching[0];group.push(item);
+        for(const extra of matching.slice(1)){
+          group.push(...extra);
+          groups.splice(groups.indexOf(extra),1);
+        }
+      }
+      const escapeEventText=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const prettyTime=minutes=>`${Math.floor(minutes/60)}:${String(minutes%60).padStart(2,'0')}`;
+      const overlaps=(a,b)=>a.start<b.end && b.start<a.end;
+      for(const group of groups){
+        group.sort((a,b)=>a.start-b.start||a.end-b.end);
+        const boundaries=[...new Set(group.flatMap(x=>[x.start,x.end]))].sort((a,b)=>a-b);
+        let peak=0;
+        for(let i=0;i<boundaries.length-1;i++){
+          const mid=(boundaries[i]+boundaries[i+1])/2;
+          peak=Math.max(peak,group.filter(x=>x.start<=mid&&mid<x.end).length);
+        }
+        const positions=new Map();
+        if(peak<=5){
+          // Exactly as many tracks as the peak overlap (not a fixed five tracks).
+          const columns=Array.from({length:peak},()=>[]);
+          for(const item of group){
+            let column=columns.findIndex(col=>col.every(prev=>!overlaps(prev,item)));
+            if(column<0) column=columns.length-1;
+            columns[column].push(item);
+            positions.set(item,{left:column/peak,width:1/peak});
+          }
+        } else {
+          // Six-plus: tasks starting within 60 minutes share the remaining width.
+          // Tasks starting >=60 minutes later can span the remaining area, while
+          // leaving at least 10% of the total width visible for earlier overlaps.
+          const batches=[];
+          for(const item of group){
+            const last=batches[batches.length-1];
+            if(last && item.start-last[0].start<60) last.push(item);
+            else batches.push([item]);
+          }
+          for(const batch of batches){
+            const earlier=group.filter(x=>x.start<batch[0].start && overlaps(x,batch[0]));
+            const earlierPositions=earlier.map(x=>positions.get(x)).filter(Boolean);
+            const reserved=earlierPositions.length
+              ? Math.min(.9,Math.max(.1,...earlierPositions.map(pos=>pos.left+.1)))
+              : 0;
+            const available=1-reserved;
+            // Reuse columns when members of a batch do not overlap.
+            const columns=[];
+            for(const item of batch){
+              let col=columns.findIndex(c=>c.every(x=>!overlaps(x,item)));
+              if(col<0){col=columns.length;columns.push([]);}
+              columns[col].push(item);
+            }
+            const n=columns.length;
+            columns.forEach((column,col)=>column.forEach(item=>positions.set(item,{
+              left:reserved+available*col/n,width:available/n
+            })));
+          }
+        }
+        for(const item of group){
+          const pos=positions.get(item);
+          const button=document.createElement('button');
+          button.type='button';
+          button.className=`timetable-event ${item.kind}`;
+          button.style.top=`${item.start}px`;
+          button.style.height=`${Math.max(60,item.end-item.start)}px`;
+          button.style.left=`calc(54px + (100% - 58px) * ${pos.left})`;
+          button.style.width=`calc((100% - 58px) * ${pos.width} - 2px)`;
+          button.style.zIndex=String(10+group.indexOf(item));
+          const title=escapeEventText(item.task.title||'（無題）');
+          const subtitle=item.kind==='deadline'
+            ? `<span class="timetable-time-token">${prettyTime(item.start)}</span> <span class="timetable-time-token">期限</span>`
+            : `<span class="timetable-time-token">${prettyTime(item.start)}</span> <span class="timetable-time-separator">~</span> <span class="timetable-time-token">${prettyTime(item.end)}</span>`;
+          button.innerHTML=`<span class="timetable-event-title">${title}</span><span class="timetable-event-time">${subtitle}</span>`;
+          button.onclick=()=>openDetailView(String(item.task.pageID));
+          axis.appendChild(button);
+          // Suppress times only if a single time token cannot fit at its fixed size.
+          const token=button.querySelector('.timetable-time-token');
+          const time=button.querySelector('.timetable-event-time');
+          if(token && time && token.scrollWidth>time.clientWidth+1) time.hidden=true;
+        }
+      }
     }
 
     function renderTopProjectTab() {
@@ -3267,7 +3455,7 @@
     }
 
     function joinScheduleDateTime(date, time) {
-      return date ? `${date}T${time || '00:00'}` : '';
+      return date ? `${appDateKey(date)}T${time || appExtractTime(date) || '00:00'}` : '';
     }
 
     function splitScheduleDateTime(value) {
@@ -3275,13 +3463,20 @@
     }
 
     function formatSchedule(field) {
-      const task = currentEditingTaskDraft;
-      const keys = getScheduleKeys(field);
-      if (!task?.[keys.date]) return '設定なし';
-      const start = `${task[keys.date].replaceAll('-', '/')} ${task[keys.time] || ''}`.trim();
-      if (!task[keys.endDate]) return start;
-      const end = `${task[keys.endDate].replaceAll('-', '/')} ${task[keys.endTime] || ''}`.trim();
-      return `${start}〜${end}`;
+      const task=currentEditingTaskDraft;
+      const keys=getScheduleKeys(field);
+      if(!task?.[keys.date]) return '設定なし';
+      const date1=appDateKey(task[keys.date]);
+      const time1=task[keys.time]||appExtractTime(task[keys.date]);
+      const normalizeTime=value=>value?value.replace(/^(?:0)(\d):/,'$1:'):'';
+      const start=`${formatAppDate(date1)}${time1?' '+normalizeTime(time1):''}`;
+      if(!task[keys.endDate]) return start;
+      const date2=appDateKey(task[keys.endDate]);
+      const time2=task[keys.endTime]||appExtractTime(task[keys.endDate]);
+      const end=date1===date2
+        ? normalizeTime(time2)
+        : `${formatAppDate(date2)}${time2?' '+normalizeTime(time2):''}`;
+      return `${start} ~ ${end}`;
     }
 
     function updateScheduleButton(field) {
@@ -3299,12 +3494,12 @@
     let scheduleCalendarMonth = new Date();
     function scheduleLocalDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
     function scheduleDefaultValue() { const d=new Date(); return `${scheduleLocalDate(d)}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-    function schedulePrettyDate(v) { if (!v) return '日付を選択'; const d=new Date(v.slice(0,10)+'T12:00:00');return `${d.getMonth()+1}月${d.getDate()}日 (${['日','月','火','水','木','金','土'][d.getDay()]})`; }
+    function schedulePrettyDate(v) { return v ? formatAppDate(v) : '日付を選択'; }
     function refreshScheduleEditor() {
       for(const part of ['start','end']) {
         const v=document.getElementById(`schedule-${part}-input`).value;
         document.getElementById(`schedule-${part}-date-btn`).textContent=schedulePrettyDate(v);
-        document.getElementById(`schedule-${part}-time-btn`).textContent=(()=>{const t=v.slice(11,16);if(!t)return '00:00';const [h,m]=t.split(':');return `${String(Number(h)||0).padStart(2,'0')}:${String(Number(m)||0).padStart(2,'0')}`;})();
+        document.getElementById(`schedule-${part}-time-btn`).textContent=(()=>{const t=v.slice(11,16);if(!t)return '0:00';const [h,m]=t.split(':');return `${Number(h)||0}:${String(Number(m)||0).padStart(2,'0')}`;})();
       }
       const action=scheduleEditingField==='action';
       const withEnd=action&&document.getElementById('schedule-all-day').checked;
@@ -4169,7 +4364,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV46';
+  const BUILD_CREATED_AT = '2026.10.21 DEV51';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

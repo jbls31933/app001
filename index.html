@@ -706,7 +706,7 @@
     .timetable-all-day-item.deadline,.timetable-event.deadline{background:#e88b54;color:#fff}
     .timetable-all-day-item.action,.timetable-event.action{background:#4c9bdf;color:#fff}
     .timetable-scroll{height:min(70vh,650px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-    .timetable-axis{height:1440px;position:relative;margin:0 3px}
+    .timetable-axis{height:1500px;position:relative;margin:0 3px}
     .timetable-hour{position:absolute;left:0;right:0;border-top:1px solid #e0e4e9;height:1px}
     .timetable-hour span{position:absolute;top:-9px;left:0;font-size:11px;color:#707780;background:white;padding-right:4px}
     .timetable-event{position:absolute;border:1px solid rgba(255,255,255,.8);border-radius:5px;text-align:left;overflow:hidden;padding:4px;font-size:11px;font-weight:600;line-height:1.2;word-break:break-word}
@@ -742,6 +742,23 @@
     .timetable-time-separator{white-space:nowrap;display:inline-block}
     .timetable-event-time[hidden]{display:none}
     .timetable-event-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
+    /* DEV53: deadline events have a prominent red bottom border. */
+    .timetable-event.deadline{border-bottom:4px solid #d62828;box-sizing:border-box}
+    /* DEV52: independent iOS-friendly timeline scrolling, including the 24:00 rule. */
+    #view-timetable .timetable-scroll {
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      touch-action: pan-y;
+      height: min(70vh, 650px);
+      min-height: 0;
+    }
+    #view-timetable .timetable-axis {
+      height: 1500px; /* 24:00 line at 1440px plus 60px scroll clearance */
+      min-height: 1500px;
+    }
+    #view-timetable .timetable-hour:last-child span { display: none; }
     /* Top page month calendar */
     .top-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;}
     .top-month-nav strong{font-size:16px;}
@@ -2625,10 +2642,15 @@
           ['deadline','deadlineDate','deadlineTime','deadlineEndDate','deadlineEndTime'],
           ['action','actionDate','actionTime','actionEndDate','actionEndTime']
         ]) {
-          if (!calendarVisible(kind) || appDateKey(task[dateField]) !== dateKey) continue;
-          const startTime = task[timeField] || appExtractTime(task[dateField]);
-          const endTime = task[endTimeField] || appExtractTime(task[endDateField]);
-          items.push({task,kind,startTime,endTime,endDate:appDateKey(task[endDateField])});
+          if (!calendarVisible(kind)) continue;
+          const startDate=appDateKey(task[dateField]);
+          if (!startDate) continue;
+          const rawEndDate=appDateKey(task[endDateField]);
+          const endDate=rawEndDate && rawEndDate>=startDate ? rawEndDate : startDate;
+          if (dateKey<startDate || dateKey>endDate) continue;
+          const startTime=task[timeField] || appExtractTime(task[dateField]);
+          const endTime=task[endTimeField] || appExtractTime(task[endDateField]);
+          items.push({task,kind,startDate,endDate,startTime,endTime});
         }
       });
       return items;
@@ -2669,17 +2691,29 @@
       const items=calendarItems(date);
       const timed=[],untimed=[];
       for(const item of items) {
-        const start=timetableMinutes(item.startTime);
-        if(start===null) {untimed.push(item);continue;}
+        const inputTime=timetableMinutes(item.startTime);
+        if(inputTime===null) {untimed.push(item);continue;}
+        if(item.kind==='deadline') {
+          // A deadline's entered time is the end of its one-hour block.
+          // For a multi-day deadline interval, the first and middle days span to midnight.
+          const isFirst=date===item.startDate;
+          const isLast=date===item.endDate;
+          const start=isFirst ? Math.max(0,inputTime-60) : 0;
+          const end=isLast ? inputTime : 1440;
+          if(end>start) timed.push({...item,start,end,deadlineAt:inputTime});
+          continue;
+        }
         const rawEnd=timetableMinutes(item.endTime);
-        let end=rawEnd===null ? start+60 : rawEnd;
-        if(item.endDate && item.endDate>date) end=1440;
-        else if(end<=start) end=start+60;
-        timed.push({...item,start,end:Math.min(1440,end)});
+        const isFirst=date===item.startDate;
+        const isLast=date===item.endDate;
+        const start=isFirst ? inputTime : 0;
+        let end=isLast ? (rawEnd===null ? start+60 : rawEnd) : 1440;
+        if(end<=start) end=Math.min(1440,start+60);
+        if(end>start) timed.push({...item,start,end,hasActionEnd:rawEnd!==null});
       }
       allDay.innerHTML=untimed.length?'<strong>終日</strong>'+untimed.map(x=>
         `<button class="timetable-all-day-item ${x.kind}" onclick="openDetailView('${String(x.task.pageID).replace(/'/g,'')}')">${String(x.task.title||'（無題）').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;')}</button>`).join(''):'';
-      axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0?'':h+':00'}</span></div>`).join('');
+      axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0||h===24?'':h+':00'}</span></div>`).join('');
       // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
       const ordered=[...timed].sort((a,b)=>a.start-b.start || a.end-b.end);
       const groups=[];
@@ -2754,9 +2788,17 @@
           button.style.width=`calc((100% - 58px) * ${pos.width} - 2px)`;
           button.style.zIndex=String(10+group.indexOf(item));
           const title=escapeEventText(item.task.title||'（無題）');
+          // Show the date only for the endpoint outside the displayed day.
+          const datePart=key=>{
+            const [year,month,day]=key.split('-').map(Number);
+            return `${year===selected.getFullYear()?'':year+'年'}${month}月${day}日 `;
+          };
+          const timeToken=(key,clock)=>`<span class="timetable-time-token">${key===date?'':datePart(key)}${escapeEventText(clock)}</span>`;
           const subtitle=item.kind==='deadline'
-            ? `<span class="timetable-time-token">${prettyTime(item.start)}</span> <span class="timetable-time-token">期限</span>`
-            : `<span class="timetable-time-token">${prettyTime(item.start)}</span> <span class="timetable-time-separator">~</span> <span class="timetable-time-token">${prettyTime(item.end)}</span>`;
+            ? `${timeToken(item.endDate,prettyTime(item.deadlineAt))} <span class="timetable-time-token">期限</span>`
+            : item.hasActionEnd
+              ? `${timeToken(item.startDate,item.startTime)} <span class="timetable-time-separator">~</span> ${timeToken(item.endDate,item.endTime)}`
+              : `<span class="timetable-time-token">00:00</span> <span class="timetable-time-separator">~</span>`;
           button.innerHTML=`<span class="timetable-event-title">${title}</span><span class="timetable-event-time">${subtitle}</span>`;
           button.onclick=()=>openDetailView(String(item.task.pageID));
           axis.appendChild(button);
@@ -4364,7 +4406,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.21 DEV51';
+  const BUILD_CREATED_AT = '2026.10.21 DEV55';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

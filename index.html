@@ -2967,32 +2967,83 @@
             })));
           }
         }
-        // DEV84: Only when a card is at most 10% of the task-box area width,
-        // stack a lower (later-starting) overlapping card onto its left neighbour.
-        // If that lower card already shares horizontal space with another card,
-        // continue searching farther down the day's tasks.
-        const taskAreaWidth=Math.max(1,axis.clientWidth-58);
-        const isNarrow=pos=>(pos.width*taskAreaWidth-2)/taskAreaWidth<=.10;
-        if([...positions.values()].some(isNarrow)){
+        // DEV85: Keep the existing layout first. Only repair tracks that are
+        // narrower than 10% of the task area after their original placement.
+        // Move the narrow card together with its earliest-starting visually
+        // overlapping base card onto the track immediately to their left.
+        if(peak>=5){
+          const taskAreaWidth=Math.max(1,axis.clientWidth-58);
+          const minVisible=.10+2/taskAreaWidth; // account for the existing 2px CSS subtraction
           const byStart=[...group].sort((a,b)=>a.start-b.start || a.end-b.end);
-          const stacked=new Set();
-          const intersectsHorizontally=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
-          for(const narrow of byStart){
+          const horizontalOverlap=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
+          const visibleFraction=item=>{
+            const p=positions.get(item);
+            // A later-drawn card covers the portion it occupies at the same time.
+            // Measure the largest uncovered horizontal segment for this card.
+            let segments=[[p.left,p.left+p.width]];
+            for(const other of group){
+              if(other===item || !overlaps(item,other) || group.indexOf(other)<group.indexOf(item)) continue;
+              const q=positions.get(other);
+              segments=segments.flatMap(([a,b])=>{
+                if(q.left>=b || q.left+q.width<=a) return [[a,b]];
+                const parts=[];
+                if(q.left>a) parts.push([a,q.left]);
+                if(q.left+q.width<b) parts.push([q.left+q.width,b]);
+                return parts;
+              });
+            }
+            return segments.reduce((sum,[a,b])=>sum+b-a,0)-2/taskAreaWidth;
+          };
+          const repaired=new Set();
+          for(let pass=0;pass<group.length;pass++){
+            const narrow=byStart.find(item=>!repaired.has(item) && visibleFraction(item)<.10-1e-8);
+            if(!narrow) break;
+            repaired.add(narrow);
             const narrowPos=positions.get(narrow);
-            if(!isNarrow(narrowPos)) continue;
-            const leftCandidates=byStart.filter(x=>x!==narrow && overlaps(x,narrow) && positions.get(x).left<narrowPos.left)
+            // Earliest-starting card beneath the narrow one in the visual stack.
+            const beneath=byStart.filter(x=>x===narrow || (overlaps(x,narrow) && horizontalOverlap(positions.get(x),narrowPos) && x.start<=narrow.start));
+            const base=beneath[0]||narrow;
+            const basePos=positions.get(base);
+            // Move the base and narrow card as a unit; keep their relative offset.
+            const moving=[...new Set([base,narrow])];
+            const leftCandidates=byStart.filter(x=>!moving.includes(x) && overlaps(x,base) && positions.get(x).left<basePos.left-1e-8)
               .sort((a,b)=>positions.get(b).left-positions.get(a).left);
-            const left=leftCandidates[0];
-            if(!left) continue;
-            const leftPos=positions.get(left);
-            const lower=byStart.find(x=>x!==narrow && x!==left && !stacked.has(x)
-              && x.start>=narrow.start && overlaps(x,narrow)
-              && !byStart.some(other=>other!==x && other!==left && overlaps(other,x)
-                && intersectsHorizontally(positions.get(other),leftPos)));
-            if(!lower) continue;
-            const lowerPos=positions.get(lower);
-            positions.set(lower,{...lowerPos,left:leftPos.left,width:Math.max(lowerPos.width,leftPos.width)});
-            stacked.add(lower);
+            const target=leftCandidates[0];
+            if(!target) continue;
+            const targetPos=positions.get(target);
+            const newBaseLeft=targetPos.left+minVisible;
+            if(newBaseLeft>=basePos.left-1e-8) continue;
+            const shift=basePos.left-newBaseLeft;
+            // Preserve the DEV85 leftward merge, then redistribute only the
+            // tracks to its right that share time with the merged cards.
+            const rightSide=byStart.filter(x=>
+              !moving.includes(x) &&
+              positions.get(x).left>=basePos.left-1e-8 &&
+              moving.some(m=>overlaps(x,m))
+            );
+            for(const item of moving){
+              const old=positions.get(item);
+              const left=Math.max(0,old.left-shift);
+              positions.set(item,{...old,left,width:Math.max(old.width,1-left)});
+            }
+            if(rightSide.length){
+              // As in the normal layout, tasks without temporal overlap
+              // may share a column. Divide the space remaining to the right
+              // of the newly merged track equally among those columns.
+              const rightColumns=[];
+              for(const item of rightSide){
+                let col=rightColumns.findIndex(c=>c.every(x=>!overlaps(x,item)));
+                if(col<0){col=rightColumns.length;rightColumns.push([]);}
+                rightColumns[col].push(item);
+              }
+              const rightStart=Math.min(1,newBaseLeft+minVisible);
+              const remaining=Math.max(0,1-rightStart);
+              const colWidth=remaining/rightColumns.length;
+              rightColumns.forEach((column,col)=>column.forEach(item=>{
+                const old=positions.get(item);
+                positions.set(item,{...old,left:rightStart+colWidth*col,width:colWidth});
+              }));
+            }
           }
         }
         for(const item of group){
@@ -4634,7 +4685,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.23 DEV84';
+  const BUILD_CREATED_AT = '2026.10.23 DEV88';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

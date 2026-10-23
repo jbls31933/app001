@@ -2923,6 +2923,49 @@
     // Update every 15 seconds; date changes are handled on each render as well.
     setInterval(updateTimetableNowLine,15000);
 
+    // DEV110: Find an uncovered text rectangle at least 30 minutes tall.
+    function getTimetableTextRegion(item, group, positions) {
+      const position = positions.get(item);
+      const left = position.left;
+      const right = left + position.width;
+      const front = group.slice(group.indexOf(item) + 1).filter(other => {
+        const p = positions.get(other);
+        return other.start < item.end && item.start < other.end &&
+          p.left < right - 1e-8 && left < p.left + p.width - 1e-8;
+      });
+      const edges = [...new Set([left, right, ...front.flatMap(other => {
+        const p = positions.get(other);
+        return [Math.max(left, p.left), Math.min(right, p.left + p.width)];
+      })])].sort((a, b) => a - b);
+      let best = null;
+      for (let i = 0; i < edges.length - 1; i++) {
+        for (let j = i + 1; j < edges.length; j++) {
+          const width = edges[j] - edges[i];
+          if (width < 1e-8 || (best && width < best.width - 1e-8)) continue;
+          const blocked = front.filter(other => {
+            const p = positions.get(other);
+            return p.left < edges[j] - 1e-8 && edges[i] < p.left + p.width - 1e-8;
+          }).map(other => [Math.max(item.start, other.start), Math.min(item.end, other.end)])
+            .sort((a, b) => a[0] - b[0]);
+          let start = item.start;
+          const free = [];
+          for (const [from, to] of blocked) {
+            if (from > start) free.push([start, from]);
+            start = Math.max(start, to);
+          }
+          if (start < item.end) free.push([start, item.end]);
+          for (const [from, to] of free) {
+            if (to - from < 30) continue;
+            const candidate = { left: edges[i], width, start: from, end: to };
+            const preferred = !best || (item.kind === 'deadline' ? to > best.end : from < best.start);
+            if (!best || width > best.width + 1e-8 ||
+              (Math.abs(width - best.width) < 1e-8 && preferred)) best = candidate;
+          }
+        }
+      }
+      return best;
+    }
+
     function renderTimetable() {
       const date = topCalendarSelectedDate;
       const selected = new Date(date+'T12:00:00');
@@ -3060,13 +3103,13 @@
               if(cursor<1-1e-8) gaps.push([cursor,1]);
               const candidate=gaps.find(([left,right])=>left<current.left-1e-8 && right-left>=minWidth-1e-8);
               if(!candidate) continue;
-              positions.set(item,{left:candidate[0],width:candidate[1]-candidate[0]});
+              const right=current.left+current.width;
+              positions.set(item,{left:candidate[0],width:right-candidate[0]});
               changed=true;
             }
             if(!changed) break;
           }
-          // Repair: shift the backmost overlapping stack to the left, then
-          // redistribute only the narrow cards to its right.
+          // DEV110: Expand leftward while preserving every card's right edge.
           const blocked=new Set();
           for(let pass=0;pass<group.length*group.length;pass++){
             const narrow=group.find(item=>!blocked.has(item)&&visible(item)<.10-1e-8);
@@ -3099,11 +3142,12 @@
             // Preserve the stack's relative horizontal offsets and right edges.
             for(const item of moving){
               const old=positions.get(item);
+              const right=old.left+old.width;
               const left=Math.max(0,old.left-shift);
-              positions.set(item,{left,width:Math.min(1-left,old.width+old.left-left)});
+              positions.set(item,{left,width:right-left});
             }
-            // Narrow items outside the moved stack share the newly available
-            // right-hand region. Unaffected tracks keep their positions.
+            // Widen the remaining narrow cards leftward without moving their
+            // right edges. Never move a card rightward in this correction.
             const right=group.filter(item=>!moving.has(item) &&
               positions.get(item).left>=basePos.left-1e-8 &&
               [...moving].some(member=>intersect(item,member)));
@@ -3115,10 +3159,13 @@
                 rightColumns[col].push(item);
               }
               const rightStart=Math.min(1,newBaseLeft+minWidth);
-              const width=(1-rightStart)/rightColumns.length;
-              rightColumns.forEach((items,i)=>items.forEach(item=>positions.set(item,{
-                left:rightStart+i*width,width
-              })));
+              const spacing=(1-rightStart)/rightColumns.length;
+              rightColumns.forEach((items,i)=>items.forEach(item=>{
+                const old=positions.get(item);
+                const right=old.left+old.width;
+                const left=Math.min(old.left,rightStart+i*spacing);
+                positions.set(item,{left,width:right-left});
+              }));
             }
             if(visible(narrow)>=.10-1e-8) blocked.add(narrow);
             // If the layout no longer changes, do not loop indefinitely.
@@ -3171,13 +3218,34 @@
           axis.appendChild(button);
           const time=button.querySelector('.timetable-event-time');
           const copy=button.querySelector('.timetable-event-copy');
+          const textRegion=getTimetableTextRegion(item,group,positions);
+          const style=getComputedStyle(button);
+          const paddingTop=parseFloat(style.paddingTop)||0;
+          const paddingBottom=parseFloat(style.paddingBottom)||0;
+          if(copy && textRegion){
+            const taskAreaWidth=Math.max(1,axis.clientWidth-50);
+            const paddingLeft=parseFloat(style.paddingLeft)||0;
+            const paddingRight=parseFloat(style.paddingRight)||0;
+            const borderX=(parseFloat(style.borderLeftWidth)||0)+(parseFloat(style.borderRightWidth)||0);
+            copy.style.position='absolute';
+            copy.style.marginTop='0';
+            copy.style.left=`${(textRegion.left-pos.left)*taskAreaWidth+paddingLeft}px`;
+            copy.style.width=`${Math.max(0,textRegion.width*taskAreaWidth-paddingLeft-paddingRight-borderX)}px`;
+            copy.style.top=`${textRegion.start-item.start+paddingTop}px`;
+            copy.style.maxHeight=`${Math.max(0,textRegion.end-textRegion.start-paddingTop-paddingBottom)}px`;
+            copy.style.overflow='hidden';
+          }
           if(time && copy && item.kind!=='deadline'){
-            const style=getComputedStyle(button);
             const paddingY=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom);
             const lineHeight=parseFloat(getComputedStyle(copy).lineHeight)||14;
             // When the inline time wraps, two complete lines must fit inside the actual duration.
             const wraps=copy.scrollHeight>lineHeight+1;
-            if(wraps && (item.end-item.start)<paddingY+2*lineHeight) time.hidden=true;
+            const textHeight=textRegion ? textRegion.end-textRegion.start : item.end-item.start;
+            if(wraps && textHeight<paddingY+2*lineHeight) time.hidden=true;
+          }
+          if(copy && textRegion && item.kind==='deadline'){
+            copy.style.top=`${Math.max(textRegion.start-item.start+paddingTop,
+              textRegion.end-item.start-paddingBottom-copy.scrollHeight)}px`;
           }
 
         }
@@ -4781,7 +4849,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.24 DEV109';
+  const BUILD_CREATED_AT = '2026.10.24 DEV110';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

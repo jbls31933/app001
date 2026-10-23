@@ -2923,6 +2923,42 @@
     // Update every 15 seconds; date changes are handled on each render as well.
     setInterval(updateTimetableNowLine,15000);
 
+    // DEV111: Group actual overlapping rectangles before expanding any card.
+    function extendTimetableOverlapGroups(items, positions) {
+      const original = new Map(items.map(item => [item, { ...positions.get(item) }]));
+      const membership = new Map();
+      const overlapsInTime = (a, b) => a.start < b.end && b.start < a.end;
+      for (const item of items) {
+        if (membership.has(item)) continue;
+        const members = new Set([item]);
+        const pending = [item];
+        membership.set(item, members);
+        while (pending.length) {
+          const current = pending.pop();
+          const p = original.get(current);
+          for (const other of items) {
+            if (membership.has(other) || !overlapsInTime(current, other)) continue;
+            const q = original.get(other);
+            if (p.left >= q.left + q.width - 1e-8 || q.left >= p.left + p.width - 1e-8) continue;
+            members.add(other);
+            membership.set(other, members);
+            pending.push(other);
+          }
+        }
+      }
+      for (const item of items) {
+        const p = original.get(item);
+        const right = p.left + p.width;
+        let rightLimit = 1;
+        for (const other of items) {
+          if (membership.get(other) === membership.get(item) || !overlapsInTime(item, other)) continue;
+          const q = original.get(other);
+          if (q.left >= right - 1e-8) rightLimit = Math.min(rightLimit, q.left);
+        }
+        positions.set(item, { left: p.left, width: Math.max(p.width, rightLimit - p.left) });
+      }
+    }
+
     // DEV110: Find an uncovered text rectangle at least 30 minutes tall.
     function getTimetableTextRegion(item, group, positions) {
       const position = positions.get(item);
@@ -3172,21 +3208,9 @@
             else if(!right.length) blocked.add(narrow);
           }
         }
-        // DEV108: Extend into vacant space up to the nearest card sharing
-        // any part of this time interval, or to the right edge when unobstructed.
-        for(const item of group){
-          const pos=positions.get(item);
-          const right=pos.left+pos.width;
-          if(right>=1-1e-8) continue;
-          let rightLimit=1;
-          for(const other of group){
-            if(other===item || !overlaps(item,other)) continue;
-            const otherPos=positions.get(other);
-            if(otherPos.left>=right-1e-8) rightLimit=Math.min(rightLimit,otherPos.left);
-            else if(otherPos.left+otherPos.width>right+1e-8) rightLimit=Math.min(rightLimit,right);
-          }
-          if(rightLimit>right+1e-8) positions.set(item,{...pos,width:rightLimit-pos.left});
-        }
+        // Final placement step: ignore the card's entire overlapping group.
+        // Text placement below uses these final expanded rectangles.
+        extendTimetableOverlapGroups(group,positions);
         for(const item of group){
           const pos=positions.get(item);
           const button=document.createElement('button');
@@ -4849,7 +4873,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.24 DEV110';
+  const BUILD_CREATED_AT = '2026.10.24 DEV111';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -709,6 +709,11 @@
     .timetable-hour{position:absolute;left:0;right:0;border-top:1px solid #e0e4e9;height:1px}
     .timetable-hour span{position:absolute;top:-9px;left:0;font-size:11px;color:#707780;background:white;padding-right:4px}
     .timetable-event{position:absolute;border:1px solid rgba(255,255,255,.8);border-radius:5px;text-align:left;overflow:hidden;padding:4px;font-size:11px;font-weight:600;line-height:1.2;word-break:break-word}
+    /* DEV97: live current-time marker, visible on today's timetable only. */
+    .timetable-now-line{position:absolute;left:38px;right:0;height:1px;background:#242424;z-index:10000;pointer-events:none;overflow:visible}
+    .timetable-now-clock{position:absolute;left:0;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#242424;color:#fff;display:flex;align-items:center;justify-content:center}
+    .timetable-now-clock svg{width:9px;height:9px;display:block}
+
 
     /* DEV49: compact calendar toggles and stable day header */
     .calendar-filter-card{margin-bottom:8px;padding:9px 14px}
@@ -2857,6 +2862,26 @@
       button.setAttribute('aria-expanded',String(expanded));
     }
 
+    // DEV97: Keep the current-time indicator in sync without rerendering tasks.
+    function updateTimetableNowLine(){
+      const axis=document.getElementById('timetable-axis');
+      if(!axis) return;
+      const now=new Date();
+      const isToday=topCalendarSelectedDate===topCalendarDateKey(now);
+      let line=axis.querySelector('.timetable-now-line');
+      if(!isToday){if(line) line.remove();return;}
+      if(!line){
+        line=document.createElement('div');
+        line.className='timetable-now-line';
+        line.setAttribute('aria-label','現在時刻');
+        line.innerHTML='<span class="timetable-now-clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></span>';
+        axis.appendChild(line);
+      }
+      line.style.top=`${now.getHours()*60+now.getMinutes()+now.getSeconds()/60}px`;
+    }
+    // Update every 15 seconds; date changes are handled on each render as well.
+    setInterval(updateTimetableNowLine,15000);
+
     function renderTimetable() {
       const date = topCalendarSelectedDate;
       const selected = new Date(date+'T12:00:00');
@@ -2902,10 +2927,10 @@
 
       axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0||h===24?'':h+':00'}</span></div>`).join('');
       // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
-      const ordered=[...timed].sort((a,b)=>a.start-b.start || a.end-b.end);
+      const ordered=[...timed].sort((a,b)=>a.start-b.start || b.end-a.end);
       const groups=[];
       for(const item of ordered){
-        const collides=(a,b)=> (a.start<b.end && b.start<a.end) || (a.kind==='deadline' && a.end===b.start) || (b.kind==='deadline' && b.end===a.start);
+        const collides=(a,b)=> (a.start<b.end && b.start<a.end);
         const matching=groups.filter(g=>g.some(x=>collides(x,item)));
         if(!matching.length){groups.push([item]);continue;}
         const group=matching[0];group.push(item);
@@ -2916,135 +2941,159 @@
       }
       const escapeEventText=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       const prettyTime=minutes=>`${Math.floor(minutes/60)}:${String(minutes%60).padStart(2,'0')}`;
-      const overlaps=(a,b)=> (a.start<b.end && b.start<a.end) || (a.kind==='deadline' && a.end===b.start) || (b.kind==='deadline' && b.end===a.start);
+      const overlaps=(a,b)=> (a.start<b.end && b.start<a.end);
       for(const group of groups){
-        group.sort((a,b)=>a.start-b.start||a.end-b.end);
+        group.sort((a,b)=>a.start-b.start||b.end-a.end);
         const boundaries=[...new Set(group.flatMap(x=>[x.start,x.end]))].sort((a,b)=>a-b);
         let peak=0;
         for(let i=0;i<boundaries.length-1;i++){
           const mid=(boundaries[i]+boundaries[i+1])/2;
           peak=Math.max(peak,group.filter(x=>x.start<=mid&&mid<x.end).length);
-          // Deadlines touching an action's start also occupy a separate horizontal track.
-          peak=Math.max(peak,group.filter(x=>x.start<=boundaries[i+1] && x.end>=boundaries[i+1] && (x.kind==='deadline' || x.start<boundaries[i+1])).length);
         }
+        // DEV95: Build the ordinary columns first; only overflow uses overlays.
         const positions=new Map();
-        if(peak<=4){
-          // Exactly as many tracks as the peak overlap (not a fixed five tracks).
-          const columns=Array.from({length:peak},()=>[]);
-          for(const item of group){
-            let column=columns.findIndex(col=>col.every(prev=>!overlaps(prev,item)));
-            if(column<0) column=columns.length-1;
-            columns[column].push(item);
-            positions.set(item,{left:column/peak,width:1/peak});
-          }
-        } else {
-          // Five-plus: tasks starting within 60 minutes share the remaining width.
-          // Tasks starting >=60 minutes later can span the remaining area, while
-          // leaving at least 10% of the total width visible for earlier overlaps.
-          const batches=[];
-          for(const item of group){
-            const last=batches[batches.length-1];
-            if(last && item.start-last[0].start<60) last.push(item);
-            else batches.push([item]);
-          }
-          for(const batch of batches){
-            const earlier=group.filter(x=>x.start<batch[0].start && overlaps(x,batch[0]));
-            const earlierPositions=earlier.map(x=>positions.get(x)).filter(Boolean);
-            const reserved=earlierPositions.length
-              ? Math.min(.9,Math.max(.1,...earlierPositions.map(pos=>pos.left+.1)))
-              : 0;
-            const available=1-reserved;
-            // Reuse columns when members of a batch do not overlap.
-            const columns=[];
-            for(const item of batch){
-              let col=columns.findIndex(c=>c.every(x=>!overlaps(x,item)));
-              if(col<0){col=columns.length;columns.push([]);}
-              columns[col].push(item);
-            }
-            const n=columns.length;
-            columns.forEach((column,col)=>column.forEach(item=>positions.set(item,{
-              left:reserved+available*col/n,width:available/n
-            })));
+        const baseCount=Math.min(4,peak);
+        const columns=Array.from({length:baseCount},()=>[]);
+        const overflow=[];
+        for(const item of group){
+          const free=columns.findIndex(col=>col.every(other=>!overlaps(item,other)));
+          if(free<0) overflow.push(item);
+          else {
+            columns[free].push(item);
+            positions.set(item,{left:free/baseCount,width:1/baseCount});
           }
         }
-        // DEV85: Keep the existing layout first. Only repair tracks that are
-        // narrower than 10% of the task area after their original placement.
-        // Move the narrow card together with its earliest-starting visually
-        // overlapping base card onto the track immediately to their left.
+        if(overflow.length){
+          // Reuse a column when the overflow items do not overlap in time.
+          const extra=[];
+          for(const item of overflow){
+            let index=extra.findIndex(col=>col.every(other=>!overlaps(item,other)));
+            if(index<0){index=extra.length;extra.push([]);}
+            extra[index].push(item);
+          }
+          const lastBaseLeft=(baseCount-1)/baseCount;
+          const start=lastBaseLeft+.10;
+          const width=(1-start)/extra.length;
+          extra.forEach((col,i)=>col.forEach(item=>positions.set(item,{
+            left:start+i*width,width
+          })));
+        }
         if(peak>=5){
           const taskAreaWidth=Math.max(1,axis.clientWidth-58);
-          const minVisible=.10+2/taskAreaWidth; // account for the existing 2px CSS subtraction
-          const byStart=[...group].sort((a,b)=>a.start-b.start || a.end-b.end);
-          const horizontalOverlap=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
-          const visibleFraction=item=>{
+          const minWidth=.10+2/taskAreaWidth;
+          const intersect=(a,b)=>a.start<b.end && b.start<a.end;
+          const horizontal=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
+          const visible=item=>{
             const p=positions.get(item);
-            // A later-drawn card covers the portion it occupies at the same time.
-            // Measure the largest uncovered horizontal segment for this card.
             let segments=[[p.left,p.left+p.width]];
             for(const other of group){
-              if(other===item || !overlaps(item,other) || group.indexOf(other)<group.indexOf(item)) continue;
+              if(other===item || !intersect(item,other) || group.indexOf(other)<=group.indexOf(item)) continue;
               const q=positions.get(other);
-              segments=segments.flatMap(([a,b])=>{
-                if(q.left>=b || q.left+q.width<=a) return [[a,b]];
-                const parts=[];
-                if(q.left>a) parts.push([a,q.left]);
-                if(q.left+q.width<b) parts.push([q.left+q.width,b]);
-                return parts;
+              segments=segments.flatMap(([left,right])=>{
+                if(q.left>=right || q.left+q.width<=left) return [[left,right]];
+                const out=[];
+                if(q.left>left) out.push([left,q.left]);
+                if(q.left+q.width<right) out.push([q.left+q.width,right]);
+                return out;
               });
             }
-            return segments.reduce((sum,[a,b])=>sum+b-a,0)-2/taskAreaWidth;
+            return Math.max(0,segments.reduce((n,[left,right])=>n+right-left,0)-2/taskAreaWidth);
           };
-          const repaired=new Set();
+          // First use wholly vacant slots, without disturbing other cards.
           for(let pass=0;pass<group.length;pass++){
-            const narrow=byStart.find(item=>!repaired.has(item) && visibleFraction(item)<.10-1e-8);
+            let changed=false;
+            for(const item of group){
+              const current=positions.get(item);
+              const occupied=group.filter(other=>other!==item&&intersect(item,other))
+                .map(other=>positions.get(other)).map(p=>[p.left,p.left+p.width])
+                .sort((a,b)=>a[0]-b[0]);
+              let cursor=0;
+              const gaps=[];
+              for(const [left,right] of occupied){
+                if(left>cursor+1e-8) gaps.push([cursor,left]);
+                cursor=Math.max(cursor,right);
+              }
+              if(cursor<1-1e-8) gaps.push([cursor,1]);
+              const candidate=gaps.find(([left,right])=>left<current.left-1e-8 && right-left>=minWidth-1e-8);
+              if(!candidate) continue;
+              positions.set(item,{left:candidate[0],width:candidate[1]-candidate[0]});
+              changed=true;
+            }
+            if(!changed) break;
+          }
+          // Repair: shift the backmost overlapping stack to the left, then
+          // redistribute only the narrow cards to its right.
+          const blocked=new Set();
+          for(let pass=0;pass<group.length*group.length;pass++){
+            const narrow=group.find(item=>!blocked.has(item)&&visible(item)<.10-1e-8);
             if(!narrow) break;
-            repaired.add(narrow);
             const narrowPos=positions.get(narrow);
-            // Earliest-starting card beneath the narrow one in the visual stack.
-            const beneath=byStart.filter(x=>x===narrow || (overlaps(x,narrow) && horizontalOverlap(positions.get(x),narrowPos) && x.start<=narrow.start));
+            const beneath=group.filter(item=>item===narrow ||
+              (group.indexOf(item)<group.indexOf(narrow) && intersect(item,narrow) && horizontal(positions.get(item),narrowPos)));
             const base=beneath[0]||narrow;
             const basePos=positions.get(base);
-            // Move the base and narrow card as a unit; keep their relative offset.
-            const moving=[...new Set([base,narrow])];
-            const leftCandidates=byStart.filter(x=>!moving.includes(x) && overlaps(x,base) && positions.get(x).left<basePos.left-1e-8)
-              .sort((a,b)=>positions.get(b).left-positions.get(a).left);
-            const target=leftCandidates[0];
-            if(!target) continue;
-            const targetPos=positions.get(target);
-            const newBaseLeft=targetPos.left+minVisible;
-            if(newBaseLeft>=basePos.left-1e-8) continue;
+            const moving=new Set([base]);
+            let grew=true;
+            while(grew){
+              grew=false;
+              for(const candidate of group){
+                if(moving.has(candidate)||positions.get(candidate).left<basePos.left-1e-8) continue;
+                if([...moving].some(member=>intersect(member,candidate)&&horizontal(positions.get(member),positions.get(candidate)))){
+                  moving.add(candidate);grew=true;
+                }
+              }
+            }
+            moving.add(narrow);
+            const target=[...group].filter(item=>!moving.has(item) &&
+              positions.get(item).left<basePos.left-1e-8 &&
+              [...moving].some(member=>intersect(item,member)))
+              .sort((a,b)=>positions.get(b).left-positions.get(a).left)[0];
+            if(!target){blocked.add(narrow);continue;}
+            const newBaseLeft=positions.get(target).left+minWidth;
+            if(newBaseLeft>=basePos.left-1e-8){blocked.add(narrow);continue;}
             const shift=basePos.left-newBaseLeft;
-            // Preserve the DEV85 leftward merge, then redistribute only the
-            // tracks to its right that share time with the merged cards.
-            const rightSide=byStart.filter(x=>
-              !moving.includes(x) &&
-              positions.get(x).left>=basePos.left-1e-8 &&
-              moving.some(m=>overlaps(x,m))
-            );
+            // Preserve the stack's relative horizontal offsets and right edges.
             for(const item of moving){
               const old=positions.get(item);
               const left=Math.max(0,old.left-shift);
-              positions.set(item,{...old,left,width:Math.max(old.width,1-left)});
+              positions.set(item,{left,width:Math.min(1-left,old.width+old.left-left)});
             }
-            if(rightSide.length){
-              // As in the normal layout, tasks without temporal overlap
-              // may share a column. Divide the space remaining to the right
-              // of the newly merged track equally among those columns.
+            // Narrow items outside the moved stack share the newly available
+            // right-hand region. Unaffected tracks keep their positions.
+            const right=group.filter(item=>!moving.has(item) &&
+              positions.get(item).left>=basePos.left-1e-8 &&
+              [...moving].some(member=>intersect(item,member)));
+            if(right.length){
               const rightColumns=[];
-              for(const item of rightSide){
-                let col=rightColumns.findIndex(c=>c.every(x=>!overlaps(x,item)));
+              for(const item of right){
+                let col=rightColumns.findIndex(items=>items.every(other=>!intersect(item,other)));
                 if(col<0){col=rightColumns.length;rightColumns.push([]);}
                 rightColumns[col].push(item);
               }
-              const rightStart=Math.min(1,newBaseLeft+minVisible);
-              const remaining=Math.max(0,1-rightStart);
-              const colWidth=remaining/rightColumns.length;
-              rightColumns.forEach((column,col)=>column.forEach(item=>{
-                const old=positions.get(item);
-                positions.set(item,{...old,left:rightStart+colWidth*col,width:colWidth});
-              }));
+              const rightStart=Math.min(1,newBaseLeft+minWidth);
+              const width=(1-rightStart)/rightColumns.length;
+              rightColumns.forEach((items,i)=>items.forEach(item=>positions.set(item,{
+                left:rightStart+i*width,width
+              })));
             }
+            if(visible(narrow)>=.10-1e-8) blocked.add(narrow);
+            // If the layout no longer changes, do not loop indefinitely.
+            else if(!right.length) blocked.add(narrow);
           }
+        }
+        // DEV96: Once placement and narrow-card repair are complete, extend a
+        // card to the right edge only if no time-overlapping card occupies
+        // any portion of the horizontal space to its right.
+        for(const item of group){
+          const pos=positions.get(item);
+          const right=pos.left+pos.width;
+          if(right>=1-1e-8) continue;
+          const rightOccupied=group.some(other=>{
+            if(other===item || !overlaps(item,other)) return false;
+            const otherPos=positions.get(other);
+            return otherPos.left<1-1e-8 && otherPos.left+otherPos.width>right+1e-8;
+          });
+          if(!rightOccupied) positions.set(item,{...pos,width:1-pos.left});
         }
         for(const item of group){
           const pos=positions.get(item);
@@ -3087,6 +3136,7 @@
 
         }
       }
+      updateTimetableNowLine();
     }
 
     function renderTopProjectTab() {
@@ -4685,7 +4735,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.23 DEV88';
+  const BUILD_CREATED_AT = '2026.10.24 DEV98';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

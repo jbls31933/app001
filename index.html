@@ -1481,10 +1481,12 @@
     #view-timetable .timetable-event-copy .timetable-event-time {display:inline; white-space:nowrap; font-size:9px; line-height:inherit;}
     #view-timetable .timetable-event-copy .timetable-event-time[hidden] {display:none;}
     #view-timetable .timetable-event.deadline .timetable-event-copy {margin-top:auto;}
-    /* DEV78: 期限のテキストを下寄せし、赤い直線を維持する。 */
+    /* DEV81: 期限は白背景・左右上枠線なし・上側のみ既存と同じ5px角丸・赤い下線2px。 */
     #view-timetable .timetable-event.deadline {
-      background:transparent; color:#e67e22; border:0;
-      border-bottom:2px solid #d62828; border-radius:0; justify-content:flex-end;
+      background:#fff; color:#e67e22;
+      border:0; border-bottom:2px solid #d62828;
+      border-radius:5px 5px 0 0; justify-content:flex-end;
+      box-sizing:border-box;
     }
     #view-timetable .timetable-event.deadline .timetable-event-title { color:#e67e22; }
     #view-timetable .timetable-event.deadline .timetable-event-time { color:#d62828; }
@@ -2963,6 +2965,34 @@
             columns.forEach((column,col)=>column.forEach(item=>positions.set(item,{
               left:reserved+available*col/n,width:available/n
             })));
+          }
+        }
+        // DEV84: Only when a card is at most 10% of the task-box area width,
+        // stack a lower (later-starting) overlapping card onto its left neighbour.
+        // If that lower card already shares horizontal space with another card,
+        // continue searching farther down the day's tasks.
+        const taskAreaWidth=Math.max(1,axis.clientWidth-58);
+        const isNarrow=pos=>(pos.width*taskAreaWidth-2)/taskAreaWidth<=.10;
+        if([...positions.values()].some(isNarrow)){
+          const byStart=[...group].sort((a,b)=>a.start-b.start || a.end-b.end);
+          const stacked=new Set();
+          const intersectsHorizontally=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
+          for(const narrow of byStart){
+            const narrowPos=positions.get(narrow);
+            if(!isNarrow(narrowPos)) continue;
+            const leftCandidates=byStart.filter(x=>x!==narrow && overlaps(x,narrow) && positions.get(x).left<narrowPos.left)
+              .sort((a,b)=>positions.get(b).left-positions.get(a).left);
+            const left=leftCandidates[0];
+            if(!left) continue;
+            const leftPos=positions.get(left);
+            const lower=byStart.find(x=>x!==narrow && x!==left && !stacked.has(x)
+              && x.start>=narrow.start && overlaps(x,narrow)
+              && !byStart.some(other=>other!==x && other!==left && overlaps(other,x)
+                && intersectsHorizontally(positions.get(other),leftPos)));
+            if(!lower) continue;
+            const lowerPos=positions.get(lower);
+            positions.set(lower,{...lowerPos,left:leftPos.left,width:Math.max(lowerPos.width,leftPos.width)});
+            stacked.add(lower);
           }
         }
         for(const item of group){
@@ -4604,7 +4634,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.23 DEV79';
+  const BUILD_CREATED_AT = '2026.10.23 DEV84';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -1444,34 +1444,37 @@
     #view-timetable .timetable-hour:last-child {
       border-top: 0;
     }
-    /* DEV74: 終日ラベルを左端に固定し、残りの幅で最大4分割。 */
-    .makeupper-header-logo { display:block; width:auto; max-width:min(48vw,220px); height:auto; max-height:35px; object-fit:contain; object-position:left center; }
+    /* DEV76: 終日タスクは60pxを3段に分割。展開時のみヘッダーを伸ばす。 */
+    .makeupper-header-logo { display:block; width:auto; max-width:min(56vw,260px); height:auto; max-height:52px; object-fit:contain; object-position:left center; }
     #timetable-page-header #timetable-all-day:not(:empty) {
       box-sizing:border-box; height:60px; min-height:60px; display:flex;
-      align-items:stretch; gap:5px; flex-wrap:nowrap; padding:5px 8px; margin-top:5px;
-      position:relative; overflow:visible;
+      align-items:stretch; gap:5px; padding:5px 8px; margin-top:5px;
     }
+    #timetable-page-header #timetable-all-day.is-expanded:not(:empty) { height:auto; }
     #timetable-all-day .timetable-all-day-label {
       flex:0 0 38px; display:flex; align-items:center; justify-content:center;
       font-size:12px; color:#687385; white-space:nowrap;
     }
-    #timetable-all-day .timetable-all-day-item,
+    #timetable-all-day .timetable-all-day-stack {
+      flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:0;
+    }
+    #timetable-all-day .timetable-all-day-item {
+      box-sizing:border-box; width:100%; height:calc(50px / 3); min-height:calc(50px / 3);
+      flex:none; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+      display:block; padding:0 6px; border-radius:3px; font-size:11px;
+      line-height:calc(50px / 3); text-align:left;
+    }
+    #timetable-all-day .timetable-all-day-item[hidden] { display:none; }
     #timetable-all-day .timetable-more-toggle {
-      flex:1 1 0; min-width:0; width:0; overflow:hidden; white-space:nowrap;
-      text-overflow:ellipsis; display:block; padding:6px 5px;
-      border-radius:5px; font-size:12px; text-align:left;
+      flex:0 0 auto; align-self:stretch; border:0; background:transparent;
+      color:#28518a; padding:0 2px; cursor:pointer; font-size:10px;
+      white-space:nowrap; word-break:keep-all; text-align:center;
     }
-    #timetable-all-day .timetable-more-toggle { border:1px solid #d7dfe8; background:#f1f3f8; color:#35465c; cursor:pointer; }
-    #timetable-all-day .timetable-more-list {
-      position:absolute; top:calc(100% - 3px); left:8px; right:8px;
-      z-index:20; background:#fff; border:1px solid #d7dfe8;
-      border-radius:8px; padding:7px; box-shadow:0 6px 18px #0002;
-      max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-    }
-    #timetable-all-day .timetable-more-list[hidden] { display:none; }
-    #timetable-all-day .timetable-more-list .timetable-all-day-item {
-      width:100%; flex:none; min-height:32px;
-    }
+    #timetable-all-day .timetable-more-toggle:focus-visible { outline:2px solid #28518a; border-radius:3px; }
+    /* タイムラインのボックスは実時間を厳守。収まらないテキストだけを切る。 */
+    #view-timetable .timetable-event { min-height:0; overflow:hidden; }
+    #view-timetable .timetable-event-time { font-size:9px; line-height:1.15; }
+    #view-timetable .timetable-event-title { -webkit-line-clamp:unset; }
 
   </style>
 </head>
@@ -2827,10 +2830,15 @@
     }
 
     function toggleTimetableMore(button) {
-      const list=document.getElementById('timetable-more-list');
-      if(!list)return;
-      list.hidden=!list.hidden;
-      button.setAttribute('aria-expanded',String(!list.hidden));
+      const area=document.getElementById('timetable-all-day');
+      const stack=area?.querySelector('.timetable-all-day-stack');
+      if(!area || !stack) return;
+      const expanded=area.classList.toggle('is-expanded');
+      stack.querySelectorAll('.timetable-all-day-item').forEach((item,index)=>{
+        item.hidden=!expanded && index>=3;
+      });
+      button.textContent=expanded?'閉じる ∧':`すべて表示（${stack.children.length}件）∨`;
+      button.setAttribute('aria-expanded',String(expanded));
     }
 
     function renderTimetable() {
@@ -2859,15 +2867,23 @@
         const isFirst=date===item.startDate;
         const isLast=date===item.endDate;
         const start=isFirst ? inputTime : 0;
-        let end=isLast ? (rawEnd===null ? start+60 : rawEnd) : 1440;
-        if(end<=start) end=Math.min(1440,start+60);
+        let end=isLast ? (rawEnd===null ? start+30 : rawEnd) : 1440;
+        if(end<=start) end=Math.min(1440,start+30);
         if(end>start) timed.push({...item,start,end,hasActionEnd:rawEnd!==null});
       }
       const escapeAllDayText=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       const allDayButton=x=>`<button type="button" class="timetable-all-day-item ${x.kind}" title="${escapeAllDayText(x.task.title||'（無題）')}" onclick="openDetailView('${String(x.task.pageID).replace(/'/g,'')}')">${escapeAllDayText(x.task.title||'（無題）')}</button>`;
-      const shown=untimed.length>=5?untimed.slice(0,3):untimed;
-      allDay.innerHTML=(untimed.length?'<span class="timetable-all-day-label">終日</span>':'')+shown.map(allDayButton).join('')+(untimed.length>=5?
-        `<button type="button" class="timetable-more-toggle" aria-expanded="false" aria-controls="timetable-more-list" onclick="toggleTimetableMore(this)">＋残り${untimed.length-3}件</button><div id="timetable-more-list" class="timetable-more-list" hidden>${untimed.slice(3).map(allDayButton).join('')}</div>`:'');
+      const hasMore=untimed.length>=4;
+      allDay.classList.remove('is-expanded');
+      allDay.innerHTML=untimed.length
+        ? '<span class="timetable-all-day-label">終日</span>'+
+          `<div class="timetable-all-day-stack">${untimed.map((x,i)=>{
+            const markup=allDayButton(x);
+            return hasMore && i>=3 ? markup.replace('<button ', '<button hidden ') : markup;
+          }).join('')}</div>`+
+          (hasMore?`<button type="button" class="timetable-more-toggle" aria-expanded="false" onclick="toggleTimetableMore(this)">すべて表示（${untimed.length}件）∨</button>`:'')
+        : '';
+
       axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0||h===24?'':h+':00'}</span></div>`).join('');
       // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
       const ordered=[...timed].sort((a,b)=>a.start-b.start || a.end-b.end);
@@ -2893,7 +2909,7 @@
           peak=Math.max(peak,group.filter(x=>x.start<=mid&&mid<x.end).length);
         }
         const positions=new Map();
-        if(peak<=5){
+        if(peak<=4){
           // Exactly as many tracks as the peak overlap (not a fixed five tracks).
           const columns=Array.from({length:peak},()=>[]);
           for(const item of group){
@@ -2903,7 +2919,7 @@
             positions.set(item,{left:column/peak,width:1/peak});
           }
         } else {
-          // Six-plus: tasks starting within 60 minutes share the remaining width.
+          // Five-plus: tasks starting within 60 minutes share the remaining width.
           // Tasks starting >=60 minutes later can span the remaining area, while
           // leaving at least 10% of the total width visible for earlier overlaps.
           const batches=[];
@@ -2938,7 +2954,7 @@
           button.type='button';
           button.className=`timetable-event ${item.kind}`;
           button.style.top=`${item.start}px`;
-          button.style.height=`${Math.max(60,item.end-item.start)}px`;
+          button.style.height=`${item.end-item.start}px`;
           button.style.left=`calc(54px + (100% - 58px) * ${pos.left})`;
           button.style.width=`calc((100% - 58px) * ${pos.width} - 2px)`;
           button.style.zIndex=String(10+group.indexOf(item));
@@ -2954,7 +2970,10 @@
             : item.hasActionEnd
               ? `${timeToken(item.startDate,item.startTime)} <span class="timetable-time-separator">~</span> ${timeToken(item.endDate,item.endTime)}`
               : `${timeToken(item.startDate,item.startTime)} <span class="timetable-time-separator">~</span>`;
-          button.innerHTML=`<span class="timetable-event-title">${title}</span><span class="timetable-event-time">${subtitle}</span>`;
+          const duration=item.end-item.start;
+          // 未指定終了時刻は30分相当でタイトルのみ。それ以外は高さが足りる場合だけ時刻を出す。
+          const showTime=(item.kind!=='action' || item.hasActionEnd) && duration>=30;
+          button.innerHTML=`<span class="timetable-event-title">${title}</span>${showTime ? `<span class="timetable-event-time">${subtitle}</span>` : ''}`;
           button.onclick=()=>openDetailView(String(item.task.pageID));
           axis.appendChild(button);
           // Suppress times only if a single time token cannot fit at its fixed size.
@@ -4561,7 +4580,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.23 DEV74';
+  const BUILD_CREATED_AT = '2026.10.23 DEV76';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -661,7 +661,7 @@
 
 
     /* DEV41: task date/time editor */
-    .schedule-editor-box {width:min(390px,calc(100vw - 28px)); padding:14px 14px; border-radius:22px; background:#e8f1f8; max-height:calc(100dvh - 35px); overflow-y:auto;}
+    .schedule-editor-box {width:min(390px,calc(100vw - 28px)); padding:14px 14px; border-radius:22px; background:#f7f7fb; max-height:calc(100dvh - 35px); overflow-y:auto;}
     .schedule-editor-header {margin-bottom:11px;}
     .schedule-editor-icon-button {width:38px;height:38px;background:#f1f5f9;color:#64748b;font-size:26px;}
     .schedule-editor-save {background:#2563eb;color:white;font-size:23px;}
@@ -1393,8 +1393,11 @@
       padding: 0;
     }
     #timetable-page-header .timetable-header strong { font-size: 17px; }
-    #timetable-page-header .timetable-date-nav { display:flex; align-items:center; justify-content:flex-start; gap:6px; }
-    #timetable-page-header .timetable-date-nav button { border:0; background:#f1f3f8; color:#2563eb; border-radius:8px; width:27px; height:28px; padding:0; font-size:21px; line-height:1; cursor:pointer; flex:0 0 auto; }
+    #timetable-page-header .timetable-date-nav { display:flex; align-items:center; justify-content:center; gap:6px; }
+    #timetable-date-label { position:relative; white-space:nowrap; }
+    #timetable-date-label .timetable-date-weekday { position:absolute; left:calc(100% + 4px); top:50%; transform:translateY(-50%); font-size:13px; font-weight:400; white-space:nowrap; }
+    #timetable-page-header .timetable-date-nav button { border:0; background:transparent; color:#2563eb; border-radius:0; width:27px; height:28px; padding:0; font-size:21px; line-height:1; cursor:pointer; flex:0 0 auto; }
+    #timetable-page-header .timetable-date-nav button:last-child { transform:translateX(43px); }
     #view-timetable .timetable-hour:first-child, #view-timetable .timetable-hour:last-child { left:38px; }
     @keyframes timetableDayFromLeft { from { transform:translateX(-35px); opacity:.5; } to { transform:translateX(0); opacity:1; } }
     @keyframes timetableDayFromRight { from { transform:translateX(35px); opacity:.5; } to { transform:translateX(0); opacity:1; } }
@@ -1449,6 +1452,10 @@
     #view-timetable .timetable-hour:first-child,
     #view-timetable .timetable-hour:last-child {
       border-top: 0;
+    }
+    #view-timetable .timetable-quarter-tick {
+      position:absolute; left:35.5px; width:5px; height:1px;
+      background:#e0e4e9; pointer-events:none;
     }
     /* DEV77: 終日エリアは表示件数に応じて伸縮。通常は最大2件。 */
     .makeupper-header-logo { display:block; width:auto; max-width:min(56vw,260px); height:auto; max-height:52px; object-fit:contain; object-position:left center; }
@@ -2020,30 +2027,37 @@
     let historyMemoSortOrder = 'desc';
     let isHistoryMemoEditing = false;
 
-    const CATEGORY_COLOR_OPTIONS = ['#7992e7', '#938aea', '#ac81e9', '#c774e6', '#e362de', '#e46ab9', '#e56f96', '#e67374', '#df7a4e', '#c78924', '#a1991d', '#80a11d', '#5aa81e', '#2fac1f', '#1fad3b', '#1eab67', '#1ea891', '#21a4ba', '#b68c68', '#748394'];
+    const CATEGORY_COLOR_OPTIONS = ['#e67374', '#df7a4e', '#c78924', '#80a11d', '#2fac1f', '#1ea891', '#21a4ba', '#7992e7', '#485c92', '#ac81e9', '#e362de', '#e56f96', '#b68c68', '#748394'];
     const LEGACY_CATEGORY_COLOR_MAP = {
       '#2563eb': '#7992e7',
       '#4c9bdf': '#7992e7',
       '#7c3aed': '#ac81e9',
-      '#db2777': '#e46ab9',
+      '#db2777': '#e56f96',
       '#e11d48': '#e67374',
       '#ea580c': '#df7a4e',
       '#d97706': '#c78924',
-      '#16a34a': '#1fad3b',
+      '#16a34a': '#2fac1f',
       '#0f766e': '#1ea891',
       '#0891b2': '#21a4ba',
-      '#4f46e5': '#938aea'
+      '#4f46e5': '#7992e7',
+      '#938aea': '#7992e7',
+      '#c774e6': '#ac81e9',
+      '#e46ab9': '#e56f96',
+      '#a1991d': '#c78924',
+      '#5aa81e': '#80a11d',
+      '#1fad3b': '#2fac1f',
+      '#1eab67': '#1ea891'
     };
     const DEFAULT_TASK_CATEGORIES = [
       { name: '仕事', color: '#7992e7' },
       { name: 'プライベート', color: '#ac81e9' },
-      { name: '家庭', color: '#e46ab9' },
-      { name: '健康', color: '#1fad3b' },
+      { name: '家庭', color: '#e56f96' },
+      { name: '健康', color: '#2fac1f' },
       { name: '学習', color: '#1ea891' },
       { name: '趣味', color: '#df7a4e' },
       { name: '人間関係', color: '#e67374' },
       { name: 'お金', color: '#c78924' },
-      { name: '目標・夢', color: '#938aea' }
+      { name: '目標・夢', color: '#485c92' }
     ];
 
     function iconMarkup(name, extraClass = '') {
@@ -2912,8 +2926,9 @@
     function renderTimetable() {
       const date = topCalendarSelectedDate;
       const selected = new Date(date+'T12:00:00');
-      document.getElementById('timetable-date-label').textContent =
-        formatAppDate(selected);
+      const dateLabel = document.getElementById('timetable-date-label');
+      const yearPrefix = selected.getFullYear() === new Date().getFullYear() ? '' : `${selected.getFullYear()}年`;
+      dateLabel.innerHTML = `<span class="timetable-date-main">${yearPrefix}${selected.getMonth()+1}月${selected.getDate()}日</span><span class="timetable-date-weekday">（${['日','月','火','水','木','金','土'][selected.getDay()]}）</span>`;
       const allDay=document.getElementById('timetable-all-day');
       const axis=document.getElementById('timetable-axis');
       const items=calendarItems(date);
@@ -2953,6 +2968,9 @@
         : '';
 
       axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0||h===24?'':h+':00'}</span></div>`).join('');
+      axis.insertAdjacentHTML('beforeend', Array.from({length:24},(_,h)=>
+        [15,30,45].map(minute=>`<div class="timetable-quarter-tick" style="top:${h*60+minute}px" aria-hidden="true"></div>`).join('')
+      ).join(''));
       // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
       const ordered=[...timed].sort((a,b)=>a.start-b.start || b.end-a.end);
       const groups=[];
@@ -3006,8 +3024,7 @@
           })));
         }
         if(peak>=5){
-          const taskAreaWidth=Math.max(1,axis.clientWidth-58);
-          const minWidth=.10+2/taskAreaWidth;
+          const minWidth=.10;
           const intersect=(a,b)=>a.start<b.end && b.start<a.end;
           const horizontal=(a,b)=>a.left<b.left+b.width-1e-8 && b.left<a.left+a.width-1e-8;
           const visible=item=>{
@@ -3024,7 +3041,7 @@
                 return out;
               });
             }
-            return Math.max(0,segments.reduce((n,[left,right])=>n+right-left,0)-2/taskAreaWidth);
+            return Math.max(0,segments.reduce((n,[left,right])=>n+right-left,0));
           };
           // First use wholly vacant slots, without disturbing other cards.
           for(let pass=0;pass<group.length;pass++){
@@ -3108,19 +3125,20 @@
             else if(!right.length) blocked.add(narrow);
           }
         }
-        // DEV96: Once placement and narrow-card repair are complete, extend a
-        // card to the right edge only if no time-overlapping card occupies
-        // any portion of the horizontal space to its right.
+        // DEV108: Extend into vacant space up to the nearest card sharing
+        // any part of this time interval, or to the right edge when unobstructed.
         for(const item of group){
           const pos=positions.get(item);
           const right=pos.left+pos.width;
           if(right>=1-1e-8) continue;
-          const rightOccupied=group.some(other=>{
-            if(other===item || !overlaps(item,other)) return false;
+          let rightLimit=1;
+          for(const other of group){
+            if(other===item || !overlaps(item,other)) continue;
             const otherPos=positions.get(other);
-            return otherPos.left<1-1e-8 && otherPos.left+otherPos.width>right+1e-8;
-          });
-          if(!rightOccupied) positions.set(item,{...pos,width:1-pos.left});
+            if(otherPos.left>=right-1e-8) rightLimit=Math.min(rightLimit,otherPos.left);
+            else if(otherPos.left+otherPos.width>right+1e-8) rightLimit=Math.min(rightLimit,right);
+          }
+          if(rightLimit>right+1e-8) positions.set(item,{...pos,width:rightLimit-pos.left});
         }
         for(const item of group){
           const pos=positions.get(item);
@@ -3130,8 +3148,8 @@
           button.style.backgroundColor=item.backgroundColor;
           button.style.top=`${item.start}px`;
           button.style.height=`${item.end-item.start}px`;
-          button.style.left=`calc(54px + (100% - 58px) * ${pos.left})`;
-          button.style.width=`calc((100% - 58px) * ${pos.width} - 2px)`;
+          button.style.left=`calc(46px + (100% - 50px) * ${pos.left})`;
+          button.style.width=`calc((100% - 50px) * ${pos.width})`;
           button.style.zIndex=String(10+group.indexOf(item));
           const title=escapeEventText(item.task.title||'（無題）');
           // Show the date only for the endpoint outside the displayed day.
@@ -4763,7 +4781,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.24 DEV107';
+  const BUILD_CREATED_AT = '2026.10.24 DEV109';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

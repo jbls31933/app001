@@ -1444,6 +1444,34 @@
     #view-timetable .timetable-hour:last-child {
       border-top: 0;
     }
+    /* DEV74: 終日ラベルを左端に固定し、残りの幅で最大4分割。 */
+    .makeupper-header-logo { display:block; width:auto; max-width:min(48vw,220px); height:auto; max-height:35px; object-fit:contain; object-position:left center; }
+    #timetable-page-header #timetable-all-day:not(:empty) {
+      box-sizing:border-box; height:60px; min-height:60px; display:flex;
+      align-items:stretch; gap:5px; flex-wrap:nowrap; padding:5px 8px; margin-top:5px;
+      position:relative; overflow:visible;
+    }
+    #timetable-all-day .timetable-all-day-label {
+      flex:0 0 38px; display:flex; align-items:center; justify-content:center;
+      font-size:12px; color:#687385; white-space:nowrap;
+    }
+    #timetable-all-day .timetable-all-day-item,
+    #timetable-all-day .timetable-more-toggle {
+      flex:1 1 0; min-width:0; width:0; overflow:hidden; white-space:nowrap;
+      text-overflow:ellipsis; display:block; padding:6px 5px;
+      border-radius:5px; font-size:12px; text-align:left;
+    }
+    #timetable-all-day .timetable-more-toggle { border:1px solid #d7dfe8; background:#f1f3f8; color:#35465c; cursor:pointer; }
+    #timetable-all-day .timetable-more-list {
+      position:absolute; top:calc(100% - 3px); left:8px; right:8px;
+      z-index:20; background:#fff; border:1px solid #d7dfe8;
+      border-radius:8px; padding:7px; box-shadow:0 6px 18px #0002;
+      max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+    }
+    #timetable-all-day .timetable-more-list[hidden] { display:none; }
+    #timetable-all-day .timetable-more-list .timetable-all-day-item {
+      width:100%; flex:none; min-height:32px;
+    }
 
   </style>
 </head>
@@ -1465,8 +1493,7 @@
         </div>
         <!-- トップ画面専用のロゴ -->
         <div id="global-logo" class="logo-area">
-          <span class="logo-icon">🗼</span>
-          <h1 class="app-title">MakeUpper</h1>
+          <img class="makeupper-header-logo" src="images/hedderLogo.PNG" alt="MakeUpper">
         </div>
       </div>
       
@@ -1496,6 +1523,7 @@
           <label><span class="calendar-legend action-color"></span>対応予定を表示<input type="checkbox" id="timetable-show-action" checked onchange="syncCalendarFilters('action',this.checked)"><span class="calendar-toggle"></span></label>
         </div>
       </div>
+      <div class="timetable-all-day" id="timetable-all-day"></div>
     </div>
 
     <!-- メインコンテンツ領域 -->
@@ -1535,7 +1563,6 @@
       </div>
       <div id="view-timetable" class="hidden">
         <div class="card timetable-card">
-          <div class="timetable-all-day" id="timetable-all-day"></div>
           <div class="timetable-scroll"><div class="timetable-axis" id="timetable-axis"></div></div>
         </div>
       </div>
@@ -2799,6 +2826,13 @@
       return h>=0&&h<24&&m>=0&&m<60 ? h*60+m : null;
     }
 
+    function toggleTimetableMore(button) {
+      const list=document.getElementById('timetable-more-list');
+      if(!list)return;
+      list.hidden=!list.hidden;
+      button.setAttribute('aria-expanded',String(!list.hidden));
+    }
+
     function renderTimetable() {
       const date = topCalendarSelectedDate;
       const selected = new Date(date+'T12:00:00');
@@ -2829,8 +2863,11 @@
         if(end<=start) end=Math.min(1440,start+60);
         if(end>start) timed.push({...item,start,end,hasActionEnd:rawEnd!==null});
       }
-      allDay.innerHTML=untimed.length?'<strong>終日</strong>'+untimed.map(x=>
-        `<button class="timetable-all-day-item ${x.kind}" onclick="openDetailView('${String(x.task.pageID).replace(/'/g,'')}')">${String(x.task.title||'（無題）').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;')}</button>`).join(''):'';
+      const escapeAllDayText=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const allDayButton=x=>`<button type="button" class="timetable-all-day-item ${x.kind}" title="${escapeAllDayText(x.task.title||'（無題）')}" onclick="openDetailView('${String(x.task.pageID).replace(/'/g,'')}')">${escapeAllDayText(x.task.title||'（無題）')}</button>`;
+      const shown=untimed.length>=5?untimed.slice(0,3):untimed;
+      allDay.innerHTML=(untimed.length?'<span class="timetable-all-day-label">終日</span>':'')+shown.map(allDayButton).join('')+(untimed.length>=5?
+        `<button type="button" class="timetable-more-toggle" aria-expanded="false" aria-controls="timetable-more-list" onclick="toggleTimetableMore(this)">＋残り${untimed.length-3}件</button><div id="timetable-more-list" class="timetable-more-list" hidden>${untimed.slice(3).map(allDayButton).join('')}</div>`:'');
       axis.innerHTML=Array.from({length:25},(_,h)=>`<div class="timetable-hour" style="top:${h*60}px"><span>${h===0||h===24?'':h+':00'}</span></div>`).join('');
       // DEV51: Recompute the maximum simultaneous overlap whenever the day is rendered.
       const ordered=[...timed].sort((a,b)=>a.start-b.start || a.end-b.end);
@@ -4524,7 +4561,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.22 DEV71';
+  const BUILD_CREATED_AT = '2026.10.23 DEV74';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

@@ -1510,6 +1510,30 @@
 
 
     .calendar-filters label:has(input[id$="show-deadline"]:checked) .calendar-toggle{background:#e37885}
+    /* DEV114: Transactional schedule and category dialogs. */
+    #schedule-picker-modal { z-index:1200; }
+    #category-selection-modal { z-index:1050; }
+    #category-management-modal { z-index:1100; }
+    #category-edit-modal { z-index:1300; }
+    .picker-dialog,.category-dialog { background:#ffffff; }
+    .category-modal-options { display:grid; gap:6px; }
+    .category-dialog { max-height:82dvh; overflow-y:auto; }
+    .category-dialog .category-settings-name { min-width:0; }
+    #schedule-picker-area { border:0; padding:4px 0; }
+    .schedule-notification-choice { display:block; width:100%; border:0; border-top:1px solid #e2e8f0; background:#ffffff; color:#2563eb; padding:12px 17px; font-size:13px; text-align:right; white-space:normal; cursor:pointer; }
+    .reminder-options { display:grid; gap:2px; }
+    .reminder-option { display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid #e2e8f0; color:#334155; font-size:14px; }
+    .reminder-option input[type=checkbox] { width:18px; height:18px; accent-color:#2563eb; }
+    .reminder-custom-input { width:100%; margin-top:8px; padding:8px; border:1px solid #cbd5e1; border-radius:8px; background:#ffffff; color:#334155; }
+    /* DEV115: One shared task form, shown in a single replaceable editor. */
+    #task-editor-modal { z-index:900; }
+    .task-editor-dialog { position:absolute; top:var(--task-editor-top,90px); bottom:var(--task-editor-bottom,105px); left:50%; transform:translateX(-50%); width:min(430px,calc(100vw - 24px)); display:flex; flex-direction:column; min-height:0; background:#ffffff; border-radius:16px; box-shadow:0 14px 34px rgba(15,23,42,.2); overflow:hidden; }
+    .task-editor-toolbar { display:flex; flex:0 0 auto; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid #e2e8f0; }
+    .task-editor-toolbar strong { flex:1; color:#334155; font-size:14px; }
+    #task-editor-scroll { min-height:0; flex:1 1 auto; overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding:0; }
+    #task-editor-scroll #view-task-page { display:block; }
+    #task-editor-scroll #view-task-page>.card { box-shadow:none; border-radius:0; }
+    .app-container { isolation:isolate; }
   </style>
 </head>
 <body>
@@ -1536,7 +1560,7 @@
       
       <!-- 右側ボタンエリア -->
       <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 2;">
-        <button id="global-add-proj-btn" class="btn-add-project" onclick="openNewProjectPage()"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#plus"></use></svg>新規プロジェクト追加</span></button>
+        <button id="global-add-proj-btn" class="btn-add-project" onclick="openNewProjectPage()"><span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#plus"></use></svg>新規タスク追加</span></button>
         <button id="global-save-btn" class="btn-save hidden" onclick="saveOrUpdateCurrentTask()">保存</button>
         <button id="global-delete-btn" class="btn-delete hidden" onclick="confirmDeleteCurrentTask()">削除</button>
       </div>
@@ -1619,8 +1643,8 @@
 
         <div id="proj-subview-list" class="hidden">
           <div class="card">
-            <h2 class="section-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#folder"></use></svg>登録プロジェクト一覧</h2>
-            <div id="top-project-list" class="space-y-3"><div class="empty-msg">プロジェクトがありません</div></div>
+            <h2 class="section-title icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#folder"></use></svg>タスク・プロジェクト一覧</h2>
+            <div id="top-project-list" class="space-y-3"><div class="empty-msg">タスクがありません</div></div>
           </div>
           <div class="card" style="margin-top: 12px;">
             <h2 class="section-title">リンク</h2>
@@ -1771,7 +1795,6 @@
               <span class="icon-with-text"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#bookmark"></use></svg><span>カテゴリ</span><span id="category-picker-label">を選択</span></span>
               <svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg>
             </button>
-            <div id="category-menu" class="category-menu hidden"></div>
           </div>
 
           <div class="datetime-row" onclick="openScheduleEditor('deadline')">
@@ -1977,13 +2000,13 @@
         <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="saveScheduleEditor()" aria-label="保存">✓</button>
       </div>
       <div class="schedule-datetime-card">
-        <div id="schedule-all-day-row" class="schedule-all-day-row hidden"><span class="schedule-row-name">◷　終了時刻も設定する</span><input id="schedule-all-day" type="checkbox" class="schedule-switch" onchange="toggleScheduleAllDay()"></div>
+        <label id="schedule-all-day-row" class="schedule-all-day-row"><span class="schedule-row-name">◷　終日にする</span><input id="schedule-all-day" type="checkbox" class="schedule-switch" onchange="toggleScheduleAllDay()"></label>
         <div class="schedule-date-row" id="schedule-start-row"><span class="schedule-date-caption" id="schedule-start-caption">開始</span><button type="button" id="schedule-start-date-btn" onclick="showSchedulePicker('start','date')"></button><button type="button" id="schedule-start-time-btn" onclick="showSchedulePicker('start','time')"></button></div>
         <div class="schedule-date-row hidden" id="schedule-end-row"><span class="schedule-date-caption">終了</span><button type="button" id="schedule-end-date-btn" onclick="showSchedulePicker('end','date')"></button><button type="button" id="schedule-end-time-btn" onclick="showSchedulePicker('end','time')"></button></div>
-        <div id="schedule-picker-area" class="schedule-picker-area hidden"></div>
       </div>
       <div class="schedule-options-card">
-        <div class="schedule-option-row"><span>♧　通知する</span><input type="checkbox" class="schedule-switch" disabled aria-label="通知機能は今後追加"></div>
+        <div class="schedule-option-row"><span>♧　通知する</span><input id="schedule-notification-enabled" type="checkbox" class="schedule-switch" onchange="toggleScheduleNotification()" aria-label="通知する"></div>
+        <button type="button" id="schedule-notification-choice" class="schedule-notification-choice hidden" onclick="showSchedulePicker('start','reminder')"></button>
         <div class="schedule-option-row"><span>⇄　繰り返し</span><span class="schedule-muted">毎日　›</span></div>
       </div>
       <button type="button" class="schedule-clear-button" onclick="clearScheduleEditor()">設定を削除</button>
@@ -2003,7 +2026,72 @@
     </div>
   </div>
 
+  <div id="schedule-picker-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="schedule-picker-title">
+    <div class="schedule-editor-box picker-dialog">
+      <div class="schedule-editor-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="cancelSchedulePicker()" aria-label="選択を取り消す">×</button>
+        <div id="schedule-picker-title" class="schedule-editor-title"></div>
+        <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="confirmSchedulePicker()" aria-label="選択を確定">✓</button>
+      </div>
+      <div id="schedule-picker-area" class="schedule-picker-area"></div>
+    </div>
+  </div>
+  <div id="category-selection-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="category-selection-title">
+    <div class="schedule-editor-box category-dialog">
+      <div class="schedule-editor-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="cancelCategorySelection()" aria-label="カテゴリ選択を取り消す">×</button>
+        <div id="category-selection-title" class="schedule-editor-title">カテゴリを選択</div>
+        <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="confirmCategorySelection()" aria-label="カテゴリ選択を確定">✓</button>
+      </div>
+      <div id="category-menu" class="category-modal-options"></div>
+    </div>
+  </div>
+  <div id="category-management-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="category-management-title">
+    <div class="schedule-editor-box category-dialog">
+      <div class="schedule-editor-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="cancelCategoryManagement()" aria-label="カテゴリ管理の変更を取り消す">×</button>
+        <div id="category-management-title" class="schedule-editor-title">カテゴリ管理</div>
+        <button type="button" class="schedule-editor-icon-button schedule-editor-save" onclick="confirmCategoryManagement()" aria-label="カテゴリ管理の変更を確定">✓</button>
+      </div>
+      <div class="category-settings-add">
+        <input type="text" id="category-modal-settings-input" class="task-input" placeholder="カテゴリ名を入力">
+        <button type="button" class="category-settings-add-button" onclick="addCategorySetting()">追加</button>
+      </div>
+      <div id="category-modal-settings-list"></div>
+    </div>
+  </div>
+
+  <div id="task-editor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="task-editor-title">
+    <div class="task-editor-dialog">
+      <div class="task-editor-toolbar">
+        <button type="button" class="schedule-editor-icon-button" onclick="closeTaskEditor()" aria-label="タスク編集を閉じる">×</button>
+        <strong id="task-editor-title">タスク</strong>
+        <button type="button" id="task-editor-save" class="btn-save" onclick="saveOrUpdateCurrentTask()">保存</button>
+        <button type="button" class="btn-delete" onclick="confirmDeleteCurrentTask()">削除</button>
+      </div>
+      <div id="task-editor-scroll"></div>
+    </div>
+  </div>
+
   <script>
+    let taskEditorIsOpen = false;
+    let taskEditorOrigin = null;
+    let pendingTaskEditorAction = null;
+    const taskViewHomeParent = document.getElementById('view-task-page').parentNode;
+    const taskViewHomeNext = document.getElementById('view-task-page').nextSibling;
+    const REMINDER_OPTIONS = [
+      ['5MinBefore','5分前'], ['10MinBefore','10分前'], ['20MinBefore','20分前'], ['30MinBefore','30分前'],
+      ['1HourBefore','1時間前'], ['2HoursBefore','2時間前'], ['3HoursBefore','3時間前'],
+      ['4HoursBefore','4時間前'], ['5HoursBefore','5時間前'], ['6HoursBefore','6時間前'], ['12HoursBefore','12時間前'],
+      ['1DayBefore','1日前'], ['3DaysBefore','3日前'], ['5DaysBefore','5日前'],
+      ['1WeekBefore','1週間前'], ['2WeeksBefore','2週間前'], ['1MonthBefore','1か月前']
+    ];
+    let categorySelectionDraft = null;
+    let categoryManagementDraft = null;
+    let scheduleNotificationDraft = null;
+    let schedulePickerReminderDraft = null;
+    let schedulePickerDraftValue = '';
+    const preparedNotificationPayloads = new Map();
     let tasks = [];
     let nextIdCounter = 1;
     let currentEditingTaskId = null;
@@ -2172,6 +2260,7 @@
     }
 
     function saveTaskCategories() {
+      if (categoryManagementDraft !== null) return;
       localStorage.setItem('coach_app_task_categories', JSON.stringify(taskCategories));
     }
 
@@ -2248,6 +2337,10 @@
         actionCustomReminderAt: record.actionCustomReminderAt ?? '',
         isActionCustomActive: Boolean(record.isActionCustomActive ?? false)
       };
+      for (const field of ['deadline','action']) {
+        const prefix = field === 'deadline' ? 'isDeadline' : 'isAction';
+        for (const [key] of REMINDER_OPTIONS) normalized[prefix + key] = Boolean(record[prefix + key]);
+      }
       return normalized;
     }
 
@@ -2375,6 +2468,10 @@
     }
 
     function switchView(targetView, options = {}) {
+      if(taskEditorIsOpen){
+        requestTaskEditorAction(()=>{closeTaskEditor(true);switchView(targetView,{...options,force:true});});
+        return;
+      }
       if (currentActiveView === targetView && !options.force) return;
 
       if (currentActiveView === 'task-page' && targetView !== 'task-page' && !options.preserveTaskDraft && hasTaskDraftChanges()) {
@@ -2523,6 +2620,7 @@
     }
 
     function goBack() {
+      if(taskEditorIsOpen){closeTaskEditor();return;}
       if (currentActiveView === 'timetable') { switchView('calendar'); renderCalendar(); return; }
       let target = 'quickstatus';
       if (SETTINGS_SUBPAGES.includes(currentActiveView) || currentActiveView === 'trash') {
@@ -2579,15 +2677,22 @@
         taskMemo: task.taskMemo || '', referenceLinks: (task.referenceLinks || []).filter(link => link.title || link.url).map(link => ({ title: link.title || '', url: link.url || '' })),
         historyMemo: (task.historyMemo || []).filter(Boolean), historyMemoAt: (task.historyMemoAt || []).slice(0, (task.historyMemo || []).filter(Boolean).length)
       });
-      return JSON.stringify(comparable(savedTask)) !== JSON.stringify(comparable(draft));
+      return JSON.stringify({...comparable(savedTask),deadlineReminders:readTaskReminders(savedTask,'deadline'),actionReminders:readTaskReminders(savedTask,'action')}) !==
+        JSON.stringify({...comparable(draft),deadlineReminders:readTaskReminders(draft,'deadline'),actionReminders:readTaskReminders(draft,'action')});
     }
 
     function closeUnsavedTaskModal() {
+      pendingTaskEditorAction=null;
       pendingNavigationTarget = null;
       document.getElementById('unsaved-task-modal').classList.add('hidden');
     }
 
     function discardAndContinueNavigation() {
+      if(pendingTaskEditorAction){
+        const action=pendingTaskEditorAction;pendingTaskEditorAction=null;pendingNavigationTarget=null;
+        document.getElementById('unsaved-task-modal').classList.add('hidden');
+        discardTaskEditorDraft();action();return;
+      }
       const target = pendingNavigationTarget;
       document.getElementById('unsaved-task-modal').classList.add('hidden');
       pendingNavigationTarget = null;
@@ -2598,6 +2703,12 @@
     }
 
     function saveAndContinueNavigation() {
+      if(pendingTaskEditorAction){
+        const action=pendingTaskEditorAction;
+        if(!currentEditingTaskDraft||!executeFinalSave(currentEditingTaskDraft,true))return;
+        pendingTaskEditorAction=null;pendingNavigationTarget=null;
+        document.getElementById('unsaved-task-modal').classList.add('hidden');action();return;
+      }
       const target = pendingNavigationTarget;
       document.getElementById('unsaved-task-modal').classList.add('hidden');
       if (!target || !currentEditingTaskDraft) return;
@@ -3283,7 +3394,7 @@
       const projects = tasks.filter(t => t.parentID === null && t.isSaved && !t.preDeleted);
 
       if (projects.length === 0) {
-        container.innerHTML = `<div class="empty-msg text-center py-4">プロジェクトがありません。「${iconMarkup('plus')} 新規プロジェクト追加」から作成してください。</div>`;
+        container.innerHTML = `<div class="empty-msg text-center py-4">タスクがありません。「${iconMarkup('plus')} 新規タスク追加」から作成してください。</div>`;
         return;
       }
 
@@ -3295,7 +3406,7 @@
         card.className = 'project-card';
         card.innerHTML = `
           <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-sm" style="${titleStyle}">${iconMarkup('folder')} ${proj.title || '（無題のプロジェクト）'} (ID:${proj.pageID})</span>
+            <span class="font-bold text-sm" style="${titleStyle}">${iconMarkup('folder')} ${proj.title || '（無題のタスク）'} (ID:${proj.pageID})</span>
             <div class="flex gap-1">
               <button onclick='openSubTaskCreateForm("${proj.pageID}")' class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded">${iconMarkup('plus')}子タスク</button>
               <button onclick='openDetailView("${proj.pageID}")' class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">詳細</button>
@@ -3454,14 +3565,92 @@
       renderApp();
     }
 
-    function openDetailView(taskId) {
+    function requestTaskEditorAction(action){
+      if(hasTaskDraftChanges()){
+        pendingTaskEditorAction=action;pendingNavigationTarget=null;
+        document.getElementById('unsaved-task-modal').classList.remove('hidden');return false;
+      }
+      action();return true;
+    }
+    function discardTaskEditorDraft(){
+      const task=tasks.find(item=>item.pageID===String(currentEditingTaskId));
+      if(task&&!task.isSaved){
+        tasks=tasks.filter(item=>item!==task);
+        tasks.forEach(item=>{item.childID=(item.childID||[]).filter(id=>String(id)!==task.pageID);});
+        currentEditingTaskDraft=null;currentEditingTaskId=null;
+        saveTasksToStorage();
+      }else if(task)currentEditingTaskDraft=cloneTaskForEditing(task);
+    }
+    function updateTaskEditorBounds(){
+      if(!taskEditorIsOpen)return;
+      const modal=document.getElementById('task-editor-modal');
+      const header=document.querySelector('.header').getBoundingClientRect();
+      const footer=document.getElementById('global-footer');
+      const height=window.innerHeight;
+      const footerTop=footer.classList.contains('hidden')?height-16:footer.getBoundingClientRect().top;
+      const top=Math.max(8,Math.min(header.bottom+4,footerTop-120));
+      modal.style.setProperty('--task-editor-top',`${top}px`);
+      modal.style.setProperty('--task-editor-bottom',`${Math.max(0,height-footerTop)}px`);
+    }
+    function closeTaskEditor(force=false){
+      if(!taskEditorIsOpen)return;
+      if(!force){requestTaskEditorAction(()=>closeTaskEditor(true));return;}
+      const origin=taskEditorOrigin;
+      closeScheduleEditor();cancelCategoryManagement();cancelCategorySelection();
+      discardTaskEditorDraft();currentEditingTaskId=null;currentEditingTaskDraft=null;
+      const view=document.getElementById('view-task-page');
+      taskViewHomeParent.insertBefore(view,taskViewHomeNext);
+      view.classList.add('hidden');
+      document.getElementById('task-editor-modal').classList.add('hidden');
+      document.querySelector('.app-container').inert=false;
+      taskEditorIsOpen=false;taskEditorOrigin=null;
+      if(origin?.standaloneTaskID&&tasks.some(task=>task.pageID===origin.standaloneTaskID&&!task.preDeleted)){
+        openDetailView(origin.standaloneTaskID,{standalone:true,force:true});
+      }else if(currentActiveView==='task-page')switchViewDirect('quickstatus');
+      else renderApp();
+      requestAnimationFrame(()=>{
+        document.querySelector('.main-scroll-area').scrollTop=origin?.scroll||0;
+        if(origin?.opener?.isConnected)origin.opener.focus();
+      });
+    }
+    function getTaskDisplayRecords(){
+      return tasks.map(task=>task.pageID===String(currentEditingTaskId)&&currentEditingTaskDraft
+        ? {...task,...currentEditingTaskDraft}:task);
+    }
+    function syncTaskProjectLabel(){
+      if(!currentEditingTaskDraft)return;
+      const records=getTaskDisplayRecords();
+      const rootId=getRootParentId(currentEditingTaskId,records);
+      const root=records.find(task=>task.pageID===String(rootId)&&!task.preDeleted);
+      const hasChildren=Boolean(root&&records.some(task=>!task.preDeleted&&task.parentID===root.pageID&&task.pageID!==root.pageID));
+      const label=document.getElementById('detail-project-label');
+      label.classList.toggle('hidden',!hasChildren);
+      label.textContent=hasChildren?`プロジェクト：${root.title||'無題'}`:'';
+    }
+    function syncTaskTitlePreview(){
+      if(!currentEditingTaskDraft)return;
+      document.querySelectorAll('#detail-tree-list .project-tree-title').forEach(button=>{
+        if(button.dataset.pageId===String(currentEditingTaskId))button.textContent=currentEditingTaskDraft.title||'（無題）';
+      });
+      syncTaskProjectLabel();
+    }
+    function openDetailView(taskId,options={}){
+      if(taskEditorIsOpen&&String(currentEditingTaskId)===String(taskId)&&!options.standalone)return;
+      if(!options.force){requestTaskEditorAction(()=>openDetailView(taskId,{...options,force:true}));return;}
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
-      if (currentActiveView === 'task-page' && String(currentEditingTaskId) !== String(taskId) && hasTaskDraftChanges()) {
-        alert('現在のページに未保存の変更があります。先に保存してください。');
-        return;
+      const previousTask=tasks.find(item=>item.pageID===String(currentEditingTaskId));
+      if(previousTask&&!previousTask.isSaved&&previousTask.pageID!==String(taskId)&&!hasTaskDraftChanges())discardTaskEditorDraft();
+      if(!options.standalone&&!taskEditorIsOpen){
+        taskEditorOrigin={view:currentActiveView,scroll:document.querySelector('.main-scroll-area').scrollTop,
+          standaloneTaskID:currentActiveView==='task-page'?String(currentEditingTaskId):null,opener:document.activeElement};
+        taskEditorIsOpen=true;
+        document.getElementById('task-editor-scroll').appendChild(document.getElementById('view-task-page'));
+        document.querySelector('.app-container').inert=true;
+        document.getElementById('task-editor-modal').classList.remove('hidden');
+        updateTaskEditorBounds();
       }
-      taskReturnView = currentActiveView;
+      if(options.standalone&&currentActiveView!=='task-page')taskReturnView=currentActiveView;
       currentEditingTaskId = String(taskId);
       currentEditingTaskDraft = cloneTaskForEditing(task);
       referenceLinkEditingIndexes = new Set();
@@ -3481,7 +3670,7 @@
       
       const rootId = getRootParentId(taskId, tasks);
       const rootTask = tasks.find(t => t.pageID === String(rootId));
-      document.getElementById('detail-project-label').innerText = `プロジェクト：${rootTask ? (rootTask.title || '無題') : 'なし'}`;
+      syncTaskProjectLabel();
 
       const saveBtn = document.getElementById('global-save-btn');
       const updatedAtRow = document.getElementById('detail-updated-at-row');
@@ -3497,10 +3686,12 @@
       }
 
       renderProjectTree(rootId);
-
-      switchView('task-page', { force: true });
-      const scrollArea = document.querySelector('#view-task-page .main-scroll-area') || document.querySelector('.main-scroll-area');
+      document.getElementById('task-editor-save').innerText=task.isSaved?'更新':'保存';
+      if(options.standalone)switchView('task-page',{force:true});
+      else document.getElementById('view-task-page').classList.remove('hidden');
+      const scrollArea = taskEditorIsOpen?document.getElementById('task-editor-scroll'):document.querySelector('.main-scroll-area');
       if (scrollArea) scrollArea.scrollTop = 0;
+      if(taskEditorIsOpen)document.querySelector('#task-editor-modal .task-editor-toolbar button')?.focus();
     }
 
     // プロジェクトビュー：親子関係と兄弟順は parentID / childID で管理する。
@@ -3558,10 +3749,12 @@
       const container = document.getElementById('detail-tree-list');
       if (!container) return;
       container.replaceChildren();
-      const root = tasks.find(t => String(t.pageID) === String(rootId) && !t.preDeleted);
+      const displayTasks=getTaskDisplayRecords();
+      const root = displayTasks.find(t => String(t.pageID) === String(rootId) && !t.preDeleted);
       if (!root) return;
       const projectId = String(root.projectID || root.pageID);
-      const members = tasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
+      const members = displayTasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
+      syncTaskProjectLabel();
       const visited = new Set();
       const heading = document.createElement('div');
       heading.className = 'project-tree-columns';
@@ -3645,13 +3838,13 @@
         title.dataset.pageId = id;
         title.textContent = task.title || '（無題）';
         if (task.status === 'completed') title.classList.add('project-tree-completed');
-        title.onclick = () => editProjectTreeTitle(id, rootId);
+        title.onclick = () => openDetailView(id);
         titleCell.appendChild(title);
         const edit = document.createElement('button');
         edit.type = 'button'; edit.className = 'project-tree-edit';
-        edit.textContent = '✎'; edit.title = '簡易編集';
-        edit.setAttribute('aria-label', '簡易編集');
-        edit.onclick = () => showProjectTreeOpenModal(id, rootId);
+        edit.textContent = '✎'; edit.title = 'タスクを編集';
+        edit.setAttribute('aria-label', 'タスクを編集');
+        edit.onclick = () => openDetailView(id);
         titleCell.appendChild(edit);
         row.appendChild(titleCell);
         [task.status || '', task.deadlineDate || '', task.actionDate || '', task.taskMemo || ''].forEach(value => {
@@ -3719,17 +3912,7 @@
     }
     let pendingProjectTreeOpenId = null;
     let pendingProjectTreeRootId = null;
-    function showProjectTreeOpenModal(pageId, rootId) {
-      const task = tasks.find(t => String(t.pageID) === String(pageId) && !t.preDeleted);
-      if (!task) return;
-      pendingProjectTreeOpenId = String(pageId);
-      pendingProjectTreeRootId = String(rootId);
-      document.getElementById('project-tree-edit-name').value = task.title || '';
-      document.getElementById('project-tree-edit-deadline').value = /^\d{4}-\d{2}-\d{2}$/.test(task.deadlineDate || '') ? task.deadlineDate : '';
-      document.getElementById('project-tree-edit-action').value = /^\d{4}-\d{2}-\d{2}$/.test(task.actionDate || '') ? task.actionDate : '';
-      document.getElementById('project-tree-edit-memo').value = task.taskMemo || '';
-      document.getElementById('project-tree-open-modal').classList.remove('hidden');
-    }
+    function showProjectTreeOpenModal(pageId, rootId) { openDetailView(pageId); }
     function closeProjectTreeOpenModal() {
       document.getElementById('project-tree-open-modal').classList.add('hidden');
       pendingProjectTreeOpenId = null;
@@ -3830,66 +4013,29 @@
 
     // 子ページを通常のタスクと同じ34プロパティで作成し、即時保存する。
     // 追加直後はプロジェクトビュー内でタイトルを入力できる。
-    function createProjectChildInline(parentID, rootId) {
-      const parent = tasks.find(t => t.pageID === String(parentID) && !t.preDeleted);
-      if (!parent) return;
-      const newId = String(nextIdCounter++);
-      const newTask = normalizeRecord({
-        pageID: newId, type: 'task', title: '', parentID: String(parent.pageID),
-        projectID: String(parent.projectID || parent.pageID), childID: [],
-        path: `${parent.path || parent.pageID}/${newId}`, category: [...normalizeTaskCategories(parent.category)], status: 'todo',
-        actionDate: '', actionTime: '', actionEndDate: '', actionEndTime: '',
-        deadlineDate: '', deadlineTime: '', deadlineEndDate: '', deadlineEndTime: '',
-        completedAt: null, taskMemo: '', diaryMemo: '', referenceLinks: [],
-        historyMemo: [], historyMemoAt: [], createdAt: new Date().toISOString(),
-        updatedAt: null, previousUpdatedAt: null, email: '', isSaved: true,
-        preDeleted: false, preDeletedAt: null, actionDateCheck: [], deadlineDateCheck: [],
-        actionCustomReminderAt: '', deadlineCustomReminderAt: '',
-        isActionCustomActive: false, isDeadlineCustomActive: false
-      }, newId);
-      if (!Array.isArray(parent.childID)) parent.childID = [];
-      if (!parent.childID.map(String).includes(newId)) parent.childID.push(newId);
-      tasks.push(newTask);
-      saveTasksToStorage();
-      projectTreeExpanded.add(String(parent.pageID));
-      projectTreeExpanded.delete(newId);
-      renderProjectTree(rootId);
-      const titleButton = Array.from(document.querySelectorAll('#detail-tree-list .project-tree-title'))
-        .find(el => el.dataset.pageId === newId);
-      if (!titleButton) return;
-      const input = document.createElement('input');
-      input.className = 'project-tree-title-input';
-      input.type = 'text';
-      input.placeholder = 'タスク名を入力';
-      input.setAttribute('aria-label', '新しいタスクのタイトル');
-      titleButton.replaceWith(input);
-      let finished = false;
-      const finish = () => {
-        if (finished) return;
-        finished = true;
-        newTask.title = input.value.trim();
-        recordUserTaskSave(null, newTask, true);
-        saveTasksToStorage();
-        renderProjectTree(rootId);
-      };
-      input.addEventListener('blur', finish);
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-        if (e.key === 'Escape') { e.preventDefault(); input.blur(); }
-      });
-      input.focus();
-    }
+    function createProjectChildInline(parentID, rootId) { openSubTaskCreateForm(parentID); }
 
-    function openNewProjectPage() {
+    function openNewProjectPage(force=false) {
+      if(!force){requestTaskEditorAction(()=>openNewProjectPage(true));return;}
       const newId = String(nextIdCounter++);
       const newProj = {
         ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
       };
       tasks.push(newProj);
-      openDetailView(newId);
+      openDetailView(newId,{force:true});
     }
 
-    function openSubTaskCreateForm(parentID) {
+    function openSubTaskCreateForm(parentID,force=false) {
+      if(!force){
+        const action=()=>openSubTaskCreateForm(parentID,true);
+        const parent=tasks.find(task=>task.pageID===String(parentID));
+        if(parent&&!parent.isSaved&&String(currentEditingTaskId)===String(parentID)){
+          pendingTaskEditorAction=action;pendingNavigationTarget=null;
+          document.getElementById('unsaved-task-modal').classList.remove('hidden');return;
+        }
+        requestTaskEditorAction(action);return;
+      }
+      if(!tasks.some(task=>task.pageID===String(parentID)&&!task.preDeleted))return;
       const newId = String(nextIdCounter++);
       const parentTask = tasks.find(t => t.pageID === String(parentID));
       const newSub = {
@@ -3897,8 +4043,7 @@
       };
       if (parentTask) parentTask.childID.push(newId);
       tasks.push(newSub);
-      saveTasksToStorage();
-      openDetailView(newId);
+      openDetailView(newId,{force:true});
     }
 
     function resizeMemoTextarea() {
@@ -3951,11 +4096,68 @@
     function updateCurrentTaskField(field, value) {
       if (currentEditingTaskDraft) {
         currentEditingTaskDraft[field] = value;
+        if(field==='title')syncTaskTitlePreview();
         if (field === 'taskMemo') {
           resizeMemoTextarea();
         }
       }
     }
+
+    function readTaskReminders(task,field){
+      const prefix=field==='deadline'?'isDeadline':'isAction';
+      const selected=Array.isArray(task[field+'DateCheck'])?task[field+'DateCheck']:[];
+      const options=REMINDER_OPTIONS.filter(([key,label])=>task[prefix+key] || selected.includes(key) || selected.includes(prefix+key) || selected.includes(label)).map(([key])=>key);
+      const customActive=Boolean(task[prefix+'CustomActive']);
+      return {enabled:Boolean(options.length||customActive),options,customActive,customAt:task[field+'CustomReminderAt']||''};
+    }
+    function applyTaskReminders(task,field,value){
+      const prefix=field==='deadline'?'isDeadline':'isAction';
+      const options=value.enabled?value.options:[];
+      task[field+'DateCheck']=[...options];
+      for(const [key] of REMINDER_OPTIONS)task[prefix+key]=options.includes(key);
+      task[prefix+'CustomActive']=Boolean(value.enabled&&value.customActive);
+      task[field+'CustomReminderAt']=value.enabled&&value.customActive?value.customAt:'';
+    }
+    function reminderSummary(value){
+      const labels=REMINDER_OPTIONS.filter(([key])=>value.options.includes(key)).map(([,label])=>label);
+      if(value.customActive)labels.push('日時指定');
+      return labels.join('・')||'なし';
+    }
+    function toggleScheduleNotification(){
+      scheduleNotificationDraft.enabled=document.getElementById('schedule-notification-enabled').checked;
+      if(scheduleNotificationDraft.enabled&&!scheduleNotificationDraft.options.length&&!scheduleNotificationDraft.customActive)
+        scheduleNotificationDraft.options=['1HourBefore'];
+      refreshScheduleEditor();
+    }
+    function renderReminderOptions(){
+      const value=schedulePickerReminderDraft;
+      const area=document.getElementById('schedule-picker-area');
+      area.innerHTML='<div class="reminder-options">'+REMINDER_OPTIONS.map(([key,label])=>
+        `<label class="reminder-option"><input type="checkbox" ${value.options.includes(key)?'checked':''} onchange="toggleReminderOption('${key}',this.checked)"><span>${label}</span></label>`).join('')+
+        `<label class="reminder-option"><input type="checkbox" ${value.customActive?'checked':''} onchange="schedulePickerReminderDraft.customActive=this.checked;renderReminderOptions()"><span>日時を指定</span></label>`+
+        (value.customActive?`<input class="reminder-custom-input" type="datetime-local" aria-label="通知する日時" value="${escapeHtml(value.customAt.slice(0,16))}" onchange="schedulePickerReminderDraft.customAt=this.value">`:'')+'</div>';
+    }
+    function toggleReminderOption(key,checked){
+      const selected=new Set(schedulePickerReminderDraft.options);
+      checked?selected.add(key):selected.delete(key);
+      schedulePickerReminderDraft.options=[...selected];
+    }
+    function buildTaskNotificationPayload(task){
+      const taskUrl=new URL(location.href);taskUrl.searchParams.delete('dev');taskUrl.searchParams.set('pageID',String(task.pageID));taskUrl.hash='';
+      const schedules=['deadline','action'].map(field=>{
+        const keys=getScheduleKeys(field),reminders=readTaskReminders(task,field);
+        return {field,date:appDateKey(task[keys.date])||'',time:task[keys.time]||appExtractTime(task[keys.date])||'',endDate:appDateKey(task[keys.endDate])||'',endTime:task[keys.endTime]||appExtractTime(task[keys.endDate])||'',allDay:Boolean(task[keys.date]&&!task[keys.time]&&!appExtractTime(task[keys.date])),reminders};
+      });
+      return {pageID:String(task.pageID),email:task.email||'',taskUrl:taskUrl.href,title:task.title||'',timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+        updatedAt:task.updatedAt||null,active:Boolean(task.isSaved&&!task.preDeleted&&task.status!=='completed'),schedules};
+    }
+    function prepareTaskNotificationSync(task){
+      const payload=buildTaskNotificationPayload(task);
+      preparedNotificationPayloads.set(String(task.pageID),payload);
+      // No network request or delivery claim until a real server is connected.
+      return {status:'not-configured',payload};
+    }
+    window.MakeUpperNotificationBridge={buildPayload:buildTaskNotificationPayload,prepare:prepareTaskNotificationSync};
 
     function getScheduleKeys(field) {
       return field === 'deadline'
@@ -3979,10 +4181,10 @@
       const time1=task[keys.time]||appExtractTime(task[keys.date]);
       const normalizeTime=value=>value?value.replace(/^(?:0)(\d):/,'$1:'):'';
       const start=`${formatAppDate(date1)}${time1?' '+normalizeTime(time1):''}`;
-      if(!task[keys.endDate]) return start;
+      if(!task[keys.endDate] || (date1===appDateKey(task[keys.endDate]) && !time1 && !task[keys.endTime])) return start;
       const date2=appDateKey(task[keys.endDate]);
       const time2=task[keys.endTime]||appExtractTime(task[keys.endDate]);
-      const end=date1===date2
+      const end=date1===date2 && time2
         ? normalizeTime(time2)
         : `${formatAppDate(date2)}${time2?' '+normalizeTime(time2):''}`;
       return `${start} ~ ${end}`;
@@ -4011,50 +4213,77 @@
         document.getElementById(`schedule-${part}-time-btn`).textContent=(()=>{const t=v.slice(11,16);if(!t)return '0:00';const [h,m]=t.split(':');return `${Number(h)||0}:${String(Number(m)||0).padStart(2,'0')}`;})();
       }
       const action=scheduleEditingField==='action';
-      const withEnd=action&&document.getElementById('schedule-all-day').checked;
-      document.getElementById('schedule-all-day-row').classList.toggle('hidden',!action);
-      document.getElementById('schedule-end-row').classList.toggle('hidden',!withEnd);
-      document.getElementById('schedule-start-caption').textContent=withEnd?'開始':'';
-      document.getElementById('schedule-start-time-btn').classList.remove('hidden');
-      document.getElementById('schedule-end-time-btn').classList.remove('hidden');
+      const allDay=document.getElementById('schedule-all-day').checked;
+      document.getElementById('schedule-end-row').classList.toggle('hidden',!action);
+      document.getElementById('schedule-start-caption').textContent=action?'開始':'';
+      document.getElementById('schedule-start-time-btn').classList.toggle('hidden',allDay);
+      document.getElementById('schedule-end-time-btn').classList.toggle('hidden',allDay);
+      const choice=document.getElementById('schedule-notification-choice');
+      const enabled=Boolean(scheduleNotificationDraft?.enabled);
+      document.getElementById('schedule-notification-enabled').checked=enabled;
+      choice.classList.toggle('hidden',!enabled);
+      choice.textContent=enabled ? reminderSummary(scheduleNotificationDraft)+'　›' : '';
     }
     function openScheduleEditor(field) {
       const task=currentEditingTaskDraft;if(!task)return;
       const keys=getScheduleKeys(field);scheduleEditingField=field;
       document.getElementById('schedule-editor-title').textContent=keys.label;
       const start=joinScheduleDateTime(task[keys.date],task[keys.time])||scheduleDefaultValue();
-      const end=joinScheduleDateTime(task[keys.endDate],task[keys.endTime])||start;
+      const later=new Date(start); later.setMinutes(later.getMinutes()+30);
+      const defaultEnd=scheduleLocalDate(later)+'T'+String(later.getHours()).padStart(2,'0')+':'+String(later.getMinutes()).padStart(2,'0');
+      const end=joinScheduleDateTime(task[keys.endDate],task[keys.endTime])||defaultEnd;
       document.getElementById('schedule-start-input').value=start;
       document.getElementById('schedule-end-input').value=end;
       document.getElementById('schedule-end-toggle').checked=Boolean(task[keys.endDate]);
-      document.getElementById('schedule-all-day').checked=Boolean(task[keys.endDate]);
-      document.getElementById('schedule-picker-area').classList.add('hidden');
+      document.getElementById('schedule-all-day').checked=Boolean(task[keys.date] && !task[keys.time] && !appExtractTime(task[keys.date]));
+      if(document.getElementById('schedule-all-day').checked && !task[keys.endDate]) document.getElementById('schedule-end-input').value=start;
+      scheduleNotificationDraft=readTaskReminders(task,field);
+      cancelSchedulePicker();
       refreshScheduleEditor();document.getElementById('schedule-editor-modal').classList.remove('hidden');
     }
-    function closeScheduleEditor() {scheduleEditingField=null;document.getElementById('schedule-editor-modal').classList.add('hidden');}
+    function closeScheduleEditor() {cancelSchedulePicker();scheduleEditingField=null;scheduleNotificationDraft=null;document.getElementById('schedule-editor-modal').classList.add('hidden');}
     function toggleScheduleAllDay() {
-      const enabled=document.getElementById('schedule-all-day').checked;
-      if(enabled){document.getElementById('schedule-end-input').value=document.getElementById('schedule-start-input').value;}
-      if(!enabled&&schedulePickerTarget==='end')document.getElementById('schedule-picker-area').classList.add('hidden');
+      if(schedulePickerType==='time')cancelSchedulePicker();
       refreshScheduleEditor();
     }
     function toggleScheduleEndInput() {refreshScheduleEditor();}
     function showSchedulePicker(part,type) {
-      const area=document.getElementById('schedule-picker-area');
-      if(!area.classList.contains('hidden')&&schedulePickerTarget===part&&schedulePickerType===type){area.classList.add('hidden');return;}
       schedulePickerTarget=part;schedulePickerType=type;
       const v=document.getElementById(`schedule-${part}-input`).value;
+      schedulePickerDraftValue=v;
+      schedulePickerReminderDraft=JSON.parse(JSON.stringify(scheduleNotificationDraft));
       scheduleCalendarMonth=new Date((v||scheduleDefaultValue()).slice(0,10)+'T12:00:00');
-      document.getElementById(`schedule-${part}-row`).after(area);
-      area.classList.remove('hidden');renderSchedulePicker();
+      document.getElementById('schedule-picker-title').textContent=type==='reminder'?'通知タイミング':(scheduleEditingField==='deadline'?'期限':part==='end'?'終了':'開始')+(type==='date'?'日':'時刻');
+      document.getElementById('schedule-picker-modal').classList.remove('hidden');renderSchedulePicker();
+    }
+    function cancelSchedulePicker(){
+      document.getElementById('schedule-picker-modal').classList.add('hidden');
+      document.getElementById('schedule-picker-area').innerHTML='';
+      for(const kind of ['hour','minute'])clearTimeout(scheduleWheelIdleTimers[kind]);
+      schedulePickerDraftValue='';schedulePickerReminderDraft=null;
+    }
+    function confirmSchedulePicker(){
+      if(schedulePickerType==='reminder'){
+        if(schedulePickerReminderDraft.customActive && !schedulePickerReminderDraft.customAt){alert('通知する日時を入力してください。');return;}
+        scheduleNotificationDraft=JSON.parse(JSON.stringify(schedulePickerReminderDraft));
+        scheduleNotificationDraft.enabled=Boolean(scheduleNotificationDraft.options.length || scheduleNotificationDraft.customActive);
+      }else{
+        if(schedulePickerType==='time'){
+          for(const kind of ['hour','minute']){
+            const wheel=document.getElementById(`schedule-wheel-${kind}`);
+            if(wheel)scheduleWheelValues[kind]=scheduleWheelModulo(Math.round(wheel.scrollTop/SCHEDULE_WHEEL_ROW),scheduleWheelCount(kind));
+          }
+          chooseScheduleTime();
+        }
+        document.getElementById(`schedule-${schedulePickerTarget}-input`).value=schedulePickerDraftValue;
+      }
+      cancelSchedulePicker();refreshScheduleEditor();
     }
     function shiftScheduleMonth(n){scheduleCalendarMonth.setDate(1);scheduleCalendarMonth.setMonth(scheduleCalendarMonth.getMonth()+n);renderSchedulePicker();}
-    function chooseScheduleDate(date){const el=document.getElementById(`schedule-${schedulePickerTarget}-input`);el.value=date+'T'+(el.value.slice(11,16)||'00:00');refreshScheduleEditor();renderSchedulePicker();}
+    function chooseScheduleDate(date){schedulePickerDraftValue=date+'T'+(schedulePickerDraftValue.slice(11,16)||'00:00');renderSchedulePicker();}
     function chooseScheduleTime() {
       const h=String(scheduleWheelValues.hour).padStart(2,'0'),m=String(scheduleWheelValues.minute).padStart(2,'0');
-      const el=document.getElementById(`schedule-${schedulePickerTarget}-input`);
-      el.value=(el.value.slice(0,10)||scheduleLocalDate(new Date()))+`T${h}:${m}`;
-      refreshScheduleEditor();
+      schedulePickerDraftValue=(schedulePickerDraftValue.slice(0,10)||scheduleLocalDate(new Date()))+`T${h}:${m}`;
     }
     let scheduleWheelValues={hour:0,minute:0};
     const SCHEDULE_WHEEL_ROW=36;
@@ -4093,17 +4322,18 @@
     }
     function renderSchedulePicker(){
       const area=document.getElementById('schedule-picker-area');
+      if(schedulePickerType==='reminder'){renderReminderOptions();return;}
       if(schedulePickerType==='time'){
-        const v=document.getElementById(`schedule-${schedulePickerTarget}-input`).value;
+        const v=schedulePickerDraftValue;
         scheduleWheelValues={hour:Number(v.slice(11,13))||0,minute:Number(v.slice(14,16))||0};
         const col=(kind,count,selected)=>`<div class="schedule-wheel-column" id="schedule-wheel-${kind}" onscroll="onScheduleWheelScroll('${kind}')"><div style="height:66px;flex-shrink:0"></div>${Array.from({length:count*SCHEDULE_WHEEL_CYCLES},(_,index)=>{const value=index%count;return `<div class="schedule-wheel-item" data-value="${value}" data-index="${index}" onclick="selectScheduleWheelItem('${kind}',${index})">${String(value).padStart(2,'0')}</div>`;}).join('')}<div style="height:66px;flex-shrink:0"></div></div>`;
         area.innerHTML=`<div class="schedule-time-wheel"><div class="schedule-wheel-selection"></div>${col('hour',24,scheduleWheelValues.hour)}<span class="schedule-wheel-colon">:</span>${col('minute',60,scheduleWheelValues.minute)}</div>`;
-        requestAnimationFrame(()=>{for(const kind of ['hour','minute']){const wheel=document.getElementById(`schedule-wheel-${kind}`);if(wheel){const index=scheduleWheelCount(kind)*4+scheduleWheelValues[kind];wheel.scrollTop=index*SCHEDULE_WHEEL_ROW;scheduleWheelSetActive(kind,index);}}});
+        requestAnimationFrame(()=>{if(document.getElementById('schedule-picker-modal').classList.contains('hidden'))return;for(const kind of ['hour','minute']){const wheel=document.getElementById(`schedule-wheel-${kind}`);if(wheel){const index=scheduleWheelCount(kind)*4+scheduleWheelValues[kind];wheel.scrollTop=index*SCHEDULE_WHEEL_ROW;scheduleWheelSetActive(kind,index);}}});
         return;
       }
       const y=scheduleCalendarMonth.getFullYear(),m=scheduleCalendarMonth.getMonth();
       const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-      const selected=document.getElementById(`schedule-${schedulePickerTarget}-input`).value.slice(0,10);
+      const selected=schedulePickerDraftValue.slice(0,10);
       let grid=['日','月','火','水','木','金','土'].map(d=>`<span>${d}</span>`).join('');
       grid+='<span></span>'.repeat(first);
       for(let day=1;day<=days;day++){const date=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;grid+=`<button type="button" class="${selected===date?'selected':''}" onclick="chooseScheduleDate('${date}')">${day}</button>`;}
@@ -4114,15 +4344,19 @@
       const keys=getScheduleKeys(scheduleEditingField);
       const start=splitScheduleDateTime(document.getElementById('schedule-start-input').value);
       const action=scheduleEditingField==='action';
-      const withEnd=action&&document.getElementById('schedule-all-day').checked;
-      const end=withEnd?splitScheduleDateTime(document.getElementById('schedule-end-input').value):{date:'',time:''};
+      const allDay=document.getElementById('schedule-all-day').checked;
+      const end=action?splitScheduleDateTime(document.getElementById('schedule-end-input').value):{date:'',time:''};
+      if(action && (allDay ? end.date<start.date : `${end.date}T${end.time}`<`${start.date}T${start.time}`)){alert('終了は開始以降に設定してください。');return;}
+      if(allDay){start.time='';end.time='';}
       Object.assign(currentEditingTaskDraft,{[keys.date]:start.date,[keys.time]:start.time,[keys.endDate]:end.date,[keys.endTime]:end.time});
+      applyTaskReminders(currentEditingTaskDraft,scheduleEditingField,scheduleNotificationDraft);
       updateScheduleButton(scheduleEditingField);closeScheduleEditor();
     }
     function clearScheduleEditor(){
       if(!scheduleEditingField||!currentEditingTaskDraft)return;
       const keys=getScheduleKeys(scheduleEditingField);
       Object.assign(currentEditingTaskDraft,{[keys.date]:'',[keys.time]:'',[keys.endDate]:'',[keys.endTime]:''});
+      applyTaskReminders(currentEditingTaskDraft,scheduleEditingField,{enabled:false,options:[],customActive:false,customAt:''});
       updateScheduleButton(scheduleEditingField);closeScheduleEditor();
     }
 
@@ -4204,12 +4438,13 @@
     function executeFinalSave(task, silent = false) {
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
-      if (!savedTask) return;
+      if (!savedTask) return false;
       const isFirstTime = !savedTask.isSaved;
       const before = cloneTaskForEditing(savedTask);
       
       const previousUpdatedAt = savedTask.updatedAt || null;
-      Object.assign(savedTask, task, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
+      const hierarchy={parentID:savedTask.parentID,projectID:savedTask.projectID,childID:[...(savedTask.childID||[])],path:savedTask.path};
+      Object.assign(savedTask, task, hierarchy, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
       recordUserTaskSave(before, savedTask, isFirstTime);
       currentEditingTaskDraft = cloneTaskForEditing(savedTask);
       referenceLinkEditingIndexes = new Set();
@@ -4217,7 +4452,9 @@
       saveTasksToStorage();
 
       const saveBtn = document.getElementById('global-save-btn');
+      prepareTaskNotificationSync(savedTask);
       saveBtn.innerText = '更新';
+      document.getElementById('task-editor-save').innerText='更新';
       
       const updatedAtRow = document.getElementById('detail-updated-at-row');
       const updatedAtText = document.getElementById('detail-updated-at-text');
@@ -4226,11 +4463,14 @@
 
       renderReferenceLinkFields();
       renderHistoryMemoFields();
+      renderProjectTree(getRootParentId(currentEditingTaskId,tasks));
+      renderApp();
       if (!silent && isFirstTime) {
         alert('保存しました。');
       } else if (!silent) {
         alert('更新しました。');
       }
+      return true;
     }
 
     function updateCurrentTaskStatus(status) {
@@ -4256,12 +4496,48 @@
     }
 
     function toggleCategoryMenu() {
-      const menu = document.getElementById('category-menu');
-      const picker = document.getElementById('category-picker');
-      const isOpen = !menu.classList.contains('hidden');
-      if (!isOpen) renderCategoryMenu();
-      menu.classList.toggle('hidden', isOpen);
-      picker.setAttribute('aria-expanded', String(!isOpen));
+      if(!currentEditingTaskDraft)return;
+      categorySelectionDraft=[...normalizeTaskCategories(currentEditingTaskDraft.category)];
+      document.getElementById('category-menu').classList.remove('hidden');
+      renderCategoryMenu();
+      document.getElementById('category-selection-modal').classList.remove('hidden');
+      document.getElementById('category-picker').setAttribute('aria-expanded','true');
+    }
+
+    function cancelCategorySelection(){
+      categorySelectionDraft=null;
+      document.getElementById('category-selection-modal').classList.add('hidden');
+      document.getElementById('category-picker').setAttribute('aria-expanded','false');
+    }
+    function confirmCategorySelection(){
+      if(currentEditingTaskDraft&&categorySelectionDraft!==null)currentEditingTaskDraft.category=[...categorySelectionDraft];
+      cancelCategorySelection();syncCategoryPicker();
+    }
+    function editableTaskCategories(){return categoryManagementDraft===null?taskCategories:categoryManagementDraft;}
+    function openCategorySettingsFromTask(){
+      categoryManagementDraft=taskCategories.map(category=>({...category,originalName:category.name}));
+      document.getElementById('category-modal-settings-input').value='';
+      document.getElementById('category-management-modal').classList.remove('hidden');
+      renderCategorySettings();
+    }
+    function cancelCategoryManagement(){
+      closeCategoryEditModal();categoryManagementDraft=null;categoryPointerDrag=null;
+      document.getElementById('category-management-modal').classList.add('hidden');
+      renderCategorySettings();
+    }
+    function confirmCategoryManagement(){
+      if(categoryManagementDraft===null)return;
+      const previousNames=new Set(taskCategories.map(category=>category.name));
+      const renamed=new Map(categoryManagementDraft.filter(category=>category.originalName!=null).map(category=>[category.originalName,category.name]));
+      const translate=value=>normalizeTaskCategories(value).flatMap(name=>previousNames.has(name)?(renamed.has(name)?[renamed.get(name)]:[]):[name]);
+      tasks.forEach(task=>{task.category=translate(task.category);});
+      if(currentEditingTaskDraft)currentEditingTaskDraft.category=translate(currentEditingTaskDraft.category);
+      if(categorySelectionDraft!==null)categorySelectionDraft=translate(categorySelectionDraft);
+      taskCategories=categoryManagementDraft.map(({name,color})=>({name,color}));
+      categoryManagementDraft=null;categoryPointerDrag=null;
+      saveTaskCategories();saveTasksToStorage();
+      document.getElementById('category-management-modal').classList.add('hidden');
+      renderCategorySettings();syncCategoryPicker();renderCategoryMenu();
     }
 
     function renderCategoryMenu() {
@@ -4269,7 +4545,7 @@
       const task = currentEditingTaskDraft;
       if (!menu || !task) return;
       menu.innerHTML = '';
-      const selectedCategories = normalizeTaskCategories(task.category);
+      const selectedCategories = categorySelectionDraft===null?normalizeTaskCategories(task.category):categorySelectionDraft;
 
       const selectedBox = document.createElement('div');
       selectedBox.className = 'category-menu-selected';
@@ -4296,31 +4572,24 @@
     }
 
     function selectTaskCategory(category, checked) {
-      const selected = normalizeTaskCategories(currentEditingTaskDraft?.category);
+      if(categorySelectionDraft===null)return;
+      const selected = categorySelectionDraft;
       const next = checked ? [...new Set([...selected, category])] : selected.filter(item => item !== category);
-      updateCurrentTaskField('category', next);
-      syncCategoryPicker();
+      categorySelectionDraft=next;
       renderCategoryMenu();
     }
 
-    function openCategorySettingsFromTask() {
-      document.getElementById('category-menu').classList.add('hidden');
-      document.getElementById('category-picker').setAttribute('aria-expanded', 'false');
-      taskReturnView = 'task-page';
-      switchView('settings-category', { preserveTaskDraft: true });
-    }
-
     function renderCategorySettings() {
-      const list = document.getElementById('category-settings-list');
+      const list = document.getElementById(categoryManagementDraft===null?'category-settings-list':'category-modal-settings-list');
       if (!list) return;
       list.innerHTML = '';
 
-      if (taskCategories.length === 0) {
+      if (editableTaskCategories().length === 0) {
         list.innerHTML = '<div class="empty-msg">カテゴリはまだありません</div>';
         return;
       }
 
-      taskCategories.forEach((category, index) => {
+      editableTaskCategories().forEach((category, index) => {
         const row = document.createElement('div');
         row.className = 'category-settings-row';
         row.dataset.categoryIndex = String(index);
@@ -4361,27 +4630,33 @@
     }
 
     function addCategorySetting() {
-      const input = document.getElementById('category-settings-input');
+      const input = document.getElementById(categoryManagementDraft===null?'category-settings-input':'category-modal-settings-input');
       const category = input.value.trim();
-      if (!category || taskCategories.some(item => item.name === category)) return;
-      taskCategories.push({ name: category, color: getNextCategoryColor() });
+      if (!category || editableTaskCategories().some(item => item.name === category)) return;
+      editableTaskCategories().push({ name: category, color: getNextCategoryColor() });
       saveTaskCategories();
       input.value = '';
       renderCategorySettings();
     }
 
     function deleteCategorySetting(index) {
-      taskCategories.splice(index, 1);
+      const removed=editableTaskCategories().splice(index, 1)[0];
+      if(removed && categoryManagementDraft===null){
+        tasks.forEach(task=>{task.category=normalizeTaskCategories(task.category).filter(name=>name!==removed.name);});
+        if(currentEditingTaskDraft)currentEditingTaskDraft.category=normalizeTaskCategories(currentEditingTaskDraft.category).filter(name=>name!==removed.name);
+        if(categorySelectionDraft!==null)categorySelectionDraft=categorySelectionDraft.filter(name=>name!==removed.name);
+        saveTasksToStorage();syncCategoryPicker();
+      }
       saveTaskCategories();
       renderCategorySettings();
     }
 
     function getNextCategoryColor() {
-      return CATEGORY_COLOR_OPTIONS[taskCategories.length % CATEGORY_COLOR_OPTIONS.length];
+      return CATEGORY_COLOR_OPTIONS[editableTaskCategories().length % CATEGORY_COLOR_OPTIONS.length];
     }
 
     function openCategoryEditModal(index) {
-      const category = taskCategories[index];
+      const category = editableTaskCategories()[index];
       if (!category) return;
       editingCategoryIndex = index;
       editingCategoryColor = category.color;
@@ -4415,20 +4690,22 @@
     }
 
     function saveCategoryEdit() {
-      const category = taskCategories[editingCategoryIndex];
+      const category = editableTaskCategories()[editingCategoryIndex];
       const input = document.getElementById('category-edit-input');
       const name = input.value.trim();
       if (!category || !name) return;
-      if (taskCategories.some((item, index) => index !== editingCategoryIndex && item.name === name)) return;
+      if (editableTaskCategories().some((item, index) => index !== editingCategoryIndex && item.name === name)) return;
 
       const previousName = category.name;
       category.name = name;
       category.color = editingCategoryColor || category.color;
-      if (previousName !== name) {
+      if (previousName !== name && categoryManagementDraft===null) {
         tasks.forEach(task => {
           task.category = normalizeTaskCategories(task.category).map(item => item === previousName ? name : item);
         });
         saveTasksToStorage();
+        if(currentEditingTaskDraft)currentEditingTaskDraft.category=normalizeTaskCategories(currentEditingTaskDraft.category).map(item=>item===previousName?name:item);
+        if(categorySelectionDraft!==null)categorySelectionDraft=categorySelectionDraft.map(item=>item===previousName?name:item);
       }
       saveTaskCategories();
       closeCategoryEditModal();
@@ -4483,8 +4760,8 @@
 
     function reorderCategorySettings(fromIndex, toIndex) {
       if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || fromIndex === toIndex) return;
-      const [movedCategory] = taskCategories.splice(fromIndex, 1);
-      taskCategories.splice(toIndex, 0, movedCategory);
+      const [movedCategory] = editableTaskCategories().splice(fromIndex, 1);
+      editableTaskCategories().splice(toIndex, 0, movedCategory);
       saveTaskCategories();
       renderCategorySettings();
     }
@@ -4788,6 +5065,7 @@
         currentEditingTaskId = null;
       }
       closeDeleteModal();
+      if(taskEditorIsOpen){currentEditingTaskDraft=null;closeTaskEditor(true);return;}
       switchView('quickstatus');
     }
 
@@ -4808,6 +5086,32 @@
     switchViewDirect('quickstatus');
     switchProjectSubview('data');
     switchCalendarMode('due');
+    const linkedPageID=new URL(location.href).searchParams.get('pageID');
+    if(linkedPageID&&tasks.some(task=>task.pageID===linkedPageID&&!task.preDeleted))openDetailView(linkedPageID,{standalone:true});
+    window.addEventListener('resize',updateTaskEditorBounds);
+    window.visualViewport?.addEventListener('resize',updateTaskEditorBounds);
+    document.getElementById('task-editor-scroll').addEventListener('pointerdown',event=>{
+      if(!event.target.closest('.task-status-control')){
+        document.getElementById('task-status-menu').classList.add('hidden');
+        document.getElementById('task-status-picker').setAttribute('aria-expanded','false');
+      }
+      const active=document.activeElement;
+      if(active&&['INPUT','TEXTAREA'].includes(active.tagName)&&event.target!==active)active.blur();
+    });
+    document.addEventListener('keydown',event=>{
+      if(!taskEditorIsOpen)return;
+      const otherDialog=[...document.querySelectorAll('.modal-overlay')].some(dialog=>dialog.id!=='task-editor-modal'&&!dialog.classList.contains('hidden'));
+      if(otherDialog)return;
+      if(event.key==='Escape'){event.preventDefault();closeTaskEditor();return;}
+      if(event.key==='Tab'){
+        const focusable=[...document.getElementById('task-editor-modal').querySelectorAll('button,input,textarea,select,a[href],[tabindex]')]
+          .filter(element=>!element.disabled&&element.tabIndex!==-1&&element.getClientRects().length);
+        const first=focusable[0],last=focusable[focusable.length-1];
+        if(!focusable.includes(document.activeElement)){event.preventDefault();(event.shiftKey?last:first)?.focus();}
+        else if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+      }
+    });
 
     // メイン領域に収まるページは動かさず、長いページだけ縦スクロールする。
     const mainContent = document.querySelector('.main-scroll-area');
@@ -4873,7 +5177,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.24 DEV111';
+  const BUILD_CREATED_AT = '2026.10.24 DEV115';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);

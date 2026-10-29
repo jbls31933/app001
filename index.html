@@ -1556,7 +1556,7 @@
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
 
-    /* DEV162: group junctions keep ordinary task hierarchy intact. */
+    /* DEV163: group junctions keep ordinary task hierarchy intact. */
     .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
     #view-trash .trash-card { border-radius:0 0 16px 16px; }
     #detail-tree-list { position:relative; }
@@ -1568,7 +1568,7 @@
     .group-selection-tools span { flex:1; }
     .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
 
-    /* DEV162: fixed dialog controls outside the scrolling selection list. */
+    /* DEV163: fixed dialog controls outside the scrolling selection list. */
     #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
     .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
     .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
@@ -1584,19 +1584,19 @@
     .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
     .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
     .group-choice-spacer { width:18px;flex-shrink:0; }
-    /* DEV162: reference copies stay directly below each linked task. */
+    /* DEV163: reference copies stay directly below each linked task. */
     .group-alias-row { background:#f1f5f9; }
     .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
     .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
     .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
 
-    /* DEV162: editable group frame; read-only reference rows use independent toggles. */
+    /* DEV163: editable group frame; read-only reference rows use independent toggles. */
     .project-group-frame { box-sizing:border-box; }
     .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
     .project-group-frame>.group-block-row.is-group { border-top:0; }
     .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
 
-    /* DEV162: group selection is staged; decorations begin at the group title. */
+    /* DEV163: group selection is staged; decorations begin at the group title. */
     .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
     .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
     .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
@@ -1608,19 +1608,19 @@
     .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
     .project-group-reference .group-alias-row { background:transparent; }
     .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
-    /* DEV162: references are secondary; retain regular task typography in editable groups. */
+    /* DEV163: references are secondary; retain regular task typography in editable groups. */
     .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
     .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
     .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
     .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
-    /* DEV162: section actions replace per-row group controls. */
+    /* DEV163: section actions replace per-row group controls. */
     .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
     .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
     .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
     .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
     .project-tree-remove .app-icon { width:17px;height:17px; }
     #delete-confirm-modal { z-index:1450; }
-    /* DEV162: controls stay outside the horizontal task scroll area. */
+    /* DEV163: controls stay outside the horizontal task scroll area. */
     .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
     .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
     .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
@@ -1629,7 +1629,7 @@
     .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
     .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:153px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
     .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
-    /* DEV162: intrinsic, shared column widths; only the list's memo column is removed. */
+    /* DEV163: intrinsic, shared column widths; only the list's memo column is removed. */
     .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
     .project-tree-title-cell { width:max-content;max-width:none; }
     .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
@@ -1645,9 +1645,9 @@
     .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
     .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
     .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
-    /* DEV162: START, deepest hierarchy, then parents toward the right. */
+    /* DEV163: START, deepest hierarchy, then parents toward the right. */
     .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 12px;border:0;border-radius:10px;background:#eaf2ff;color:#1e4f91;font:700 14px/20px sans-serif;white-space:nowrap; }
-    /* DEV162: top-aligned columns, complete wrapped titles and schedules beneath cards. */
+    /* DEV163: top-aligned columns, complete wrapped titles and schedules beneath cards. */
     .project-roadmap-task { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:16px 40px 16px 14px;font-family:sans-serif; }
     .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;color:#1e4f91;font-size:16px;font-weight:700;line-height:22px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
     .project-roadmap-open { position:absolute;right:13px;top:13px;color:#64748b; }
@@ -1656,7 +1656,7 @@
     .project-roadmap-task.project-roadmap-completed { background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8; }
     .project-roadmap-completed .project-roadmap-open { color:#94a3b8; }
     .project-roadmap-completed .project-roadmap-title { text-decoration:line-through; }
-    /* DEV162: reserved title/status/date rows, routed edges and insertion controls. */
+    /* DEV163: reserved title/status/date rows, routed edges and insertion controls. */
     .project-roadmap-task { padding:10px 14px;justify-content:flex-start;gap:4px; }
     .project-roadmap-task { border-color:#d3dfef; }
     .project-roadmap-task .project-roadmap-title { flex:0 0 44px;height:44px;max-height:44px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
@@ -4374,12 +4374,19 @@
       candidates.sort((a,b)=>a.score-b.score);return candidates[0]||null;
     }
     function expandRoadmapRight(layout,connections,cut,amount){
-      if(amount<=0)return;
+      if(amount<=0)return 0;
       const boxes=[layout.start,...(layout.allPositions||layout.positions).values()];
       for(const box of boxes)if(box.x<cut&&box.x+box.width>cut){cut=box.x+box.width+.001;}
+      // Six vertical lanes at 16px spacing, with 16px at either end.
+      const before=boxes.filter(box=>box.x<cut),after=boxes.filter(box=>box.x>=cut);
+      if(!before.length||!after.length)return 0;
+      const gap=Math.min(...after.map(box=>box.x))-Math.max(...before.map(box=>box.x+box.width));
+      if(before.some(box=>box!==layout.start))amount=Math.min(amount,Math.max(0,112-gap));
+      if(!amount)return 0;
       for(const box of boxes)if(box.x>=cut)box.x+=amount;
       for(const edge of connections){for(const p of edge.points)if(p.x>=cut)p.x+=amount;if(edge.plus?.x>=cut)edge.plus.x+=amount;}
       layout.width+=amount;
+      return amount;
     }
     function alignRoadmapBends(layout,connections,allConnections=connections){
       const box=id=>id==='START'?layout.start:layout.positions.get(id),columns=new Map();
@@ -4397,11 +4404,11 @@
             const direction=down?-1:1;
             return direction*(box(a.edge.from).y-box(b.edge.from).y)||direction*(a.edge.sourceY-b.edge.sourceY)||direction*(a.edge.targetY-b.edge.targetY);
           });
-          let previous=-Infinity;
           for(const record of group){
             const {edge,i}=record,source=box(edge.from),a=edge.points[i-1],b=edge.points[i];
-            let x=Math.max(source.x+source.width+16,previous+16);
+            let x=source.x+source.width+16;
             const overlaps=r=>Math.max(Math.min(a.y,b.y),Math.min(r.edge.sourceY,r.edge.targetY))<Math.min(Math.max(a.y,b.y),Math.max(r.edge.sourceY,r.edge.targetY));
+            for(const other of assigned.filter(r=>r.down===down&&overlaps(r)))x=Math.max(x,other.x+16);
             for(const other of assigned.filter(overlaps).sort((a,b)=>a.x-b.x))if(Math.abs(x-other.x)<16-.001)x=other.x+16;
             // Keep the left half-circle clear of boxes at actual crossings.
             for(const other of connections)if(other!==edge)for(let j=1;j<other.points.length;j++){
@@ -4409,14 +4416,17 @@
               if(c.y!==d.y||x<=Math.min(c.x,d.x)||x>=Math.max(c.x,d.x)||c.y<=Math.min(a.y,b.y)||c.y>=Math.max(a.y,b.y))continue;
               for(const r of [layout.start,...layout.positions.values()])if(r.x+r.width<=x&&c.y+5>r.y&&c.y-5<r.y+r.height)x=Math.max(x,r.x+r.width+21);
             }
-            record.x=x;assigned.push(record);previous=x;
+            record.x=x;assigned.push(record);
           }
         }
         // Calculate the required gap once, then move the right-hand columns once.
         const source=box(entries[0].edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
         const right=Math.max(...assigned.map(r=>r.x))+16;
         if(Number.isFinite(next)&&right>next)expandRoadmapRight(layout,allConnections,next,right-next);
-        for(const {edge,i,x} of assigned){edge.points[i-1].x=x;edge.points[i].x=x;edge.bendOffset=x-box(edge.from).x-box(edge.from).width;}
+        for(const {edge,i,x} of assigned){
+          if(x>box(edge.to).x-16)continue;
+          edge.points[i-1].x=x;edge.points[i].x=x;edge.bendOffset=x-box(edge.from).x-box(edge.from).width;
+        }
       }
     }
     function roadmapVerticalConflict(points,connections,gap=16){
@@ -4454,7 +4464,7 @@
       for(const edge of verticals){
         const source=box(edge.from),down=edge.targetY>edge.sourceY;
         let minimum=source.x+source.width+16;
-        for(const other of assigned)if(box(other.from).x===source.x&&(other.targetY>other.sourceY)===down)minimum=Math.max(minimum,other.points[1].x+16);
+        for(const other of assigned)if(box(other.from).x===source.x&&(other.targetY>other.sourceY)===down&&Math.min(Math.max(edge.sourceY,edge.targetY),Math.max(other.sourceY,other.targetY))>=Math.max(Math.min(edge.sourceY,edge.targetY),Math.min(other.sourceY,other.targetY)))minimum=Math.max(minimum,other.points[1].x+16);
         for(let attempt=0;attempt<=connections.length+1;attempt++){
           const target=box(edge.to),xs=[...new Set([minimum,edge.points[1].x,target.x-16,...assigned.flatMap(other=>[other.points[1].x-16,other.points[1].x+16]),...[...layout.positions.values()].flatMap(r=>[r.x-16,r.x+r.width+16])])].filter(x=>x>=minimum&&x<=target.x-16).sort((a,b)=>Math.abs(a-edge.points[1].x)-Math.abs(b-edge.points[1].x));
           let selected=null;
@@ -4464,7 +4474,7 @@
           if(selected){edge.points=selected;break;}
           const next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
           if(!Number.isFinite(next))break;
-          expandRoadmapRight(layout,connections,next,16);
+          if(!expandRoadmapRight(layout,connections,next,16))break;
         }
         assigned.push(edge);
       }
@@ -4566,6 +4576,45 @@
         if(!changed)break;
       }
     }
+    function resolveRoadmapGroupParents(members,layout,connections,connectAll){
+      const positions=layout.positions,idOrder=(a,b)=>a.localeCompare(b,'en',{numeric:true});
+      const level=id=>(layout.paths.get(id)||id).split(',').length-1;
+      for(const group of members.filter(item=>item.type==='group')){
+        const parentIds=taskParentIds(group).filter(id=>positions.has(id)),buckets=new Map();
+        for(const id of parentIds){const depth=level(id);if(!buckets.has(depth))buckets.set(depth,[]);buckets.get(depth).push(id);}
+        const sets=[...buckets.values()].filter(ids=>ids.length>1).map(ids=>({ids:ids.sort(idOrder),ys:ids.map(id=>positions.get(id).y).sort((a,b)=>a-b)}));
+        if(!sets.length)continue;
+        const parents=new Set(parentIds);
+        const crossed=edges=>edges.some(edge=>parents.has(edge.from)&&roadmapRouteConflicts(edge.points,edges.filter(other=>other!==edge)).crossings>0);
+        if(!crossed(connections))continue;
+        const saved=new Map([...positions].map(([id,p])=>[id,{...p}])),width=layout.width,height=layout.height;
+        const restore=()=>{for(const [id,p] of saved)Object.assign(positions.get(id),p);layout.width=width;layout.height=height;};
+        function* permutations(ids){
+          if(!ids.length){yield [];return;}
+          for(let i=0;i<ids.length;i++)for(const rest of permutations(ids.filter((_,j)=>j!==i)))yield [ids[i],...rest];
+        }
+        let selected=null;
+        function search(index,orders){
+          if(index<sets.length){
+            for(const ids of permutations(sets[index].ids))if(search(index+1,orders.concat([ids])))return true;
+            return false;
+          }
+          restore();
+          orders.forEach((ids,i)=>ids.forEach((id,j)=>positions.get(id).y=sets[i].ys[j]));
+          const edges=connectAll();
+          if(edges.every(edge=>roadmapRouteBoxClear(edge,edge.points,layout)&&!roadmapVerticalConflict(edge.points,edges.filter(other=>other!==edge)))&&!crossed(edges)){selected=edges;return true;}
+          return false;
+        }
+        if(search(0,[]))connections=selected;
+        else {
+          // Every complete ordering was tested. Retain numeric ID order rather
+          // than the permutation with the smallest remaining crossing count.
+          restore();sets.forEach(set=>set.ids.forEach((id,i)=>positions.get(id).y=set.ys[i]));
+          connections=connectAll();
+        }
+      }
+      return connections;
+    }
     function prepareRoadmapConnections(members,layout){
       const byId=new Map(members.map(item=>[String(item.pageID),item])),positions=layout.positions;
       const seedIds=layout.connectionOrder.filter(key=>key.startsWith('START>')).map(key=>key.slice(6));
@@ -4615,15 +4664,29 @@
       let connections=connectAll();
       // If a card blocks a permitted connection, insert one row at that card
       // and carry the cards below it in the same column down by one row.
+      function repairConnections(edges){
       for(let attempt=0;attempt<members.length*members.length;attempt++){
-        const missing=connections.filter(edge=>edge.points.length<2);if(!missing.length)break;
+        const missing=edges.filter(edge=>edge.points.length<2);
+        const crowded=edges.filter(edge=>edge.points.length>=2&&(!roadmapRouteBoxClear(edge,edge.points,layout)||roadmapVerticalConflict(edge.points,edges.filter(other=>other!==edge))));
+        if(!missing.length&&!crowded.length)break;
         let blocker=null;
-        for(const edge of missing){blocker=findRoadmapBlockingTask(edge,layout);if(blocker)break;}
+        for(const edge of missing.concat(crowded)){blocker=findRoadmapBlockingTask(edge,layout);if(blocker)break;}
+        if(!blocker){
+          // At the six-lane limit, create vertical space instead of widening
+          // the corridor indefinitely. Keep the first START task at the top.
+          const candidates=missing.concat(crowded).filter(edge=>edge.from!=='START').flatMap(edge=>[edge.from,edge.to]).filter(id=>id!==seedIds[0]);
+          // Move the upper endpoint down so upward and downward spans can use
+          // separate vertical ranges in the same six-lane corridor.
+          blocker=candidates.sort((a,b)=>positions.get(a).y-positions.get(b).y)[0];
+        }
         if(!blocker)break;
         const card=positions.get(blocker),x=card.x,y=card.y,step=card.height+30;
         for(const p of positions.values())if(p.x===x&&p.y>=y)p.y+=step;
-        connections=connectAll();
+        edges=connectAll();
       }
+      return edges;
+      }
+      connections=repairConnections(connections);
       const snapshot=()=>({cards:new Map([...positions].map(([id,p])=>[id,{...p}])),width:layout.width,height:layout.height});
       const restore=state=>{for(const [id,p] of state.cards)Object.assign(positions.get(id),p);layout.width=state.width;layout.height=state.height;};
       const connected=edges=>edges.every(edge=>edge.points.length>=2);
@@ -4653,18 +4716,19 @@
         restore(best||saved);
         if(!best)break;connections=bestEdges;
       }
-      // All tasks can move upward only after every connection exists. Work from
-      // the top down; cards and nonincident wires stop continuous movement.
+      connections=repairConnections(resolveRoadmapGroupParents(members,layout,connections,connectAll));
+      // All tasks can move upward only after every connection exists. Wires
+      // between columns do not reserve vertical space in a task's column.
       if(connected(connections))for(const id of [...positions.keys()].sort((a,b)=>positions.get(a).y-positions.get(b).y||positions.get(a).x-positions.get(b).x)){
         const card=positions.get(id),oldY=card.y;
         let stop=16;
-        const left=card.x-16,right=card.x+card.width+16;
+        const left=card.x,right=card.x+card.width;
         // Search continuously from the current position upward. The nearest
         // occupied card or wire stops movement; an earlier hole is unreachable.
-        for(const [otherId,other] of positions)if(otherId!==id&&other.x<right&&other.x+other.width>left&&other.y<oldY)stop=Math.max(stop,other.y+other.height+30);
+        for(const [otherId,other] of positions)if(otherId!==id&&other.x<right&&other.x+other.width>left&&other.y<oldY)stop=Math.max(stop,other.y+other.height+16);
         for(const edge of connections)if(edge.from!==id&&edge.to!==id)for(let i=1;i<edge.points.length;i++){
           const a=edge.points[i-1],b=edge.points[i];
-          if(Math.max(a.x,b.x)>=left&&Math.min(a.x,b.x)<=right&&Math.min(a.y,b.y)<oldY)stop=Math.max(stop,Math.max(a.y,b.y)+16);
+          if(Math.max(a.x,b.x)>left&&Math.min(a.x,b.x)<right&&Math.min(a.y,b.y)<oldY)stop=Math.max(stop,Math.max(a.y,b.y)+16);
         }
         if(stop>=oldY)continue;
         const saved=snapshot();
@@ -4674,6 +4738,7 @@
         if(valid(rerouted)&&after.crossings<=before.crossings&&after.overlap<=before.overlap)connections=rerouted;
         else restore(saved);
       }
+      connections=repairConnections(resolveRoadmapGroupParents(members,layout,connections,connectAll));
       const deficits=new Map();
       for(const edge of connections){const end=edge.points.at(-1),a=edge.points.at(-2);if(!a||a.y!==end.y)continue;
         for(const other of connections)if(other!==edge)for(let j=1;j<other.points.length;j++){
@@ -4746,7 +4811,7 @@
           for(let attempt=0;attempt<connections.length+1&&!edge.points.length;attempt++){
             const source=box(edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
             if(!Number.isFinite(next))break;
-            expandRoadmapRight(layout,connections,next,16);
+            if(!expandRoadmapRight(layout,connections,next,16))break;
             edge.points=routeRoadmapEdge(source,box(edge.to),layout,connections,edge.sourceY,edge.targetY);
           }
           const locked=new Set(connections.flatMap(other=>[other.from,other.to]));
@@ -6446,7 +6511,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.30 DEV162';
+  const BUILD_CREATED_AT = '2026.10.30 DEV163';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -6481,7 +6546,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.30 DEV162' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.30 DEV163' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

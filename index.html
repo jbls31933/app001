@@ -1556,7 +1556,7 @@
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
 
-    /* DEV152: group junctions keep ordinary task hierarchy intact. */
+    /* DEV162: group junctions keep ordinary task hierarchy intact. */
     .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
     #view-trash .trash-card { border-radius:0 0 16px 16px; }
     #detail-tree-list { position:relative; }
@@ -1568,7 +1568,7 @@
     .group-selection-tools span { flex:1; }
     .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
 
-    /* DEV152: fixed dialog controls outside the scrolling selection list. */
+    /* DEV162: fixed dialog controls outside the scrolling selection list. */
     #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
     .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
     .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
@@ -1584,19 +1584,19 @@
     .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
     .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
     .group-choice-spacer { width:18px;flex-shrink:0; }
-    /* DEV152: reference copies stay directly below each linked task. */
+    /* DEV162: reference copies stay directly below each linked task. */
     .group-alias-row { background:#f1f5f9; }
     .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
     .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
     .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
 
-    /* DEV152: editable group frame; read-only reference rows use independent toggles. */
+    /* DEV162: editable group frame; read-only reference rows use independent toggles. */
     .project-group-frame { box-sizing:border-box; }
     .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
     .project-group-frame>.group-block-row.is-group { border-top:0; }
     .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
 
-    /* DEV152: group selection is staged; decorations begin at the group title. */
+    /* DEV162: group selection is staged; decorations begin at the group title. */
     .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
     .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
     .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
@@ -1608,19 +1608,19 @@
     .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
     .project-group-reference .group-alias-row { background:transparent; }
     .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
-    /* DEV152: references are secondary; retain regular task typography in editable groups. */
+    /* DEV162: references are secondary; retain regular task typography in editable groups. */
     .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
     .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
     .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
     .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
-    /* DEV152: section actions replace per-row group controls. */
+    /* DEV162: section actions replace per-row group controls. */
     .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
     .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
     .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
     .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
     .project-tree-remove .app-icon { width:17px;height:17px; }
     #delete-confirm-modal { z-index:1450; }
-    /* DEV152: controls stay outside the horizontal task scroll area. */
+    /* DEV162: controls stay outside the horizontal task scroll area. */
     .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
     .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
     .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
@@ -1629,7 +1629,7 @@
     .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
     .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:153px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
     .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
-    /* DEV152: intrinsic, shared column widths; only the list's memo column is removed. */
+    /* DEV162: intrinsic, shared column widths; only the list's memo column is removed. */
     .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
     .project-tree-title-cell { width:max-content;max-width:none; }
     .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
@@ -1645,24 +1645,27 @@
     .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
     .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
     .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
-    /* DEV152: START, deepest hierarchy, then parents toward the right. */
-    .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;width:120px;height:68px;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;font-size:14px;font-weight:700; }
-    /* DEV152: top-aligned columns, complete wrapped titles and schedules beneath cards. */
+    /* DEV162: START, deepest hierarchy, then parents toward the right. */
+    .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 12px;border:0;border-radius:10px;background:#eaf2ff;color:#1e4f91;font:700 14px/20px sans-serif;white-space:nowrap; }
+    /* DEV162: top-aligned columns, complete wrapped titles and schedules beneath cards. */
     .project-roadmap-task { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:16px 40px 16px 14px;font-family:sans-serif; }
-    .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;font-size:13px;font-weight:600;line-height:19px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
+    .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;color:#1e4f91;font-size:16px;font-weight:700;line-height:22px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
     .project-roadmap-open { position:absolute;right:13px;top:13px;color:#64748b; }
     .project-roadmap-schedule { position:absolute;color:#64748b;font:11px/16px sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;pointer-events:none; }
     .project-roadmap-schedule>div+div { margin-top:3px; }
     .project-roadmap-task.project-roadmap-completed { background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8; }
     .project-roadmap-completed .project-roadmap-open { color:#94a3b8; }
-    .project-roadmap-completed-label { font-size:10px;font-weight:600;line-height:16px;color:#94a3b8; }
-    /* DEV152: reserved title/status/date rows, routed edges and insertion controls. */
-    .project-roadmap-task { padding:14px;justify-content:flex-start;gap:4px; }
-    .project-roadmap-task .project-roadmap-title { flex:0 0 57px;height:57px;max-height:57px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
-    .project-roadmap-completed-label { flex:0 0 16px;height:16px; }
-    .project-roadmap-task .project-roadmap-schedule { position:static;display:flex;flex-direction:column;flex:0 0 32px;width:100%;margin-top:auto;font-size:10px;line-height:16px;white-space:nowrap; }
+    .project-roadmap-completed .project-roadmap-title { text-decoration:line-through; }
+    /* DEV162: reserved title/status/date rows, routed edges and insertion controls. */
+    .project-roadmap-task { padding:10px 14px;justify-content:flex-start;gap:4px; }
+    .project-roadmap-task { border-color:#d3dfef; }
+    .project-roadmap-task .project-roadmap-title { flex:0 0 44px;height:44px;max-height:44px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+    .project-roadmap-task .project-roadmap-schedule { position:static;display:flex;flex-direction:column;flex:0 0 36px;width:100%;margin-top:auto;color:#64748b;font-size:12px;line-height:18px;white-space:nowrap; }
     .project-roadmap-schedule>span { display:block;overflow:hidden;text-overflow:ellipsis; }
     .project-roadmap-completed .project-roadmap-schedule { color:#94a3b8; }
+    .project-roadmap-completed .project-roadmap-title { color:#94a3b8; }
+    .project-roadmap-task.project-roadmap-goal { border-color:#1e4f91; }
+    .project-roadmap-goal-label { position:absolute;left:12px;top:-15px;height:12px;color:#1e4f91;font:700 10px/12px sans-serif;letter-spacing:1px;pointer-events:none; }
     .project-roadmap-insert { position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:1px solid #cbd5e1;border-radius:50%;background:#fff;color:#64748b;font-size:16px;line-height:20px;cursor:pointer;z-index:3; }
     #roadmap-insert-modal { z-index:1450; }
     .task-memo-links { white-space:pre-wrap;overflow-wrap:anywhere;min-height:90px;cursor:text; }
@@ -4208,67 +4211,43 @@
       return date+(time?' '+time:'')+(end?' ～ '+(end!==date?end:'')+(endTime?' '+endTime:''):'');
     }
     function getProjectRoadmapLayout(members){
+      const activeIds=new Set(members.filter(item=>!item.preDeleted).map(item=>String(item.pageID)));
+      const startTasks=members.filter(item=>!item.preDeleted&&!(item.childID||[]).some(id=>activeIds.has(String(id))));
       const paths=getProjectTaskPaths(members),layers=new Map();
       const context=document.createElement('canvas').getContext?.('2d');
       function measure(text,small=false){
-        if(context){context.font=small?'11px sans-serif':'600 13px sans-serif';return Math.ceil(context.measureText(text).width);}
-        return roadmapCharacters(text).reduce((sum,char)=>sum+(/^[\u0000-\u00ff]+$/.test(char)?.55:1)*(small?11:13),0);
+        if(context){context.font=small?'12px sans-serif':'700 16px sans-serif';return Math.ceil(context.measureText(text).width);}
+        return roadmapCharacters(text).reduce((sum,char)=>sum+(/^[\u0000-\u00ff]+$/.test(char)?.55:1)*(small?12:16),0);
       }
       function wrap(text,width){const lines=[];let line='';for(const char of roadmapCharacters(text)){if(line&&measure(line+char,true)>width){lines.push(line);line='';}line+=char;}lines.push(line);return lines;}
       const depth=item=>paths.get(String(item.pageID)).split(',').length-1;
-      const activeIds=new Set(members.filter(item=>!item.preDeleted).map(item=>String(item.pageID)));
-      const leaves=members.filter(item=>!item.preDeleted&&!(item.childID||[]).some(id=>activeIds.has(String(id)))).sort((a,b)=>depth(b)-depth(a));
+      const leaves=startTasks.sort((a,b)=>depth(b)-depth(a));
       const leafIds=new Set(leaves.map(item=>String(item.pageID)));
       for(const item of members){const level=depth(item);if(!layers.has(level))layers.set(level,[]);layers.get(level).push(item);}
       const maxDepth=Math.max(0,...members.map(depth)),positions=new Map(),columns=new Map();
-      const cardHeight=153,rowStep=183,columnGap=64;
-      const maxRows=Math.max(1,...[...layers.values()].map(items=>items.length));
-      const start={x:16,y:16,width:156,height:maxRows*cardHeight+(maxRows-1)*(rowStep-cardHeight)};let x=172+columnGap,height=start.y+start.height+16;
+      const cardHeight=106,columnGap=64;
+      const viewport=document.getElementById('task-editor-scroll')||document.querySelector('.main-scroll-area');
+      const startHeight=Math.max(32,(viewport?.clientHeight||window.innerHeight)-32);
+      if(context)context.font='700 14px sans-serif';
+      const startWidth=Math.ceil(context?context.measureText('START').width:5*14*.65)+24;
+      const start={x:16,y:16,width:startWidth,height:startHeight};let x=start.x+start.width+columnGap,height=start.y+start.height+16;
       for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
         const titles=new Map(items.map(item=>[String(item.pageID),wrapRoadmapTitle(item.title)]));
-        const width=Math.max(156,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
-        columns.set(level,{x,width,titles,occupied:[]});x+=width+columnGap;
+        const width=Math.max(196,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
+        columns.set(level,{x,width,titles});x+=width+columnGap;
       }
-      function place(item,y){
+      // Prepare only X and card dimensions. No task owns a Y coordinate yet.
+      for(const item of members){
         const id=String(item.pageID),column=columns.get(depth(item)),width=column.width;
-        positions.set(id,{x:column.x,y,width,height:cardHeight,titleLines:column.titles.get(id),deadlineLines:wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width),actionLines:wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width)});
-        column.occupied.push(y);height=Math.max(height,y+cardHeight+16);
+        positions.set(id,{x:column.x,y:null,width,height:cardHeight,titleLines:column.titles.get(id),deadlineLines:wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width),actionLines:wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width)});
       }
-      // Build rows from the left-hand connections, independent of depth.
-      // START leaves supply only seed order; later columns reserve no rows.
-      const byId=new Map(members.map(item=>[String(item.pageID),item]));
-      const rows=new Map(),expanded=new Set(),connectionOrder=[];
-      let bottom=-1;
-      function assign(item,row){
-        const id=String(item.pageID),column=columns.get(depth(item));
-        while(column.occupied.includes(16+row*rowStep))row++;
-        rows.set(id,row);place(item,16+row*rowStep);bottom=Math.max(bottom,row);
-        return row;
+      const byId=new Map(members.map(item=>[String(item.pageID),item])),expanded=new Set(),connectionOrder=[];
+      function visit(id){
+        if(expanded.has(id))return;expanded.add(id);
+        for(const parent of taskParentIds(byId.get(id)))if(byId.has(parent)){connectionOrder.push(id+'>'+parent);visit(parent);}
       }
-      function expand(child){
-        const childId=String(child.pageID);if(expanded.has(childId))return;
-        expanded.add(childId);
-        const parents=taskParentIds(child).filter(id=>byId.has(id));
-        // Commit sibling order before following the first branch to the root.
-        let row=rows.get(childId);
-        for(const id of parents){
-          if(rows.has(id)){row=Math.max(row,rows.get(id)+1);continue;}
-          row=assign(byId.get(id),row)+1;
-        }
-        for(const id of parents){
-          connectionOrder.push(childId+'>'+id);
-          expand(byId.get(id));
-        }
-      }
-      for(const leaf of leaves){
-        const id=String(leaf.pageID);
-        if(!rows.has(id))assign(leaf,bottom+1);
-        connectionOrder.push('START>'+id);
-        // Complete this START branch all the way to its topmost parent
-        // before assigning coordinates to the next START branch.
-        expand(leaf);
-      }
-      for(const item of members)if(!rows.has(String(item.pageID))){assign(item,bottom+1);expand(item);}
+      for(const leaf of leaves){const id=String(leaf.pageID);connectionOrder.push('START>'+id);visit(id);}
+      for(const id of byId.keys())visit(id);
       return {positions,width:x-columnGap+16,height,start,paths,maxDepth,leafIds,connectionOrder};
     }
     function openRoadmapInsert(from,to,opener){
@@ -4347,21 +4326,37 @@
       if(right<=left)return [];
       const boxes=[layout.start,...layout.positions.values()];
       const rect=r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16});
-      const clear=points=>points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,boxes.filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect).concat(extraRects)));
-      // Only these forms exist: right, or right / up-or-down / right.
-      if(sy===ty){const straight=[{x:left,y:sy},{x:right,y:ty}];if(clear(straight))return straight;}
+      const clear=points=>!roadmapVerticalConflict(points,earlier)&&points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,boxes.filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect).concat(extraRects)));
+      // Compare all box-clear bends against already committed wires.
+      const fixed=[];
+      const rank=points=>{const c=roadmapRouteConflicts(points,earlier),first=points[0],last=points.at(-1);return [c.overlap>0?1:0,c.crossings,c.overlap,Math.abs(first.y-last.y)+Math.abs(first.y-sy)+Math.abs(last.y-ty),points.length>2?Math.abs(points[1].x-left-bendOffset):0];};
+      const compare=(a,b)=>{for(let i=0;i<a.rank.length;i++)if(a.rank[i]!==b.rank[i])return a.rank[i]-b.rank[i];return 0;};
+      if(sy===ty){const straight=[{x:left,y:sy},{x:right,y:ty}];if(clear(straight)){const score=rank(straight);if(!score[0]&&!score[1])return straight;fixed.push({points:straight,rank:score});}}
       const minX=left+16,maxX=right-16;if(maxX<minX)return [];
       const preferred=Math.max(minX,Math.min(maxX,left+bendOffset));
-      const xs=[...new Set([preferred,minX,maxX,...boxes.flatMap(r=>[r.x-16,r.x+r.width+16]),...extraRects.flatMap(r=>[r.left,r.right])])].filter(x=>x>=minX&&x<=maxX).sort((a,b)=>Math.abs(a-preferred)-Math.abs(b-preferred));
-      for(const x of xs){const points=simplifyRoadmapRoute([{x:left,y:sy},{x,y:sy},{x,y:ty},{x:right,y:ty}]);if(clear(points))return points;}
+      const xs=[...new Set([preferred,minX,maxX,...boxes.flatMap(r=>[r.x-16,r.x+r.width+16]),...earlier.flatMap(edge=>edge.points.flatMap(p=>[p.x-16,p.x+16])),...extraRects.flatMap(r=>[r.left,r.right])])].filter(x=>x>=minX&&x<=maxX).sort((a,b)=>Math.abs(a-preferred)-Math.abs(b-preferred));
+      for(const x of xs){const points=simplifyRoadmapRoute([{x:left,y:sy},{x,y:sy},{x,y:ty},{x:right,y:ty}]);if(clear(points))fixed.push({points,rank:rank(points)});}
+      if(fixed.length){fixed.sort(compare);if(!fixed[0].rank[0]&&!fixed[0].rank[1])return fixed[0].points;}
       // If a port is blocked, choose another port; never add a detour or reverse.
       const ys=(box,desired)=>[...new Set([desired,box.y+16,box.y+box.height-16,...boxes.flatMap(r=>[r.y-16,r.y+r.height+16])])].filter(y=>y>=box.y+16&&y<=box.y+box.height-16).sort((a,b)=>Math.abs(a-desired)-Math.abs(b-desired));
-      const candidates=[];
+      const candidates=[...fixed];
       for(const startY of ys(source,sy))for(const endY of ys(target,ty))for(const x of xs){
+        if(earlier.length&&startY<sy)continue;
+        if(earlier.some(edge=>{
+          if(edge.from!=='START'&&layout.positions.get(edge.from)===source){
+            const other=layout.positions.get(edge.to),order=target.y-other.y;
+            if(order>0&&startY<edge.sourceY+16||order<0&&startY>edge.sourceY-16)return true;
+          }
+          if(layout.positions.get(edge.to)===target){
+            const other=edge.from==='START'?layout.start:layout.positions.get(edge.from),order=source.y-other.y;
+            if(order>0&&endY<edge.targetY+16||order<0&&endY>edge.targetY-16)return true;
+          }
+          return false;
+        }))continue;
         const points=simplifyRoadmapRoute([{x:left,y:startY},{x,y:startY},{x,y:endY},{x:right,y:endY}]);
-        if(clear(points))candidates.push({points,score:Math.abs(startY-endY)+Math.abs(startY-sy)+Math.abs(endY-ty)+(points.length-2)*.001});
+        if(clear(points))candidates.push({points,rank:rank(points)});
       }
-      candidates.sort((a,b)=>a.score-b.score);return candidates[0]?.points||[];
+      candidates.sort(compare);return candidates[0]?.points||[];
     }
     function simplifyRoadmapRoute(points){
       const result=[];for(const p of points){if(result.length&&Math.abs(p.x-result.at(-1).x)<.001&&Math.abs(p.y-result.at(-1).y)<.001)continue;while(result.length>1){const a=result.at(-2),b=result.at(-1);if(!((a.x===b.x&&b.x===p.x&&(b.y-a.y)*(p.y-b.y)>=0)||(a.y===b.y&&b.y===p.y&&(b.x-a.x)*(p.x-b.x)>=0)))break;result.pop();}result.push({...p});}return result;
@@ -4380,13 +4375,13 @@
     }
     function expandRoadmapRight(layout,connections,cut,amount){
       if(amount<=0)return;
-      const boxes=[layout.start,...layout.positions.values()];
+      const boxes=[layout.start,...(layout.allPositions||layout.positions).values()];
       for(const box of boxes)if(box.x<cut&&box.x+box.width>cut){cut=box.x+box.width+.001;}
       for(const box of boxes)if(box.x>=cut)box.x+=amount;
       for(const edge of connections){for(const p of edge.points)if(p.x>=cut)p.x+=amount;if(edge.plus?.x>=cut)edge.plus.x+=amount;}
       layout.width+=amount;
     }
-    function alignRoadmapBends(layout,connections){
+    function alignRoadmapBends(layout,connections,allConnections=connections){
       const box=id=>id==='START'?layout.start:layout.positions.get(id),columns=new Map();
       for(const edge of connections){
         const source=box(edge.from),i=edge.points.findIndex((p,n)=>n&&p.x===edge.points[n-1].x&&p.y!==edge.points[n-1].y);
@@ -4420,35 +4415,93 @@
         // Calculate the required gap once, then move the right-hand columns once.
         const source=box(entries[0].edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
         const right=Math.max(...assigned.map(r=>r.x))+16;
-        if(Number.isFinite(next)&&right>next)expandRoadmapRight(layout,connections,next,right-next);
+        if(Number.isFinite(next)&&right>next)expandRoadmapRight(layout,allConnections,next,right-next);
         for(const {edge,i,x} of assigned){edge.points[i-1].x=x;edge.points[i].x=x;edge.bendOffset=x-box(edge.from).x-box(edge.from).width;}
       }
     }
-    function separateRoadmapHorizontalOverlaps(connections,layout){
-      const box=id=>id==='START'?layout.start:layout.positions.get(id),depth=edge=>edge.from==='START'?-1:(layout.paths.get(edge.from)||'').split(',').length;
-      const segments=[];
-      for(const edge of connections)for(let i=1;i<edge.points.length;i++)if(edge.points[i-1].y===edge.points[i].y)segments.push({edge,i});
-      // Keep the arriving horizontal section; lift the overlapping outgoing
-      // section, including wires whose source tasks share the same depth.
-      const priority=r=>r.edge.points.length===2?0:r.i===r.edge.points.length-1?1:2;
-      segments.sort((a,b)=>priority(a)-priority(b)||depth(a.edge)-depth(b.edge)||box(b.edge.from).y-box(a.edge.from).y);
-      const committed=[];
-      for(const record of segments){
-        const {edge,i}=record,a=edge.points[i-1],b=edge.points[i],left=Math.min(a.x,b.x),right=Math.max(a.x,b.x),levels=[];
-        for(const other of committed){if(other.edge===edge)continue;const c=other.edge.points[other.i-1],d=other.edge.points[other.i];
-          if(Math.min(right,Math.max(c.x,d.x))-Math.max(left,Math.min(c.x,d.x))>.001)levels.push(c.y);
+    function roadmapVerticalConflict(points,connections,gap=16){
+      for(let i=1;i<points.length;i++){
+        const a=points[i-1],b=points[i];if(a.x!==b.x||a.y===b.y)continue;
+        for(const edge of connections)for(let j=1;j<edge.points.length;j++){
+          const c=edge.points[j-1],d=edge.points[j];if(c.x!==d.x||c.y===d.y)continue;
+          const overlap=Math.min(Math.max(a.y,b.y),Math.max(c.y,d.y))-Math.max(Math.min(a.y,b.y),Math.min(c.y,d.y));
+          if(overlap>=-.001&&Math.abs(a.x-c.x)<gap-.001)return true;
         }
-        if(levels.some(y=>Math.abs(y-a.y)<.001)){
-          let y=a.y;for(const level of levels.sort((a,b)=>b-a))if(y<=level&&y>level-16)y=level-16;
-          const candidate=edge.points.map(p=>({...p}));candidate[i-1].y=y;candidate[i].y=y;
-          const source=box(edge.from),target=box(edge.to),first=candidate[0],last=candidate.at(-1);
-          const endpoints=first.y>=source.y+16&&first.y<=source.y+source.height-16&&last.y>=target.y+16&&last.y<=target.y+target.height-16;
-          const clear=endpoints&&candidate.every((p,k)=>!k||roadmapSegmentClear(candidate[k-1],p,[layout.start,...layout.positions.values()].filter(r=>!(k===1&&r===source)&&!(k===candidate.length-1&&r===target)).map(r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16}))));
-          if(clear){edge.points[i-1].y=y;edge.points[i].y=y;edge.sourceY=first.y;edge.targetY=last.y;}
-        }
-        committed.push(record);
       }
-      for(const edge of connections)edge.points=simplifyRoadmapRoute(edge.points);
+      return false;
+    }
+    function roadmapRouteBoxClear(edge,points,layout){
+      const source=edge.from==='START'?layout.start:layout.positions.get(edge.from),target=layout.positions.get(edge.to);
+      if(!source||!target||points.length<2||points.length>4)return false;
+      if(points[0].y<source.y+16||points[0].y>source.y+source.height-16||points.at(-1).y<target.y+16||points.at(-1).y>target.y+target.height-16)return false;
+      let direction=0;
+      return points.every((p,i)=>{
+        if(!i)return true;const a=points[i-1];if(p.x<a.x||p.x!==a.x&&p.y!==a.y)return false;
+        if(p.y!==a.y){const sign=Math.sign(p.y-a.y);if(direction&&direction!==sign)return false;direction=sign;}
+        return roadmapSegmentClear(a,p,[layout.start,...layout.positions.values()].filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16})));
+      });
+    }
+    function enforceRoadmapVerticalLanes(connections,layout){
+      const box=id=>id==='START'?layout.start:layout.positions.get(id);
+      const verticals=connections.filter(edge=>edge.points.length===4&&edge.points[1].x===edge.points[2].x).sort((a,b)=>{
+        const column=box(a.from).x-box(b.from).x;if(column)return column;
+        const downA=a.targetY>a.sourceY,downB=b.targetY>b.sourceY;
+        if(downA!==downB)return Number(downA)-Number(downB);
+        const direction=downA?-1:1;
+        return direction*(box(a.from).y-box(b.from).y||a.sourceY-b.sourceY||a.targetY-b.targetY);
+      });
+      const assigned=[];
+      for(const edge of verticals){
+        const source=box(edge.from),down=edge.targetY>edge.sourceY;
+        let minimum=source.x+source.width+16;
+        for(const other of assigned)if(box(other.from).x===source.x&&(other.targetY>other.sourceY)===down)minimum=Math.max(minimum,other.points[1].x+16);
+        for(let attempt=0;attempt<=connections.length+1;attempt++){
+          const target=box(edge.to),xs=[...new Set([minimum,edge.points[1].x,target.x-16,...assigned.flatMap(other=>[other.points[1].x-16,other.points[1].x+16]),...[...layout.positions.values()].flatMap(r=>[r.x-16,r.x+r.width+16])])].filter(x=>x>=minimum&&x<=target.x-16).sort((a,b)=>Math.abs(a-edge.points[1].x)-Math.abs(b-edge.points[1].x));
+          let selected=null;
+          for(const x of xs){const points=edge.points.map(p=>({...p}));points[1].x=x;points[2].x=x;
+            if(!roadmapVerticalConflict(points,assigned)&&roadmapRouteBoxClear(edge,points,layout)){selected=points;break;}
+          }
+          if(selected){edge.points=selected;break;}
+          const next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
+          if(!Number.isFinite(next))break;
+          expandRoadmapRight(layout,connections,next,16);
+        }
+        assigned.push(edge);
+      }
+    }
+    function separateRoadmapHorizontalOverlaps(connections,layout){
+      const box=id=>id==='START'?layout.start:layout.positions.get(id);
+      const ordered=connections.filter(edge=>edge.from!=='START'&&edge.points.length>=2).sort((a,b)=>box(a.from).x-box(b.from).x||box(a.from).y-box(b.from).y);
+      for(const edge of ordered){
+        const source=box(edge.from),original=edge.points,first=original[0],others=connections.filter(other=>other!==edge);
+        // Adjust only the departure section on the left. Never lift the
+        // arriving section or create a small jog at the card's right edge.
+        const conflictAt=y=>{
+          const right=original.length===2?original.at(-1).x:original[1].x;
+          let hit=false;
+          for(const other of others)for(let i=1;i<other.points.length;i++){
+            const a=other.points[i-1],b=other.points[i];
+            if(a.y===b.y&&Math.abs(y-a.y)<16-.001&&Math.min(right,Math.max(a.x,b.x))>Math.max(first.x,Math.min(a.x,b.x))+.001)hit=true;
+            if(a.x===b.x&&a.x>first.x&&a.x<right&&y>=Math.min(a.y,b.y)&&y<=Math.max(a.y,b.y))hit=true;
+          }
+          return hit;
+        };
+        if(!conflictAt(first.y))continue;
+        for(let y=first.y+16;y<=source.y+source.height-16;y+=16){
+          if(conflictAt(y))continue;
+          let candidate;
+          if(original.length===2){
+            // Keep the target's entry height; use one vertical bend pair.
+            const x=source.x+source.width+16;
+            candidate=simplifyRoadmapRoute([{x:first.x,y},{x,y},{x,y:original.at(-1).y},{...original.at(-1)}]);
+          }else{candidate=original.map(p=>({...p}));candidate[0].y=y;candidate[1].y=y;candidate=simplifyRoadmapRoute(candidate);}
+          const siblings=others.filter(other=>other.from===edge.from);
+          if(siblings.some(other=>{const order=box(other.to).y-box(edge.to).y;return order>0&&y>other.sourceY-16||order<0&&y<other.sourceY+16;}))continue;
+          if(roadmapRouteBoxClear(edge,candidate,layout)&&!roadmapVerticalConflict(candidate,others)){
+            edge.points=candidate;edge.sourceY=y;edge.targetY=candidate.at(-1).y;break;
+          }
+        }
+      }
     }
     function findRoadmapBlockingTask(edge,layout){
       const source=edge.from==='START'?layout.start:layout.positions.get(edge.from),target=layout.positions.get(edge.to);
@@ -4467,96 +4520,257 @@
       // Move only a card actually intersecting a permitted two-bend route.
       return best?.blockers.sort((a,b)=>a[1].x-b[1].x||a[1].y-b[1].y)[0]?.[0]||null;
     }
-    function prepareRoadmapConnections(members,layout){
-      const maxMoves=Math.max(1,members.length*members.length);
-      for(let move=0;move<=maxMoves;move++){
-        const connections=buildRoadmapConnections(members,layout);
-        const missing=connections.filter(edge=>!edge.points.length);
-        if(!missing.length||move===maxMoves)return connections;
-        let blockerId=null;
-        for(const edge of missing){blockerId=findRoadmapBlockingTask(edge,layout);if(blockerId)break;}
-        if(!blockerId)return connections;
-        const blocked=layout.positions.get(blockerId),x=blocked.x,y=blocked.y,step=blocked.height+30;
-        // Insert one empty row at the blocked position. Carry lower cards down
-        // to keep them from colliding with the moved card; X and path stay fixed.
-        for(const position of layout.positions.values())if(position.x===x&&position.y>=y)position.y+=step;
-        layout.height=Math.max(layout.height,...[...layout.positions.values()].map(r=>r.y+r.height+16));
-        // Recalculate every affected port and wire from the new card positions.
+    function roadmapRouteConflicts(points,connections){
+      let crossings=0,overlap=0;
+      for(const edge of connections)for(let i=1;i<points.length;i++)for(let j=1;j<edge.points.length;j++){
+        const a=points[i-1],b=points[i],c=edge.points[j-1],d=edge.points[j];
+        if(a.y===b.y&&c.y===d.y&&a.y===c.y)overlap+=Math.max(0,Math.min(b.x,d.x)-Math.max(a.x,c.x));
+        else if(a.x===b.x&&c.x===d.x&&a.x===c.x)overlap+=Math.max(0,Math.min(Math.max(a.y,b.y),Math.max(c.y,d.y))-Math.max(Math.min(a.y,b.y),Math.min(c.y,d.y)));
+        else {
+          const h=a.y===b.y?[a,b]:c.y===d.y?[c,d]:null,v=a.x===b.x?[a,b]:c.x===d.x?[c,d]:null;
+          if(h&&v&&v[0].x>Math.min(h[0].x,h[1].x)&&v[0].x<Math.max(h[0].x,h[1].x)&&h[0].y>Math.min(v[0].y,v[1].y)&&h[0].y<Math.max(v[0].y,v[1].y))crossings++;
+        }
+      }
+      return {crossings,overlap};
+    }
+    function optimizeRoadmapBranch(connections,layout,firstNew){
+      const box=id=>layout.positions.get(id),rect=r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16});
+      // Earlier branches are committed. Improve this branch against all of
+      // them, and against its own wires, before advancing to another leaf.
+      for(let pass=0;pass<connections.length;pass++){
+        let changed=false;
+        for(let n=firstNew;n<connections.length;n++){
+          const edge=connections[n];if(edge.points.length<2)continue;
+          const source=box(edge.from),target=box(edge.to),sy=edge.points[0].y,ty=edge.points.at(-1).y,min=source.x+source.width+16,max=target.x-16;
+          const others=connections.filter(other=>other!==edge),current=roadmapRouteConflicts(edge.points,others);
+          let best=edge.points,bestScore=[current.overlap>0?1:0,current.crossings,current.overlap,edge.points.length>2?Math.abs(edge.points[1].x-min):0];
+          const xs=[...new Set([min,max,...connections.flatMap(other=>other.points.flatMap(p=>[p.x-16,p.x+16])),...layout.positions.values()].flatMap(value=>typeof value==='number'?[value]:[value.x-16,value.x+value.width+16]))].filter(x=>x>=min&&x<=max);
+          for(const x of xs){
+            const points=simplifyRoadmapRoute([{x:source.x+source.width,y:sy},{x,y:sy},{x,y:ty},{x:target.x,y:ty}]);
+            const vertical=points.length>2?points[1].x:null;
+            // Preserve up/down bend order within a source column.
+            if(vertical!==null&&others.some(other=>{
+              if(other.points.length<4||box(other.from).x!==source.x||Math.sign(other.targetY-other.sourceY)!==Math.sign(ty-sy))return false;
+              const down=ty>sy,diff=source.y-box(other.from).y||sy-other.sourceY||ty-other.targetY;
+              const before=down?diff>0:diff<0;
+              return before?vertical>other.points[1].x-16:diff!==0&&vertical<other.points[1].x+16;
+            }))continue;
+            if(roadmapVerticalConflict(points,others))continue;
+            if(!points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,[layout.start,...layout.positions.values()].filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect))))continue;
+            const conflict=roadmapRouteConflicts(points,others),score=[conflict.overlap>0?1:0,conflict.crossings,conflict.overlap,Math.abs(x-min)];
+            const better=score.some((value,index)=>value<bestScore[index]&&score.slice(0,index).every((v,k)=>v===bestScore[k]));
+            if(better){best=points;bestScore=score;}
+          }
+          if(best!==edge.points){edge.points=best;changed=true;}
+        }
+        if(!changed)break;
       }
     }
-    function buildRoadmapConnections(members,layout){
-      // 1: the layout already contains top-aligned hierarchy columns.
-      const box=id=>id==='START'?layout.start:layout.positions.get(id),ports=getRoadmapEdgePorts(members,layout);
-      const branchOrder=new Map((layout.connectionOrder||[]).map((key,index)=>[key,index]));
-      const ordered=[...ports.values()].sort((a,b)=>
-        (branchOrder.get(a.from+'>'+a.to)??Infinity)-(branchOrder.get(b.from+'>'+b.to)??Infinity));
-      // 2: shortest box-avoiding connections, with upper tasks committed first.
-      const connections=ordered.map(port=>({...port,points:routeRoadmapEdge(box(port.from),box(port.to),layout,[],port.sourceY,port.targetY),plus:null}));
-      for(const edge of connections)if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
-      // 3: put one insertion button on each connection.
-      function placePluses(){const used=[];for(const edge of connections){edge.plus=roadmapPlusPosition(edge.points,layout,used,connections.filter(other=>other!==edge).map(other=>other.points));if(edge.plus)used.push(edge.plus);}}
-      placePluses();
-      // 4: set bend order once across each whole hierarchy column.
-      alignRoadmapBends(layout,connections);placePluses();
-      // 5: keep committed upper wires straight. Only separate interfering bends.
-      // Each pair is handled once; no return to step 4 and no repeated rerouting.
-      const verticals=[];
-      for(const edge of connections)for(let i=1;i<edge.points.length;i++)if(edge.points[i-1].x===edge.points[i].x&&edge.points[i-1].y!==edge.points[i].y)verticals.push({edge,i});
-      verticals.sort((a,b)=>a.edge.points[a.i].x-b.edge.points[b.i].x||ordered.indexOf(a.edge)-ordered.indexOf(b.edge));
-      for(let n=0;n<verticals.length;n++){
-        const current=verticals[n],{edge,i}=current,a=edge.points[i-1],b=edge.points[i];let x=a.x;
-        for(let k=0;k<n;k++){
-          const earlier=verticals[k],c=earlier.edge.points[earlier.i-1],d=earlier.edge.points[earlier.i];
-          if(Math.max(Math.min(a.y,b.y),Math.min(c.y,d.y))>=Math.min(Math.max(a.y,b.y),Math.max(c.y,d.y)))continue;
-          const p=edge.plus,q=earlier.edge.plus;
-          const touches=p&&p.segment===i&&roadmapPointDistance(p,c,d)<12-.001||q&&q.segment===earlier.i&&roadmapPointDistance(q,a,b)<12-.001;
-          const buttons=p&&q&&p.segment===i&&q.segment===earlier.i&&Math.abs(p.y-q.y)<24;
-          const required=buttons?Math.sqrt(24*24-(p.y-q.y)**2):touches?12:0;
-          if(required)x=Math.max(x,c.x+required);
-        }
-        if(x>a.x+.001){
-          const old=a.x,source=box(edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
-          a.x=x;b.x=x;if(edge.plus?.segment===i)edge.plus.x+=x-old;
-          // Preserve the order already assigned in step 4.
-          for(let k=n+1;k<verticals.length;k++){
-            const later=verticals[k],c=later.edge.points[later.i-1],d=later.edge.points[later.i];
-            if(box(later.edge.from).x!==source.x||Math.sign(d.y-c.y)!==Math.sign(b.y-a.y)||c.x>=x+16)continue;
-            const shift=x+16-c.x;c.x+=shift;d.x+=shift;if(later.edge.plus?.segment===later.i)later.edge.plus.x+=shift;
+    function prepareRoadmapConnections(members,layout){
+      const byId=new Map(members.map(item=>[String(item.pageID),item])),positions=layout.positions;
+      const seedIds=layout.connectionOrder.filter(key=>key.startsWith('START>')).map(key=>key.slice(6));
+      const placed=new Set(),expanded=new Set(),order=[];
+      const level=id=>(layout.paths.get(id)||id).split(',').length-1;
+      const idOrder=(a,b)=>a.localeCompare(b,'en',{numeric:true});
+      const parents=id=>taskParentIds(byId.get(id)).filter(parent=>byId.has(parent)).sort((a,b)=>level(b)-level(a)||idOrder(a,b));
+      function place(id,minimum){
+        const card=positions.get(id);let y=Math.max(16,minimum);
+        for(;;){let next=y;
+          for(const otherId of placed){const other=positions.get(otherId);
+            if(other.x===card.x&&other.y<y+card.height+30&&other.y+other.height+30>y)next=Math.max(next,other.y+other.height+30);
           }
+          if(next===y)break;y=next;
+        }
+        card.y=y;placed.add(id);
+      }
+      function visit(id){
+        if(expanded.has(id))return;expanded.add(id);
+        let y=positions.get(id).y;
+        for(const parent of parents(id)){
+          if(!placed.has(parent))place(parent,y);
+          order.push(id+'>'+parent);
+          visit(parent);
+          const p=positions.get(parent);y=Math.max(y,p.y+p.height+30);
         }
       }
-      // Accommodate the final bend positions with one expansion per column.
-      const sources=[...new Set(verticals.map(r=>r.edge.from))].sort((a,b)=>box(a).x-box(b).x);
-      for(const id of sources){const source=box(id),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
-        const right=Math.max(...verticals.filter(r=>box(r.edge.from).x===source.x).map(r=>r.edge.points[r.i].x))+16;
-        if(Number.isFinite(next)&&right>next){
-          const fixed=verticals.filter(r=>box(r.edge.from).x<next).map(r=>({r,x:r.edge.points[r.i].x,plusX:r.edge.plus?.x}));
-          expandRoadmapRight(layout,connections,next,right-next);
-          for(const {r,x,plusX} of fixed){r.edge.points[r.i-1].x=x;r.edge.points[r.i].x=x;if(r.edge.plus?.segment===r.i)r.edge.plus.x=plusX;}
-        }
+      // First finish all placements. No sibling/descendant expansion, column
+      // reordering, provisional wire reservation, or early upward compaction.
+      for(const seed of seedIds){
+        if(!placed.has(seed))place(seed,placed.size?Math.max(...[...placed].map(id=>{const p=positions.get(id);return p.y+p.height+30;})):16);
+        visit(seed);
       }
-      // 6: shift the arrow side only by the missing crossing clearance.
+      for(const id of byId.keys())if(!placed.has(id)){place(id,16);visit(id);}
+      layout.connectionOrder=[...seedIds.map(id=>'START>'+id),...order];
+      layout.allPositions=positions;layout.returnOrder=null;layout.routingOnly=true;
+      function connectAll(){
+        const edges=buildRoadmapConnections(members,layout,[]);
+        optimizeRoadmapBranch(edges,layout,0);
+        enforceRoadmapVerticalLanes(edges,layout);
+        separateRoadmapHorizontalOverlaps(edges,layout);
+        enforceRoadmapVerticalLanes(edges,layout);
+        appendRoadmapStartConnections(members,layout,edges);
+        enforceRoadmapVerticalLanes(edges,layout);
+        return edges;
+      }
+      let connections=connectAll();
+      // If a card blocks a permitted connection, insert one row at that card
+      // and carry the cards below it in the same column down by one row.
+      for(let attempt=0;attempt<members.length*members.length;attempt++){
+        const missing=connections.filter(edge=>edge.points.length<2);if(!missing.length)break;
+        let blocker=null;
+        for(const edge of missing){blocker=findRoadmapBlockingTask(edge,layout);if(blocker)break;}
+        if(!blocker)break;
+        const card=positions.get(blocker),x=card.x,y=card.y,step=card.height+30;
+        for(const p of positions.values())if(p.x===x&&p.y>=y)p.y+=step;
+        connections=connectAll();
+      }
+      const snapshot=()=>({cards:new Map([...positions].map(([id,p])=>[id,{...p}])),width:layout.width,height:layout.height});
+      const restore=state=>{for(const [id,p] of state.cards)Object.assign(positions.get(id),p);layout.width=state.width;layout.height=state.height;};
+      const connected=edges=>edges.every(edge=>edge.points.length>=2);
+      const valid=edges=>connected(edges)&&edges.every(edge=>roadmapRouteBoxClear(edge,edge.points,layout)&&!roadmapVerticalConflict(edge.points,edges.filter(other=>other!==edge)));
+      const conflicts=edges=>edges.reduce((sum,edge,index)=>{
+        const found=roadmapRouteConflicts(edge.points,edges.slice(index+1));
+        return {crossings:sum.crossings+found.crossings,overlap:sum.overlap+found.overlap};
+      },{crossings:0,overlap:0});
+      const anchor=seedIds[0],seeds=new Set(seedIds);
+      // Initial depth order determines placement only. Once wired, test vertical
+      // swaps against the actual routes, keeping the first task in place.
+      if(connected(connections))for(let pass=0;pass<members.length*members.length;pass++){
+        const current=conflicts(connections);if(!current.crossings)break;
+        const saved=snapshot(),ids=[...positions.keys()].filter(id=>id!==anchor);
+        let best=null,bestEdges=null,bestScore=current;
+        for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
+          restore(saved);
+          const a=positions.get(ids[i]),b=positions.get(ids[j]);
+          if(a.y===b.y||a.x!==b.x&&!(seeds.has(ids[i])&&seeds.has(ids[j])))continue;
+          const y=a.y;a.y=b.y;b.y=y;
+          const collision=[ids[i],ids[j]].some(id=>{const p=positions.get(id);return [...positions].some(([otherId,q])=>otherId!==id&&p.x<q.x+q.width&&q.x<p.x+p.width&&p.y<q.y+q.height+30&&q.y<p.y+p.height+30);});
+          if(collision)continue;
+          const rerouted=connectAll();if(!valid(rerouted))continue;
+          const score=conflicts(rerouted);
+          if(score.crossings<bestScore.crossings||score.crossings===bestScore.crossings&&score.overlap<bestScore.overlap){best=snapshot();bestEdges=rerouted;bestScore=score;}
+        }
+        restore(best||saved);
+        if(!best)break;connections=bestEdges;
+      }
+      // All tasks can move upward only after every connection exists. Work from
+      // the top down; cards and nonincident wires stop continuous movement.
+      if(connected(connections))for(const id of [...positions.keys()].sort((a,b)=>positions.get(a).y-positions.get(b).y||positions.get(a).x-positions.get(b).x)){
+        const card=positions.get(id),oldY=card.y;
+        let stop=16;
+        const left=card.x-16,right=card.x+card.width+16;
+        // Search continuously from the current position upward. The nearest
+        // occupied card or wire stops movement; an earlier hole is unreachable.
+        for(const [otherId,other] of positions)if(otherId!==id&&other.x<right&&other.x+other.width>left&&other.y<oldY)stop=Math.max(stop,other.y+other.height+30);
+        for(const edge of connections)if(edge.from!==id&&edge.to!==id)for(let i=1;i<edge.points.length;i++){
+          const a=edge.points[i-1],b=edge.points[i];
+          if(Math.max(a.x,b.x)>=left&&Math.min(a.x,b.x)<=right&&Math.min(a.y,b.y)<oldY)stop=Math.max(stop,Math.max(a.y,b.y)+16);
+        }
+        if(stop>=oldY)continue;
+        const saved=snapshot();
+        card.y=stop;
+        const rerouted=connectAll();
+        const before=conflicts(connections),after=conflicts(rerouted);
+        if(valid(rerouted)&&after.crossings<=before.crossings&&after.overlap<=before.overlap)connections=rerouted;
+        else restore(saved);
+      }
       const deficits=new Map();
-      for(const edge of connections){const end=edge.points.at(-1),a=edge.points.at(-2);if(!a||a.y!==end.y||end.x<=a.x)continue;
+      for(const edge of connections){const end=edge.points.at(-1),a=edge.points.at(-2);if(!a||a.y!==end.y)continue;
         for(const other of connections)if(other!==edge)for(let j=1;j<other.points.length;j++){
           const c=other.points[j-1],d=other.points[j];if(c.x!==d.x||c.x<=a.x||c.x>=end.x||end.y<=Math.min(c.y,d.y)||end.y>=Math.max(c.y,d.y))continue;
           const missing=16-(end.x-c.x);if(missing>0)deficits.set(c.x,Math.max(deficits.get(c.x)||0,missing));
         }
       }
-      // Apply from right to left; a later cut cannot recreate a cleared deficit.
       for(const [cut,amount] of [...deficits].sort((a,b)=>b[0]-a[0]))expandRoadmapRight(layout,connections,cut+.001,amount);
-      // Rebuild from the final boxes after insertion/spacing, using the same
-      // monotone, two-bend router. No previous detour is carried forward.
-      for(const edge of connections){
-        const source=box(edge.from),target=box(edge.to),first=edge.points[0],last=edge.points.at(-1);
-        const bend=edge.points.length>2?edge.points[1].x-source.x-source.width:16;
-        edge.points=routeRoadmapEdge(source,target,layout,[],first?.y??edge.sourceY,last?.y??edge.targetY,[],bend);
-        if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
+      const used=[];for(const edge of connections){edge.plus=roadmapPlusPosition(edge.points,layout,used,connections.filter(other=>other!==edge).map(other=>other.points));if(edge.plus)used.push(edge.plus);}
+      layout.width=Math.max(layout.start.x+layout.start.width+16,...[...positions.values()].map(r=>r.x+r.width+16),...connections.flatMap(e=>e.points.map(p=>p.x+16)));
+      layout.height=Math.max(layout.start.y+layout.start.height+16,...[...positions.values()].map(r=>r.y+r.height+16),...connections.flatMap(e=>e.points.map(p=>p.y+16)));
+      return connections;
+    }
+    function appendRoadmapStartConnections(members,layout,connections){
+      const start=layout.start,left=start.x+start.width,low=start.y+16,high=start.y+start.height-16;
+      const ids=(layout.connectionOrder||[]).filter(key=>key.startsWith('START>')).map(key=>key.slice(6)).sort((a,b)=>layout.positions.get(a).y-layout.positions.get(b).y);
+      const used=new Set(),edges=[];
+      for(const id of ids){
+        if(used.has(id))continue;used.add(id);
+        const target=layout.positions.get(id);if(target)edges.push({from:'START',to:id,targetY:target.y+target.height/2,sourceY:0,points:[],plus:null});
       }
-      // Final adjustment: only the lower-hierarchy horizontal line moves up.
-      separateRoadmapHorizontalOverlaps(connections,layout);placePluses();
-      layout.width=Math.max(layout.start.x+layout.start.width+16,...[...layout.positions.values()].map(r=>r.x+r.width+16),...connections.flatMap(e=>e.points.map(p=>p.x+16)));
-      layout.height=Math.max(layout.height,...connections.flatMap(e=>e.points.map(p=>p.y+16)));
+      // Assign distinct ordered exits. Straight connections retain target height
+      // whenever there is room; exits below the viewport stay ordered above it.
+      let ceiling=high;
+      for(let i=edges.length-1;i>=0;i--){edges[i].sourceY=Math.min(edges[i].targetY,ceiling);ceiling=edges[i].sourceY-16;}
+      if(edges.length&&edges[0].sourceY<low){
+        const step=edges.length>1?(high-low)/(edges.length-1):0;
+        edges.forEach((edge,index)=>edge.sourceY=low+index*step);
+      }
+      const clear=(edge,points)=>{
+        const target=layout.positions.get(edge.to);
+        return !roadmapVerticalConflict(points,connections.concat(edges.filter(other=>other!==edge)))&&points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,[start,...layout.positions.values()].filter(r=>!(i===1&&r===start)&&!(i===points.length-1&&r===target)).map(r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16}))));
+      };
+      const bent=[];
+      for(const edge of edges){
+        const target=layout.positions.get(edge.to),points=[{x:left,y:edge.sourceY},{x:target.x,y:edge.targetY}];
+        if(edge.sourceY===edge.targetY&&clear(edge,points))edge.points=points;else bent.push(edge);
+      }
+      // Lower downward wires turn first on the left. No later general router
+      // is allowed to change these exits or their committed bend order.
+      const assigned=[];
+      for(const down of [true,false]){
+        const group=bent.filter(edge=>(edge.targetY>=edge.sourceY)===down).sort((a,b)=>down?b.sourceY-a.sourceY||b.targetY-a.targetY:a.sourceY-b.sourceY||a.targetY-b.targetY);
+        let nextX=left+16;
+        for(const edge of group){
+          let target=layout.positions.get(edge.to);
+          for(const previous of assigned){if(Math.max(Math.min(edge.sourceY,edge.targetY),Math.min(previous.sourceY,previous.targetY))<Math.min(Math.max(edge.sourceY,edge.targetY),Math.max(previous.sourceY,previous.targetY)))nextX=Math.max(nextX,previous.bendX+16);}
+          if(target.x<nextX+16){
+            const cut=Math.min(...[...layout.positions.values()].map(r=>r.x));
+            expandRoadmapRight(layout,connections.concat(edges),cut,nextX+16-target.x);
+          }
+          target=layout.positions.get(edge.to);
+          const xs=[...new Set([nextX,target.x-16,...[...layout.positions.values()].flatMap(r=>[r.x-16,r.x+r.width+16])])].filter(x=>x>=nextX&&x<=target.x-16).sort((a,b)=>a-b);
+          for(const x of xs){
+            const points=simplifyRoadmapRoute([{x:left,y:edge.sourceY},{x,y:edge.sourceY},{x,y:edge.targetY},{x:target.x,y:edge.targetY}]);
+            if(clear(edge,points)){edge.points=points;edge.bendX=x;nextX=x+16;assigned.push(edge);break;}
+          }
+        }
+      }
+      connections.push(...edges);
+    }
+    function buildRoadmapConnections(members,layout,connections=[],onlyKeys=null){
+      const box=id=>layout.positions.get(id),ports=getRoadmapEdgePorts(members,layout),order=new Map((layout.returnOrder||layout.connectionOrder||[]).map((key,index)=>[key,index]));
+      const existing=new Set(connections.map(edge=>edge.from+'>'+edge.to));
+      const pending=[...ports.values()].filter(edge=>edge.from!=='START'&&!existing.has(edge.from+'>'+edge.to)&&(!onlyKeys||onlyKeys.has(edge.from+'>'+edge.to))).sort((a,b)=>(order.get(a.from+'>'+a.to)??Infinity)-(order.get(b.from+'>'+b.to)??Infinity));
+      for(const port of pending){
+        const edge={...port,points:routeRoadmapEdge(box(port.from),box(port.to),layout,connections,port.sourceY,port.targetY),plus:null};
+        if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
+        if(!edge.points.length){
+          for(let attempt=0;attempt<connections.length+1&&!edge.points.length;attempt++){
+            const source=box(edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
+            if(!Number.isFinite(next))break;
+            expandRoadmapRight(layout,connections,next,16);
+            edge.points=routeRoadmapEdge(source,box(edge.to),layout,connections,edge.sourceY,edge.targetY);
+          }
+          const locked=new Set(connections.flatMap(other=>[other.from,other.to]));
+          for(let attempt=0;!layout.routingOnly&&attempt<members.length*members.length&&!edge.points.length;attempt++){
+            const blocker=findRoadmapBlockingTask(edge,layout);if(!blocker||locked.has(blocker))break;
+            const r=box(blocker),step=r.height+30;
+            for(const [id,other] of layout.positions)if(!locked.has(id)&&other.x===r.x&&other.y>=r.y)other.y+=step;
+            const next=getRoadmapEdgePorts(members,layout).get(edge.from+'>'+edge.to);
+            if(next){edge.sourceY=next.sourceY;edge.targetY=next.targetY;}
+            edge.points=routeRoadmapEdge(box(edge.from),box(edge.to),layout,connections,edge.sourceY,edge.targetY);
+          }
+          if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
+        }
+        connections.push(edge);
+      }
+      const fresh=connections.filter(edge=>!existing.has(edge.from+'>'+edge.to));
+      alignRoadmapBends(layout,fresh,connections);
+      // Box-avoiding routes are mandatory. If lane alignment hits a box, retain
+      // the original valid route; the branch optimizer handles its crossings.
+      for(const edge of fresh){
+        const source=box(edge.from),target=box(edge.to);
+        const clear=edge.points.every((p,i)=>!i||roadmapSegmentClear(edge.points[i-1],p,[layout.start,...layout.positions.values()].filter(r=>!(i===1&&r===source)&&!(i===edge.points.length-1&&r===target)).map(r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16}))));
+        if(!clear)edge.points=routeRoadmapEdge(source,target,layout,connections.filter(other=>other!==edge),edge.sourceY,edge.targetY);
+      }
       return connections;
     }
     function roadmapBridgePath(points,others){
@@ -4583,16 +4797,19 @@
         insertions.push(connection);
       }
       const start=document.createElement('div');start.className='project-roadmap-start';start.textContent='START';start.style.left=`${layout.start.x}px`;start.style.top=`${layout.start.y}px`;start.style.width=`${layout.start.width}px`;start.style.height=`${layout.start.height}px`;graph.appendChild(start);
+      for(const edge of connections)connect(edge.from,edge.to,null,null,groupColors.get(edge.from)?.normal||'#b7c0cc');
       for(const item of members){
         const position=layout.positions.get(String(item.pageID));
-        if(layout.leafIds.has(String(item.pageID)))connect('START',String(item.pageID),layout.start,position);
-        for(const parent of taskParentIds(item)){const target=layout.positions.get(parent);if(target)connect(String(item.pageID),parent,position,target,groupColors.get(String(item.pageID))?.normal||'#b7c0cc');}
         const node=document.createElement('button');node.type='button';node.className='project-roadmap-task';node.dataset.pageId=String(item.pageID);node.style.left=`${position.x}px`;node.style.top=`${position.y}px`;node.style.width=`${position.width}px`;node.style.height=`${position.height}px`;node.title=`${item.title||'無題のタスク'}を開く`;node.setAttribute('aria-label',node.title);node.onclick=()=>openProjectTreeTask(item.pageID);
         const title=document.createElement('span');title.className='project-roadmap-title';title.textContent=position.titleLines.join('\n');node.appendChild(title);
-        const badge=document.createElement('span');badge.className='project-roadmap-completed-label';badge.textContent=item.status==='completed'?'完了済み':'\u00a0';node.appendChild(badge);if(item.status==='completed')node.classList.add('project-roadmap-completed');
+        if(item.status==='completed')node.classList.add('project-roadmap-completed');
+        if(!taskParentIds(item).some(id=>layout.positions.has(id))){
+          node.classList.add('project-roadmap-goal');
+          const goal=document.createElement('span');goal.className='project-roadmap-goal-label';goal.textContent='GOAL';node.appendChild(goal);
+        }
         const open=document.createElement('span');open.className='project-roadmap-open';open.textContent='↗';open.setAttribute('aria-hidden','true');node.appendChild(open);
         const schedule=document.createElement('span');schedule.className='project-roadmap-schedule';
-        for(const text of ['期限：'+formatRoadmapSchedule(item,'deadline'),'対応予定日：'+formatRoadmapSchedule(item,'action')]){const line=document.createElement('span');line.textContent=text;line.title=text;schedule.appendChild(line);}node.appendChild(schedule);graph.appendChild(node);
+        for(const text of ['期限：'+formatRoadmapSchedule(item,'deadline'),'対応予定日：'+(item.status==='completed'?'完了済み':formatRoadmapSchedule(item,'action'))]){const line=document.createElement('span');line.textContent=text;line.title=text;schedule.appendChild(line);}node.appendChild(schedule);graph.appendChild(node);
       }
       // Draw vertical bridges last so a later horizontal wire cannot erase the semicircle.
       for(const connection of connections)for(let i=1;i<connection.points.length;i++){
@@ -6229,7 +6446,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.29 DEV152';
+  const BUILD_CREATED_AT = '2026.10.30 DEV162';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -6264,7 +6481,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.29 DEV152' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.30 DEV162' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

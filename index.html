@@ -1555,6 +1555,96 @@
     .page-setting-section .section-title { margin-top:14px; }
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
+
+    /* DEV128: group junctions keep ordinary task hierarchy intact. */
+    .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
+    #view-trash .trash-card { border-radius:0 0 16px 16px; }
+    #detail-tree-list { position:relative; }
+    .group-connection-lines { position:absolute;top:0;left:0;pointer-events:none;z-index:0;overflow:visible; }
+    .project-tree-row,.project-tree-add,.project-tree-columns,.group-selection-tools { position:relative;z-index:1; }
+    .project-tree-group { border:1px solid #cbd5e1;border-radius:6px;background:#f1f5f9;color:#334155;padding:3px 5px;cursor:pointer; }
+    .group-parent-checkbox { width:17px;height:17px;flex-shrink:0;accent-color:#2563eb; }
+    .group-selection-tools { display:flex;align-items:center;gap:8px;padding:10px 0;color:#334155;font-size:13px; }
+    .group-selection-tools span { flex:1; }
+    .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
+
+    /* DEV128: fixed dialog controls outside the scrolling selection list. */
+    #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
+    .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
+    .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
+    .group-selection-header strong { flex:1;min-width:0;color:#334155;font-size:14px; }
+    .group-selection-header .btn-save { flex-shrink:0;font-size:12px;padding:9px 12px;white-space:nowrap; }
+    .group-selection-header .schedule-editor-icon-button { flex-shrink:0;width:32px;height:32px;font-size:23px; }
+    .group-selection-description { margin:0;padding:12px 16px;color:#475569;font-size:13px;flex-shrink:0; }
+    .group-selection-list { overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain;padding:0 10px 12px; }
+    .group-choice-row { display:flex;align-items:center;gap:9px;min-height:44px;box-sizing:border-box;padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;cursor:pointer; }
+    .group-choice-row input { width:18px;height:18px;margin:0;flex-shrink:0;accent-color:#2563eb; }
+    .group-choice-name { min-width:0;overflow-wrap:anywhere;font-size:14px; }
+    .group-choice-disabled { background:#f1f5f9;color:#94a3b8;cursor:default; }
+    .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
+    .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
+    .group-choice-spacer { width:18px;flex-shrink:0; }
+    /* DEV128: reference copies stay directly below each linked task. */
+    .group-alias-row { background:#f1f5f9; }
+    .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
+    .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
+    .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
+
+    /* DEV128: editable group frame; read-only reference rows use independent toggles. */
+    .project-group-frame { box-sizing:border-box; }
+    .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
+    .project-group-frame>.group-block-row.is-group { border-top:0; }
+    .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
+
+    /* DEV128: group selection is staged; decorations begin at the group title. */
+    .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
+    .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
+    .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
+    .group-draft-add .task-input { min-width:0;flex:1;width:100%;font-size:13px; }
+    .group-selection-header { flex-wrap:wrap; }
+    .group-selection-header #group-selection-confirm { margin-left:auto; }
+    .project-group-frame,.project-group-reference { position:relative;border:0;border-radius:0;background:transparent;margin:0;overflow:visible; }
+    .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { background:transparent;border-left:0; }
+    .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
+    .project-group-reference .group-alias-row { background:transparent; }
+    .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
+    /* DEV128: references are secondary; retain regular task typography in editable groups. */
+    .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
+    .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
+    .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
+    .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
+    /* DEV128: section actions replace per-row group controls. */
+    .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
+    .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
+    .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
+    .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
+    .project-tree-remove .app-icon { width:17px;height:17px; }
+    #delete-confirm-modal { z-index:1450; }
+    /* DEV128: controls stay outside the horizontal task scroll area. */
+    .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
+    .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
+    .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
+    .project-tree-drag.project-tree-remove { color:#dc2626;opacity:1;cursor:pointer;font-size:16px;padding:4px 0;min-height:30px; }
+    .project-roadmap { position:relative;min-width:100%; }
+    .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
+    .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:68px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
+    .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
+    /* DEV128: intrinsic, shared column widths; only the list's memo column is removed. */
+    .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
+    .project-tree-title-cell { width:max-content;max-width:none; }
+    .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
+    .project-tree-title-input { width:auto;min-width:160px; }
+    .project-tree-property,.project-tree-columns>span { width:max-content;box-sizing:border-box;white-space:nowrap; }
+    .project-tree-add { min-width:0; }
+    .project-tree-status { display:flex;align-items:center;justify-content:center; }
+    .project-tree-status input { width:17px;height:17px;margin:0;accent-color:#2563eb;cursor:pointer; }
+    .project-tree-status input:disabled { cursor:default;opacity:.45; }
+    .project-tree-drag,.project-tree-drag.project-tree-remove { position:absolute;left:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:20px;height:30px;min-height:0;box-sizing:border-box;line-height:1;padding:0; }
+    .project-tree-drag.project-tree-remove .app-icon { width:17px;height:17px;display:block; }
+    .project-tree-toolbar .project-tree-heading-button { height:30px;padding:0 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:11px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;gap:4px; }
+    .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
+    .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
+    .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
 </style>
 </head>
 <body>
@@ -1875,9 +1965,10 @@
             </div>
           </div>
 
-          <section class="project-tree-section" aria-label="タスク一覧">
-            <h3 class="project-tree-section-heading"><span aria-hidden="true">📋</span> タスク一覧</h3>
-            <div class="project-tree-scroll" id="project-tree-scroll" tabindex="0" aria-label="タスク一覧（左右にスクロールできます）">
+          <section class="project-tree-section" aria-label="サブタスクの追加">
+            <h3 class="project-tree-section-heading"><span aria-hidden="true">📋</span> サブタスクの追加</h3>
+            <div id="project-tree-toolbar" class="project-tree-toolbar" role="group" aria-label="サブタスクの操作"></div>
+            <div class="project-tree-scroll" id="project-tree-scroll" tabindex="0" aria-label="サブタスクの追加（左右にスクロールできます）">
               <div id="detail-tree-list"></div>
             </div>
           </section>
@@ -2085,6 +2176,18 @@
     </div>
   </div>
 
+  <div id="group-selection-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="group-selection-title">
+    <div class="group-selection-dialog">
+      <div class="group-selection-header">
+        <button type="button" id="group-selection-cancel" class="schedule-editor-icon-button" onclick="cancelGroupSelection()" aria-label="選択を取り消す">×</button>
+        <strong id="group-selection-title">グループ化</strong>
+        <button type="button" id="group-selection-back" class="group-step-back hidden" onclick="backGroupSelection()">戻る</button><button type="button" id="group-selection-confirm" class="btn-save" onclick="confirmGroupSelection()">次へ</button>
+      </div>
+      <p id="group-selection-description" class="group-selection-description">グループの元にするタスクを一つ選択してください。</p>
+      <div id="group-selection-list" class="group-selection-list"></div>
+    </div>
+  </div>
+
   <div id="task-editor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="task-editor-title">
     <div class="task-editor-dialog">
       <div class="task-editor-toolbar">
@@ -2099,6 +2202,12 @@
 
   <script>
     let taskTreeDraftSnapshot = null;
+    const taskTreePendingDrafts = new Map();
+    let taskTreeOpenDepth = 0;
+    let taskTreeSessionEntryId = null;
+    let taskTreeDeleteModeRoot = null;
+    let taskTreeViewMode = 'list';
+    let pendingTreeDelete = null;
     let taskEditorIsOpen = false;
     let taskEditorOrigin = null;
     let pendingTaskEditorAction = null;
@@ -2324,12 +2433,12 @@
     function normalizeRecord(record, fallbackId) {
       const pageID = String(record.pageID ?? record.id ?? fallbackId);
       const parentIDValue = record.parentID ?? record.parentId ?? null;
-      const parentID = parentIDValue === null || parentIDValue === '' ? null : String(parentIDValue);
+      const parentID = Array.isArray(parentIDValue)?[...new Set(parentIDValue.map(String).filter(Boolean))]:(parentIDValue === null || parentIDValue === '' ? null : String(parentIDValue));
       const childSource = record.childID ?? record.childrenIds ?? [];
       const childID = Array.isArray(childSource) ? childSource.map(String) : [];
       const normalized = {
         pageID,
-        type: record.type === 'diary' ? 'diary' : 'task',
+        type: ['diary','group'].includes(record.type) ? record.type : 'task',
         title: record.title ?? '',
         parentID,
         projectID: record.projectID == null ? null : String(record.projectID),
@@ -2357,7 +2466,6 @@
         previousUpdatedAt: record.previousUpdatedAt ?? record.updatedAt ?? null,
         email: record.email ?? '',
         isSaved: Boolean(record.isSaved ?? false),
-        path: record.path ?? '',
         deadlineDateCheck: Array.isArray(record.deadlineDateCheck) ? record.deadlineDateCheck : [],
         actionDateCheck: Array.isArray(record.actionDateCheck) ? record.actionDateCheck : [],
         deadlineCustomReminderAt: record.deadlineCustomReminderAt ?? '',
@@ -2380,6 +2488,7 @@
     function cloneTaskForEditing(task) {
       return {
         ...task,
+        parentID: Array.isArray(task.parentID)?[...task.parentID]:task.parentID,
         childID: [...task.childID],
         category: normalizeTaskCategories(task.category),
         referenceLinks: (task.referenceLinks || []).map(link => ({ ...link })),
@@ -2388,42 +2497,35 @@
       };
     }
 
-    function refreshProjectProperties() {
-      const byId = new Map(tasks.map(task => [String(task.pageID), task]));
-      const resolving = new Set();
-      const resolved = new Set();
-
-      function resolve(task) {
-        if (!task || resolved.has(task.pageID)) return;
-        if (resolving.has(task.pageID)) {
-          task.parentID = null;
-          task.projectID = task.pageID;
-          task.path = task.pageID;
-          resolved.add(task.pageID);
-          return;
-        }
-        resolving.add(task.pageID);
-        if (task.parentID === null || task.parentID === '') {
-          task.parentID = null;
-          task.projectID = task.pageID;
-          task.path = task.pageID;
-        } else {
-          task.parentID = String(task.parentID);
-          const parent = byId.get(task.parentID);
-          if (parent) {
-            resolve(parent);
-            task.projectID = parent.projectID || parent.pageID;
-            task.path = `${parent.path || parent.pageID}/${task.pageID}`;
-          } else {
-            task.projectID = null;
-            task.path = task.pageID;
-          }
-        }
-        resolving.delete(task.pageID);
-        resolved.add(task.pageID);
+    function taskParentIds(task){
+      const value=task?.parentID;
+      return [...new Set((Array.isArray(value)?value:(value==null||value===''?[]:[value])).map(String).filter(Boolean))];
+    }
+    function taskHasParent(task,id){return taskParentIds(task).includes(String(id));}
+    function getTaskDescendantIds(id,records=tasks){
+      const found=new Set(),stack=[String(id)];
+      while(stack.length){const current=stack.pop();if(found.has(current))continue;found.add(current);
+        records.filter(item=>taskHasParent(item,current)).forEach(item=>stack.push(String(item.pageID)));}
+      return found;
+    }
+    function refreshProjectProperties(){
+      const byId=new Map(tasks.map(task=>[String(task.pageID),task]));
+      const done=new Set(),active=new Set();
+      function resolve(task){
+        if(done.has(task.pageID))return;
+        if(active.has(task.pageID))return;
+        active.add(task.pageID);
+        const parents=taskParentIds(task).filter(id=>id!==task.pageID&&byId.has(id)&&!active.has(id));
+        task.parentID=task.type==='group'?parents:(parents[0]||null);
+        parents.forEach(id=>resolve(byId.get(id)));
+        task.projectID=parents.length?(byId.get(parents[0]).projectID||parents[0]):task.pageID;
+        delete task.path;active.delete(task.pageID);done.add(task.pageID);
       }
-
       tasks.forEach(resolve);
+      tasks.forEach(parent=>{
+        const actual=tasks.filter(child=>taskHasParent(child,parent.pageID)).map(child=>child.pageID);
+        parent.childID=[...new Set([...(parent.childID||[]).map(String).filter(id=>actual.includes(id)),...actual])];
+      });
     }
 
     // 操作により確定した変更のみ履歴化する。内部管理値と履歴メモ自体は対象外。
@@ -2695,11 +2797,8 @@
       window.setTimeout(() => overlay.remove(), 250);
     }
 
-    function hasTaskDraftChanges() {
-      if(taskTreeDraftSnapshot!==null && JSON.stringify(tasks)!==JSON.stringify(taskTreeDraftSnapshot))return true;
-      const savedTask = tasks.find(task => task.pageID === String(currentEditingTaskId));
-      const draft = currentEditingTaskDraft;
-      if (!savedTask || !draft) return false;
+    function taskDraftsDiffer(savedTask,draft){
+      if(!savedTask||!draft)return false;
       const comparable = task => ({
         title: task.title || '', status: task.status || 'todo', category: normalizeTaskCategories(task.category),
         deadlineDate: task.deadlineDate || '', deadlineTime: task.deadlineTime || '', deadlineEndDate: task.deadlineEndDate || '', deadlineEndTime: task.deadlineEndTime || '',
@@ -2709,6 +2808,14 @@
       });
       return JSON.stringify({...comparable(savedTask),deadlineReminders:readTaskReminders(savedTask,'deadline'),actionReminders:readTaskReminders(savedTask,'action')}) !==
         JSON.stringify({...comparable(draft),deadlineReminders:readTaskReminders(draft,'deadline'),actionReminders:readTaskReminders(draft,'action')});
+    }
+    function hasTaskDraftChanges() {
+      for(const [id,draft] of taskTreePendingDrafts){
+        const original=tasks.find(item=>item.pageID===id);
+        if(original&&!original.preDeleted&&(!original.isSaved||taskDraftsDiffer(original,draft)))return true;
+      }
+      if(taskTreeDraftSnapshot!==null&&JSON.stringify(tasks)!==JSON.stringify(taskTreeDraftSnapshot))return true;
+      return taskDraftsDiffer(tasks.find(item=>item.pageID===String(currentEditingTaskId)),currentEditingTaskDraft);
     }
 
     function showUnsavedTaskConfirmation(){
@@ -2829,15 +2936,21 @@
       renderApp();
     }
 
-    function getRootParentId(taskId, taskList) {
-      const current = taskList.find(t => t.pageID === String(taskId));
-      if (!current) return null;
-      if (current.parentID === null || current.parentID === '') return current.pageID;
-      return getRootParentId(current.parentID, taskList);
+    function getRootParentId(taskId,taskList){
+      const task=taskList.find(item=>item.pageID===String(taskId));
+      if(!task)return null;
+      const project=taskList.find(item=>item.pageID===String(task.projectID));
+      if(project)return project.pageID;
+      const seen=new Set();let current=task;
+      while(current&&!seen.has(current.pageID)){
+        seen.add(current.pageID);const ids=taskParentIds(current);if(!ids.length)return current.pageID;
+        current=taskList.find(item=>item.pageID===ids[0]);
+      }
+      return task.pageID;
     }
 
     function getFlattenedTree(parentID, taskList, depth = 0, result = []) {
-      const children = taskList.filter(t => t.parentID === String(parentID));
+      const children = taskList.filter(t => taskHasParent(t,parentID));
       children.forEach(child => {
         result.push({ ...child, depth: depth });
         getFlattenedTree(child.pageID, taskList, depth + 1, result);
@@ -2845,11 +2958,11 @@
       return result;
     }
 
-    function getAncestorIds(taskId, taskList, ancestors = []) {
-      const current = taskList.find(t => t.pageID === String(taskId));
-      if (!current || current.parentID === null || current.parentID === '') return ancestors;
-      ancestors.push(current.parentID);
-      return getAncestorIds(current.parentID, taskList, ancestors);
+    function getAncestorIds(taskId,taskList,ancestors=[]){
+      const seen=new Set([String(taskId)]),stack=taskParentIds(taskList.find(item=>item.pageID===String(taskId)));
+      while(stack.length){const id=stack.pop();if(seen.has(id))continue;seen.add(id);ancestors.push(id);
+        stack.push(...taskParentIds(taskList.find(item=>item.pageID===id)));}
+      return ancestors;
     }
 
     function renderApp() {
@@ -3428,7 +3541,7 @@
     function renderTopProjectTab() {
       const container = document.getElementById('top-project-list');
       container.innerHTML = '';
-      const projects = tasks.filter(t => t.parentID === null && t.isSaved && !t.preDeleted);
+      const projects = tasks.filter(t => !taskParentIds(t).length && t.isSaved && !t.preDeleted);
 
       if (projects.length === 0) {
         container.innerHTML = `<div class="empty-msg text-center py-4">タスクがありません。「${iconMarkup('plus')} 新規タスク追加」から作成してください。</div>`;
@@ -3610,7 +3723,15 @@
       action();return true;
     }
     function discardTaskEditorDraft(){
+      const pendingNewIDs=new Set([...taskTreePendingDrafts.keys()].filter(id=>tasks.some(item=>item.pageID===id&&!item.isSaved)));
+      taskTreePendingDrafts.clear();taskTreeOpenDepth=0;taskTreeDeleteModeRoot=null;
+      if(taskTreeSessionEntryId!==null){currentEditingTaskId=taskTreeSessionEntryId;taskTreeSessionEntryId=null;}
       if(taskTreeDraftSnapshot!==null){tasks=taskTreeDraftSnapshot;taskTreeDraftSnapshot=null;}
+      if(taskGroupEditorOriginalId!==null){currentEditingTaskId=taskGroupEditorOriginalId;taskGroupEditorOriginalId=null;}
+      if(pendingNewIDs.size){
+        tasks=tasks.filter(item=>!pendingNewIDs.has(item.pageID));
+        tasks.forEach(item=>{item.childID=(item.childID||[]).filter(id=>!pendingNewIDs.has(String(id)));});
+      }
       const task=tasks.find(item=>item.pageID===String(currentEditingTaskId));
       if(task&&!task.isSaved){
         tasks=tasks.filter(item=>item!==task);
@@ -3618,6 +3739,7 @@
         currentEditingTaskDraft=null;currentEditingTaskId=null;
         saveTasksToStorage();
       }else if(task)currentEditingTaskDraft=cloneTaskForEditing(task);
+      else {currentEditingTaskId=null;currentEditingTaskDraft=null;}
     }
     function updateTaskEditorBounds(){
       if(!taskEditorIsOpen)return;
@@ -3633,7 +3755,7 @@
     function closeTaskEditor(force=false){
       if(!taskEditorIsOpen)return;
       if(!force){requestTaskEditorAction(()=>closeTaskEditor(true));return;}
-      const origin=taskEditorOrigin;
+      const origin=taskEditorOrigin;closeGroupSelectionDialog();
       closeScheduleEditor();cancelCategoryManagement();cancelCategorySelection();
       discardTaskEditorDraft();currentEditingTaskId=null;currentEditingTaskDraft=null;
       const view=document.getElementById('view-task-page');
@@ -3652,15 +3774,53 @@
       });
     }
     function getTaskDisplayRecords(){
-      return tasks.map(task=>task.pageID===String(currentEditingTaskId)&&currentEditingTaskDraft
-        ? {...task,...currentEditingTaskDraft}:task);
+      return tasks.map(task=>{
+        const draft=task.pageID===String(currentEditingTaskId)?currentEditingTaskDraft:taskTreePendingDrafts.get(task.pageID);
+        return draft?{...task,...draft,type:task.type,parentID:task.parentID,projectID:task.projectID,childID:task.childID,preDeleted:task.preDeleted,preDeletedAt:task.preDeletedAt}:task;
+      });
+    }
+    function openProjectTreeTask(taskId){
+      const id=String(taskId);
+      if(id===String(currentEditingTaskId)||!tasks.some(item=>item.pageID===id&&!item.preDeleted))return;
+      if(taskTreeOpenDepth===0){
+        if(currentEditingTaskDraft){
+          taskTreePendingDrafts.set(String(currentEditingTaskId),cloneTaskForEditing(currentEditingTaskDraft));
+          taskTreeSessionEntryId=String(currentEditingTaskId);
+        }
+        taskTreeOpenDepth=1;openDetailView(id,{force:true,preserveTreeSession:true});
+      }else requestTaskEditorAction(()=>{
+        taskTreeOpenDepth=1;openDetailView(id,{force:true,preserveTreeSession:true});
+      });
+    }
+    function toggleProjectTreeDelete(rootId){
+      taskTreeDeleteModeRoot=taskTreeDeleteModeRoot===String(rootId)?null:String(rootId);
+      if(taskTreeDeleteModeRoot)taskTreeViewMode='list';
+      if(taskTreeDeleteModeRoot){getTaskDisplayRecords().filter(item=>!item.preDeleted&&String(item.projectID||item.pageID)===String(rootId)).forEach(item=>projectTreeExpanded.add(item.pageID));}
+      renderProjectTree(rootId);
+    }
+    function confirmProjectTreeDelete(id,rootId){
+      const task=tasks.find(item=>item.pageID===String(id)&&!item.preDeleted);if(!task)return;
+      pendingTreeDelete={id:String(id),rootId:String(rootId)};
+      document.querySelector('#delete-confirm-modal .modal-message').textContent='このタスクを削除すると、サブタスクも同時に削除されます。削除してよろしいですか？';
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+    function executeProjectTreeDelete(){
+      const selection=pendingTreeDelete;if(!selection)return;
+      const target=tasks.find(item=>item.pageID===selection.id&&!item.preDeleted);if(!target){closeDeleteModal();return;}
+      if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));
+      const now=new Date().toISOString();target.preDeleted=true;target.preDeletedAt=now;
+      let changed=true;while(changed){changed=false;for(const item of tasks){
+        const parents=taskParentIds(item);
+        if(!item.preDeleted&&parents.length&&parents.every(id=>tasks.some(parent=>parent.pageID===id&&parent.preDeleted))){item.preDeleted=true;item.preDeletedAt=now;changed=true;}
+      }}
+      closeDeleteModal();renderProjectTree(selection.rootId);syncTaskProjectLabel();
     }
     function syncTaskProjectLabel(){
       if(!currentEditingTaskDraft)return;
       const records=getTaskDisplayRecords();
       const rootId=getRootParentId(currentEditingTaskId,records);
       const root=records.find(task=>task.pageID===String(rootId)&&!task.preDeleted);
-      const hasChildren=Boolean(root&&records.some(task=>!task.preDeleted&&task.parentID===root.pageID&&task.pageID!==root.pageID));
+      const hasChildren=Boolean(root&&records.some(task=>!task.preDeleted&&taskHasParent(task,root.pageID)&&task.pageID!==root.pageID));
       const label=document.getElementById('detail-project-label');
       label.classList.toggle('hidden',!hasChildren);
       label.textContent=hasChildren?`プロジェクト：${root.title||'無題'}`:'';
@@ -3675,10 +3835,12 @@
     function openDetailView(taskId,options={}){
       if(taskEditorIsOpen&&String(currentEditingTaskId)===String(taskId)&&!options.standalone)return;
       if(!options.force){requestTaskEditorAction(()=>openDetailView(taskId,{...options,force:true}));return;}
+      closeGroupSelectionDialog();
       const task = tasks.find(t => t.pageID === String(taskId) && !t.preDeleted);
       if (!task) return;
       const previousTask=tasks.find(item=>item.pageID===String(currentEditingTaskId));
-      if(previousTask&&!previousTask.isSaved&&previousTask.pageID!==String(taskId)&&!hasTaskDraftChanges())discardTaskEditorDraft();
+      if(!options.preserveTreeSession&&previousTask&&!previousTask.isSaved&&previousTask.pageID!==String(taskId)&&!hasTaskDraftChanges())discardTaskEditorDraft();
+      if(!options.preserveTreeSession){taskTreePendingDrafts.clear();taskTreeOpenDepth=0;taskTreeSessionEntryId=null;taskTreeDeleteModeRoot=null;}
       if(!options.standalone&&!taskEditorIsOpen){
         taskEditorOrigin={view:currentActiveView,scroll:document.querySelector('.main-scroll-area').scrollTop,
           standaloneTaskID:currentActiveView==='task-page'?String(currentEditingTaskId):null,opener:document.activeElement};
@@ -3737,7 +3899,7 @@
     let projectTreeDrag = null;
 
     function projectTreeChildren(parent, members) {
-      const children = members.filter(t => String(t.parentID) === String(parent.pageID) && String(t.pageID) !== String(parent.pageID));
+      const children = members.filter(t => taskHasParent(t,parent.pageID) && String(t.pageID) !== String(parent.pageID));
       const order = Array.isArray(parent.childID) ? parent.childID.map(String) : [];
       return children.sort((a, b) => {
         const ai = order.indexOf(String(a.pageID)), bi = order.indexOf(String(b.pageID));
@@ -3751,18 +3913,11 @@
       const source = tasks.find(t => String(t.pageID) === sourceId && !t.preDeleted);
       const target = tasks.find(t => String(t.pageID) === targetId && !t.preDeleted);
       if (!source || !target || String(source.projectID) !== String(target.projectID)) return false;
-      const destination = position === 'inside' ? target : tasks.find(t => String(t.pageID) === String(target.parentID));
+      if(source.type==='group'||(position!=='inside'&&taskParentIds(target).length>1)){alert('グループの接続はグループ化ボタンから変更してください。');return false;}
+      const destination = position === 'inside' ? target : tasks.find(t => String(t.pageID) === taskParentIds(target)[0]);
       if (!destination) return false;
-      // 自分自身・子孫の下への移動は禁止。
-      let ancestor = destination;
-      const seen = new Set();
-      while (ancestor) {
-        if (String(ancestor.pageID) === sourceId) return false;
-        if (seen.has(String(ancestor.pageID))) return false;
-        seen.add(String(ancestor.pageID));
-        ancestor = tasks.find(t => String(t.pageID) === String(ancestor.parentID));
-      }
-      const oldParent = tasks.find(t => String(t.pageID) === String(source.parentID));
+      if(getTaskDescendantIds(sourceId).has(destination.pageID))return false;
+      const oldParent = tasks.find(t => String(t.pageID) === taskParentIds(source)[0]);
       if (oldParent) oldParent.childID = (oldParent.childID || []).map(String).filter(id => id !== sourceId);
       const next = (destination.childID || []).map(String).filter(id => id !== sourceId);
       if (position === 'inside') next.push(sourceId);
@@ -3777,29 +3932,298 @@
       if (oldParent && String(oldParent.pageID) !== String(destination.pageID)) {
         source.category = [...normalizeTaskCategories(destination.category)];
       }
-      saveTasksToStorage(); // projectID と path は既存処理で子孫まで更新
+      saveTasksToStorage(); // projectIDと親子関係を更新
       projectTreeExpanded.add(String(destination.pageID));
       renderProjectTree(rootId);
       return true;
     }
 
+    const groupAliasExpanded=new Set();
+    let taskGroupEditorOriginalId=null;
+    let groupSelection=null;
+    function beginGroupSelection(id,rootId){
+      const context=tasks.find(item=>item.pageID===String(id));if(!context)return;
+      groupSelection={id:null,rootId:String(rootId),projectID:String(context.projectID||rootId),stage:'target',selected:new Set(),name:'',opener:document.activeElement};
+      renderGroupSelectionList();document.getElementById('group-selection-modal').classList.remove('hidden');
+      document.getElementById('group-selection-list').scrollTop=0;document.getElementById('group-selection-cancel').focus();
+    }
+    function closeGroupSelectionDialog(){
+      const opener=groupSelection?.opener;groupSelection=null;
+      document.getElementById('group-selection-modal').classList.add('hidden');if(opener?.isConnected)opener.focus();
+    }
+    function cancelGroupSelection(){closeGroupSelectionDialog();}
+    // Subitem options are virtual positions, never allocated as tasks before confirmation.
+    function groupDialogRecords(){
+      const records=getTaskDisplayRecords();
+      return [...records,...records.filter(item=>!item.preDeleted&&String(item.projectID||item.pageID)===groupSelection?.projectID).map(item=>({
+        pageID:`group-slot-${item.pageID}`,parentID:item.pageID,projectID:groupSelection.projectID,
+        title:`「${item.title||'無題のタスク'}」のサブタスク`,type:'task',childID:[],groupSlot:true
+      }))];
+    }
+    function groupSelectionInvalidIds(records,id,selected=[]){
+      const invalid=getTaskDescendantIds(id,records);getAncestorIds(id,records).forEach(value=>invalid.add(value));
+      for(const chosen of selected){const connected=getTaskDescendantIds(chosen,records);getAncestorIds(chosen,records).forEach(value=>connected.add(value));connected.delete(String(chosen));connected.forEach(value=>invalid.add(value));}
+      return invalid;
+    }
+    function groupDialogEligible(task,records){
+      if(task.preDeleted||String(task.projectID||task.pageID)!==groupSelection.projectID)return false;
+      if(groupSelection.stage==='target')return task.pageID!==groupSelection.rootId;
+      return !groupSelectionInvalidIds(records,groupSelection.id,[...groupSelection.selected].filter(id=>id!==task.pageID)).has(task.pageID);
+    }
+    function groupSelectionRows(records){
+      const members=records.filter(item=>!item.preDeleted&&!item.groupSlot&&String(item.projectID||item.pageID)===groupSelection.projectID);
+      const visited=new Set(),result=[];
+      function visit(task,depth){if(visited.has(task.pageID))return;visited.add(task.pageID);
+        result.push({task,depth,eligible:groupDialogEligible(task,records)});
+        const children=members.filter(item=>taskParentIds(item)[0]===task.pageID);
+        const order=(task.childID||[]).map(String);children.sort((a,b)=>{const ai=order.indexOf(a.pageID),bi=order.indexOf(b.pageID);return (ai<0?1e9:ai)-(bi<0?1e9:bi);});
+        const slot=records.find(item=>item.groupSlot&&item.parentID===task.pageID);
+        if(slot)result.push({task:slot,depth:depth+1,eligible:groupDialogEligible(slot,records)});
+        children.forEach(child=>visit(child,depth+1));
+      }
+      const root=members.find(item=>item.pageID===groupSelection.rootId);if(root)visit(root,0);
+      members.forEach(item=>{if(!visited.has(item.pageID))visit(item,0);});return result;
+    }
+    function backGroupSelection(){
+      if(!groupSelection)return;
+      const state=groupSelection;state.stage=state.stage==='warning'?'name':state.stage==='name'?'connections':'target';
+      renderGroupSelectionList();
+    }
+    function groupMergePlan(records){
+      const state=groupSelection,target=records.find(item=>item.pageID===state.id);
+      if(!target)return null;
+      const selected=[...state.selected].map(id=>records.find(item=>item.pageID===id));
+      if(!selected.length||selected.some(item=>!item||!groupDialogEligible(item,records)))return null;
+      const removed=new Set(selected.filter(item=>!item.groupSlot).map(item=>item.pageID));
+      // Shared descendants with another surviving parent must remain available there.
+      let changed=true;while(changed){changed=false;for(const item of records){
+        if(item.groupSlot||removed.has(item.pageID)||item.pageID===target.pageID)continue;
+        const parents=taskParentIds(item);if(parents.length&&parents.every(id=>removed.has(id))){removed.add(item.pageID);changed=true;}
+      }}
+      if(removed.has(target.pageID))return null;
+      const parents=[...new Set([target,...selected].flatMap(taskParentIds))];
+      if(!parents.length||parents.some(id=>removed.has(id)))return null;
+      return {target,selected,removed,parents};
+    }
+    function groupMergeDataLabels(task){
+      const labels=[];
+      if(task.title)labels.push('タイトル');
+      if(task.status&&task.status!=='todo')labels.push('ステータス');
+      if(normalizeTaskCategories(task.category).length)labels.push('カテゴリ');
+      if(task.deadlineDate||task.deadlineTime||task.deadlineEndDate||task.deadlineEndTime)labels.push('期限');
+      if(task.actionDate||task.actionTime||task.actionEndDate||task.actionEndTime)labels.push('対応予定日');
+      if(task.taskMemo||task.diaryMemo)labels.push('メモ');
+      if((task.referenceLinks||[]).some(link=>link.title||link.url))labels.push('参考リンク');
+      if((task.historyMemo||[]).some(Boolean))labels.push('履歴メモ');
+      if(task.email)labels.push('メールアドレス');
+      if(Object.entries(task).some(([key,value])=>value&&(/ReminderAt$/.test(key)||/^is(Deadline|Action)/.test(key))))labels.push('通知設定');
+      return labels;
+    }
+    function renderGroupSelectionList(){
+      if(!groupSelection)return;
+      const state=groupSelection,target=state.stage==='target',container=document.getElementById('group-selection-list');container.replaceChildren();
+      const titles={target:'グループにするタスク',connections:'一緒にグループ化するタスク',name:'グループ名を設定',warning:'結合するタスクの内容を確認'};
+      const descriptions={target:'グループの元にするタスクを一つ選択してください。「〇〇のサブタスク」も選択できます。',connections:'一緒にグループ化するタスク、または「〇〇のサブタスク」を選択してください。選択したタスク自体を一つのグループにまとめます。',name:'グループ名を入力してください。内容は最初に選択したタスクに統一されます。',warning:'結合する側のタスクと、その側だけにつながる子タスクのデータは削除されます。最初に選択したタスクの内容に統一して、グループを設定しますか？'};
+      document.getElementById('group-selection-title').textContent=titles[state.stage];
+      document.getElementById('group-selection-description').textContent=descriptions[state.stage];
+      document.getElementById('group-selection-confirm').textContent=['name','warning'].includes(state.stage)?'グループに設定する':'次へ';
+      document.getElementById('group-selection-back').classList.toggle('hidden',target);
+      const records=groupDialogRecords();
+      if(state.stage==='name'){
+        const label=document.createElement('label');label.className='group-name-field';label.textContent='グループ名';
+        const input=document.createElement('input');input.id='group-name-input';input.type='text';input.className='task-input';input.value=state.name;input.placeholder='グループ名を入力';input.setAttribute('aria-label','グループ名');
+        input.oninput=()=>{state.name=input.value;};label.appendChild(input);container.appendChild(label);return;
+      }
+      if(state.stage==='warning'){
+        const plan=groupMergePlan(records);if(!plan)return;
+        const keep=document.createElement('p');keep.className='group-merge-notice';keep.textContent=`残す内容：「${plan.target.groupSlot?'新しいサブタスク（未設定）':plan.target.title||'無題のタスク'}」／グループ名：「${state.name.trim()}」`;container.appendChild(keep);
+        for(const item of records.filter(item=>!item.groupSlot&&plan.removed.has(item.pageID))){
+          const text=document.createElement('p');text.className='group-merge-notice';const labels=groupMergeDataLabels(item);text.textContent=`削除するタスク：「${item.title||'無題のタスク'}」${labels.length?'（'+labels.join('・')+'）':''}`;container.appendChild(text);
+        }return;
+      }
+      groupSelectionRows(records).forEach(({task,depth,eligible})=>{
+        const row=document.createElement(eligible?'label':'div');row.className='group-choice-row'+(eligible?'':' group-choice-disabled');row.dataset.pageId=task.pageID;row.style.paddingLeft=`${12+Math.min(depth,12)*12}px`;
+        if(eligible){
+          const check=document.createElement('input');check.type=target?'radio':'checkbox';if(target)check.name='group-target-choice';check.checked=target?state.id===task.pageID:state.selected.has(task.pageID);
+          check.setAttribute('aria-label',`${task.title||'無題のタスク'}を選択`);
+          check.onchange=()=>{if(target){if(state.id!==task.pageID){state.id=task.pageID;state.selected.clear();state.name='';}}else if(check.checked)state.selected.add(task.pageID);else state.selected.delete(task.pageID);const top=container.scrollTop;renderGroupSelectionList();container.scrollTop=top;};row.appendChild(check);
+        }else{row.setAttribute('aria-disabled','true');const spacer=document.createElement('span');spacer.className='group-choice-spacer';row.appendChild(spacer);}
+        const title=document.createElement('span');title.className='group-choice-name';title.textContent=(task.type==='group'?'⛓ ':'')+(task.title||'無題のタスク');row.appendChild(title);container.appendChild(row);
+      });
+    }
+    function confirmGroupSelection(){
+      if(!groupSelection)return;
+      const state=groupSelection,records=groupDialogRecords(),task=records.find(item=>item.pageID===state.id);
+      if(state.stage==='target'){
+        if(!task||!groupDialogEligible(task,records)){alert('グループの元にするタスクを一つ選択してください。');return;}
+        state.stage='connections';renderGroupSelectionList();document.getElementById('group-selection-list').scrollTop=0;return;
+      }
+      const plan=groupMergePlan(records);
+      if(!plan){alert('一緒にグループ化するタスクを選択してください。親子関係のあるタスクは選択できません。');return;}
+      if(state.stage==='connections'){
+        state.stage='name';if(!state.name&&!task.groupSlot)state.name=task.title||'';
+        renderGroupSelectionList();document.getElementById('group-name-input').focus();return;
+      }
+      const nameInput=document.getElementById('group-name-input');
+      if(state.stage==='name'&&nameInput)state.name=nameInput.value;
+      if(!state.name.trim()){alert('グループ名を入力してください。');nameInput?.focus();return;}
+      if(state.stage==='name'&&records.some(item=>!item.groupSlot&&plan.removed.has(item.pageID)&&groupMergeDataLabels(item).length)){
+        state.stage='warning';renderGroupSelectionList();document.getElementById('group-selection-list').scrollTop=0;return;
+      }
+      commitGroupSelection(plan);
+    }
+    function commitGroupSelection(plan){
+      const state=groupSelection,{target,selected,removed,parents}=plan;
+      let counter=nextIdCounter;const groupID=target.groupSlot?String(counter++):target.pageID;
+      const replacements=new Set([target,...selected].map(item=>item.pageID));
+      let working=JSON.parse(JSON.stringify(tasks)).filter(item=>!removed.has(item.pageID));
+      let group=working.find(item=>item.pageID===groupID);
+      if(target.groupSlot){group=normalizeRecord({pageID:groupID,projectID:state.projectID,type:'group',isSaved:false},groupID);working.push(group);}
+      else Object.assign(group,JSON.parse(JSON.stringify(target)));
+      group.type='group';group.title=state.name.trim();group.parentID=[...parents];
+      working.forEach(item=>{
+        if(item!==group){const remaining=taskParentIds(item).filter(id=>!removed.has(id));item.parentID=item.type==='group'?remaining:(remaining[0]||null);}
+        // Replace merged rows in their original sibling positions rather than adding a child below them.
+        const order=(item.childID||[]).map(String).map(id=>replacements.has(id)?groupID:id).filter(id=>!removed.has(id)||id===groupID);
+        const actual=working.filter(child=>taskHasParent(child,item.pageID)).map(child=>child.pageID);
+        item.childID=[...new Set([...order.filter(id=>actual.includes(id)),...actual])];
+      });
+      if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));
+      tasks=working;nextIdCounter=counter;
+      for(const id of removed)taskTreePendingDrafts.delete(id);
+      if(taskTreePendingDrafts.has(groupID))taskTreePendingDrafts.set(groupID,cloneTaskForEditing(group));
+      parents.forEach(id=>projectTreeExpanded.add(id));projectTreeExpanded.add(groupID);
+      const redirect=removed.has(String(currentEditingTaskId));
+      if(redirect&&taskGroupEditorOriginalId===null)taskGroupEditorOriginalId=String(currentEditingTaskId);
+      if(String(currentEditingTaskId)===groupID){currentEditingTaskDraft=cloneTaskForEditing(group);document.getElementById('detail-title-input').value=group.title;}
+      else if(!redirect&&currentEditingTaskDraft){
+        const edited=tasks.find(item=>item.pageID===String(currentEditingTaskId));
+        if(edited)Object.assign(currentEditingTaskDraft,{type:edited.type,parentID:Array.isArray(edited.parentID)?[...edited.parentID]:edited.parentID,childID:[...edited.childID],projectID:edited.projectID});
+      }
+      const rootId=state.rootId;closeGroupSelectionDialog();
+      if(redirect)openDetailView(groupID,{force:true,standalone:!taskEditorIsOpen,preserveTreeSession:true});
+      else {renderProjectTree(rootId);syncTaskProjectLabel();}
+    }
+    function drawGroupConnections(container,records){container.querySelector('.group-connection-lines')?.remove();}
+    // Derive display colors from existing project/group IDs; no new stored property.
+    function getProjectGroupColors(records,projectId){
+      const hues=[267,180,333,35,215,145,8,300,65,235,165,315];
+      const groups=records.filter(item=>item.type==='group'&&String(item.projectID||item.pageID)===String(projectId))
+        .sort((a,b)=>String(a.pageID).localeCompare(String(b.pageID),undefined,{numeric:true}));
+      const used=new Set(),colors=new Map();
+      groups.forEach((group,index)=>{
+        let hue=index<hues.length?hues[index]:Number((index*137.508%360).toFixed(6));
+        while(used.has(hue))hue=Number(((hue+.001)%360).toFixed(6));
+        used.add(hue);colors.set(String(group.pageID),{normal:`hsl(${hue}, 38%, 48%)`,muted:`hsl(${hue}, 12%, 65%)`});
+      });
+      return colors;
+    }
+    function renderProjectTreeToolbar(rootId){
+      const toolbar=document.getElementById('project-tree-toolbar');if(!toolbar)return;
+      toolbar.replaceChildren();
+      const group=document.createElement('button');group.type='button';group.className='project-tree-heading-button';group.textContent='🔗 グループ追加';group.onclick=()=>beginGroupSelection(rootId,rootId);toolbar.appendChild(group);
+      const roadmap=document.createElement('button');roadmap.type='button';roadmap.className='project-tree-heading-button';roadmap.textContent=taskTreeViewMode==='roadmap'?'☷ リストビュー':'🗺 ロードマップビュー';roadmap.setAttribute('aria-pressed',String(taskTreeViewMode==='roadmap'));
+      roadmap.onclick=()=>{taskTreeViewMode=taskTreeViewMode==='roadmap'?'list':'roadmap';taskTreeDeleteModeRoot=null;renderProjectTree(rootId);};toolbar.appendChild(roadmap);
+      const remove=document.createElement('button');remove.type='button';remove.className='project-tree-heading-button project-tree-delete-toggle';remove.innerHTML='<svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>';
+      const deleting=taskTreeDeleteModeRoot===String(rootId);remove.title=deleting?'削除モードを終了':'タスクを削除';remove.setAttribute('aria-label',remove.title);remove.setAttribute('aria-pressed',String(deleting));remove.onclick=()=>toggleProjectTreeDelete(rootId);toolbar.appendChild(remove);
+    }
+    function getProjectRoadmapLayout(members){
+      const byId=new Map(members.map(item=>[String(item.pageID),item])),depths=new Map(),visiting=new Set();
+      function depth(id){
+        if(depths.has(id))return depths.get(id);if(visiting.has(id))return 0;
+        visiting.add(id);const parents=taskParentIds(byId.get(id)).filter(parent=>byId.has(parent)&&parent!==id);
+        const level=parents.length?Math.max(...parents.map(parent=>depth(parent)+1)):0;
+        visiting.delete(id);depths.set(id,level);return level;
+      }
+      members.forEach(item=>depth(String(item.pageID)));
+      const layers=new Map();for(const item of members){const d=depths.get(String(item.pageID));if(!layers.has(d))layers.set(d,[]);layers.get(d).push(item);}
+      const rows=Math.max(1,...[...layers.values()].map(items=>items.length)),height=32+rows*96;
+      const positions=new Map(),width=32+(Math.max(0,...layers.keys())+1)*240-64;
+      for(const [d,items] of [...layers].sort((a,b)=>a[0]-b[0])){
+        const parentCenter=item=>{const parents=taskParentIds(item).map(id=>positions.get(id)).filter(Boolean);return parents.length?parents.reduce((sum,p)=>sum+p.y,0)/parents.length:height/2;};
+        items.sort((a,b)=>parentCenter(a)-parentCenter(b));
+        items.forEach((item,index)=>positions.set(String(item.pageID),{x:16+d*240,y:(height-items.length*96)/2+index*96+14,width:176,height:68}));
+      }
+      return {positions,width,height};
+    }
+    function renderProjectRoadmap(container,members,groupColors){
+      const layout=getProjectRoadmapLayout(members),graph=document.createElement('div');graph.className='project-roadmap';graph.style.width=`${layout.width}px`;graph.style.height=`${layout.height}px`;
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',String(layout.width));svg.setAttribute('height',String(layout.height));svg.classList.add('project-roadmap-lines');svg.setAttribute('aria-hidden','true');graph.appendChild(svg);
+      for(const item of members){
+        const position=layout.positions.get(String(item.pageID));
+        for(const parent of taskParentIds(item)){
+          const start=layout.positions.get(parent);if(!start)continue;
+          const x1=start.x+start.width,y1=start.y+start.height/2,x2=position.x,y2=position.y+position.height/2,mid=(x1+x2)/2;
+          const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',`M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`);path.setAttribute('fill','none');path.setAttribute('stroke',groupColors.get(String(item.pageID))?.normal||'#b7c0cc');path.setAttribute('stroke-width','1.5');svg.appendChild(path);
+        }
+        const node=document.createElement('button');node.type='button';node.className='project-roadmap-task';node.dataset.pageId=String(item.pageID);node.style.left=`${position.x}px`;node.style.top=`${position.y}px`;node.title=`${item.title||'無題のタスク'}を開く`;node.setAttribute('aria-label',node.title);node.onclick=()=>openProjectTreeTask(item.pageID);
+        const title=document.createElement('span');title.className='project-roadmap-title';title.textContent=item.title||'（無題）';if(item.status==='completed')title.classList.add('project-tree-completed');node.appendChild(title);
+        const open=document.createElement('span');open.textContent='↗';open.setAttribute('aria-hidden','true');node.appendChild(open);graph.appendChild(node);
+      }
+      container.appendChild(graph);
+    }
+    let projectTreeColumnObserver=null;
+    function setProjectTreeCompletion(id,completed,rootId){
+      const record=tasks.find(item=>item.pageID===String(id)&&!item.preDeleted);if(!record)return;
+      let draft;
+      if(String(currentEditingTaskId)===String(id))draft=currentEditingTaskDraft;
+      else if(taskTreePendingDrafts.has(String(id)))draft=taskTreePendingDrafts.get(String(id));
+      else {if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));draft=record;}
+      if(!draft)return;
+      draft.status=completed?'completed':'todo';draft.completedAt=completed?(draft.completedAt||new Date().toISOString()):null;
+      if(String(currentEditingTaskId)===String(id))syncTaskStatusPicker();
+      renderProjectTree(rootId);
+    }
+    function appendProjectTreeProperties(row,task,rootId,readOnly=false){
+      const status=document.createElement('span');status.className='project-tree-property project-tree-status';
+      if(task.status==='pending')status.textContent='保留';
+      else {
+        const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=task.status==='completed';checkbox.disabled=readOnly||Boolean(groupSelection);
+        checkbox.setAttribute('aria-label',`${task.title||'無題のタスク'}の完了`);
+        checkbox.onchange=()=>setProjectTreeCompletion(task.pageID,checkbox.checked,rootId);status.appendChild(checkbox);
+      }
+      row.appendChild(status);
+      for(const value of [task.deadlineDate||'',task.actionDate||'']){const cell=document.createElement('span');cell.className='project-tree-property';cell.textContent=value;row.appendChild(cell);}
+    }
+    function measureProjectTreeColumns(container){
+      if(!container?.isConnected||taskTreeViewMode!=='list')return;
+      const widths=[0,0,0,0];
+      container.querySelectorAll('.project-tree-columns,.project-tree-row').forEach(row=>{
+        [...row.children].slice(0,4).forEach((cell,index)=>{widths[index]=Math.max(widths[index],Math.ceil(cell.offsetWidth)+(index===0?8:0));});
+      });
+      if(!widths[0])return;
+      container.style.setProperty('--tree-columns',widths.map(value=>`${value}px`).join(' '));
+      container.style.width=`${widths.reduce((sum,value)=>sum+value,0)}px`;
+    }
+    function watchProjectTreeColumns(container){
+      measureProjectTreeColumns(container);
+      if(typeof ResizeObserver!=='undefined'){
+        projectTreeColumnObserver=new ResizeObserver(()=>measureProjectTreeColumns(container));
+        container.querySelectorAll('.project-tree-title-cell,.project-tree-property,.project-tree-columns>span').forEach(cell=>projectTreeColumnObserver.observe(cell));
+      }
+    }
     function renderProjectTree(rootId) {
       const container = document.getElementById('detail-tree-list');
       if (!container) return;
+      projectTreeColumnObserver?.disconnect();projectTreeColumnObserver=null;
+      container.style.width='';
       container.replaceChildren();
+      renderProjectTreeToolbar(rootId);
       const displayTasks=getTaskDisplayRecords();
       const root = displayTasks.find(t => String(t.pageID) === String(rootId) && !t.preDeleted);
       if (!root) return;
       const projectId = String(root.projectID || root.pageID);
       const members = displayTasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
       syncTaskProjectLabel();
-      const visited = new Set();
+      const groupColors=getProjectGroupColors(displayTasks,projectId);
+      if(taskTreeViewMode==='roadmap'){renderProjectRoadmap(container,members,groupColors);return;}
+      const visited = new Set(),depths=new Map();
       const heading = document.createElement('div');
       heading.className = 'project-tree-columns';
-      heading.innerHTML = '<span>▾ タスク</span><span>◉ ステータス</span><span>▣ 期限</span><span>▣ 対応予定日</span><span>▤ メモ</span>';
+      heading.innerHTML = '<span aria-hidden="true"></span><span>完了</span><span>期限</span><span>対応予定日</span>';
       container.appendChild(heading);
 
-      // 各階層の親から、その階層の「新規サブアイテム」まで線を通す。
+      // 各階層の親から、その階層の「新規サブタスク」まで線を通す。
       // DOM上の並び順やインデントは変えず、線だけを重ねる。
       function drawTreeBranches(element, ancestorDepths, endDepth = null) {
         ancestorDepths.forEach(d => {
@@ -3823,41 +4247,53 @@
         }
       }
 
-      function addNode(task, depth, ancestors = []) {
+      function addNode(task, depth, ancestors = [], groupBlock = null, host = container) {
         const id = String(task.pageID);
         if (visited.has(id)) return;
-        visited.add(id);
+        if(task.type==='group'){
+          groupBlock=id;
+          const frame=document.createElement('div');frame.className='project-group-frame';frame.dataset.groupPageId=id;frame.style.setProperty('--group-content-left',`${47+Math.min(depth,30)*18}px`);
+          host.appendChild(frame);host=frame;
+        }
+        visited.add(id);depths.set(id,depth);
         const children = projectTreeChildren(task, members);
+        children.sort((a,b)=>Number(b.type==='group')-Number(a.type==='group'));
         const row = document.createElement('div');
         row.className = 'project-tree-row';
-        row.dataset.pageId = id;
+        row.dataset.pageId = id;row.dataset.depth=String(depth);
+        row.classList.toggle("is-group",task.type==='group');
+        if(groupBlock){row.classList.add('group-block-row');row.dataset.groupBlock=groupBlock;}
         const titleCell = document.createElement('div');
         titleCell.className = 'project-tree-title-cell';
         titleCell.style.paddingLeft = '0px';
-
         const handle = document.createElement('button');
-        handle.type = 'button'; handle.className = 'project-tree-drag';
+        const deleting=taskTreeDeleteModeRoot===String(rootId);
+        handle.type = 'button'; handle.className = deleting?'project-tree-drag project-tree-remove':'project-tree-drag';
         handle.textContent = '⠿'; handle.title = 'ドラッグして移動';
         handle.setAttribute('aria-label', 'ドラッグして移動');
-        handle.disabled = id === String(rootId);
-        handle.draggable = !handle.disabled;
+        handle.disabled = id === String(rootId)||Boolean(groupSelection)||task.type==='group';
+        handle.draggable = !handle.disabled&&!deleting;
+        if(deleting){
+          handle.textContent='';handle.innerHTML='<svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>';handle.title='タスクを削除';handle.setAttribute('aria-label',`${task.title||'無題のタスク'}を削除`);handle.disabled=false;
+          handle.onclick=()=>confirmProjectTreeDelete(id,rootId);
+        }
         handle.addEventListener('dragstart', e => {
-          if (handle.disabled) { e.preventDefault(); return; }
+          if (handle.disabled||!handle.draggable) { e.preventDefault(); return; }
           projectTreeDrag = { sourceId: id, rootId: String(rootId) };
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setData('text/plain', id);
         });
         handle.addEventListener('dragend', () => { projectTreeDrag = null; clearProjectTreeDrop(); });
         handle.addEventListener('pointerdown', e => {
-          if (e.pointerType === 'mouse' || handle.disabled || e.button !== 0) return;
+          if (deleting||e.pointerType === 'mouse' || handle.disabled || e.button !== 0) return;
           e.preventDefault();
           startProjectTreeTouchDrag(e, id, rootId, handle);
         });
-        titleCell.appendChild(handle);
 
         const toggle = document.createElement('button');
-        toggle.type = 'button'; toggle.className = 'project-tree-toggle';
+        toggle.type = 'button'; toggle.className = 'project-tree-toggle';toggle.disabled=Boolean(groupSelection);
         toggle.textContent = projectTreeExpanded.has(id) ? '▼' : '▶';
+        if(groupColors.has(groupBlock))toggle.style.color=groupColors.get(groupBlock).normal;
         toggle.setAttribute('aria-label', '子ページの展開・折りたたみ');
         toggle.onclick = () => {
           if (projectTreeExpanded.has(id)) projectTreeExpanded.delete(id);
@@ -3876,21 +4312,17 @@
         title.dataset.pageId = id;
         title.textContent = task.title || '（無題）';
         if (task.status === 'completed') title.classList.add('project-tree-completed');
-        title.onclick = () => editProjectTreeTitle(id, rootId);
+        title.onclick = () => {if(!groupSelection)editProjectTreeTitle(id, rootId);};
         titleCell.appendChild(title);
         const edit = document.createElement('button');
         edit.type = 'button'; edit.className = 'project-tree-edit';
         edit.textContent = '↗'; edit.title = 'タスクを開く';
         edit.setAttribute('aria-label', 'タスクを開く');
-        edit.onclick = () => openDetailView(id);
-        titleCell.appendChild(edit);
+        edit.onclick = () => openProjectTreeTask(id);
+        edit.disabled=Boolean(groupSelection);titleCell.appendChild(edit);
         row.appendChild(titleCell);
-        [task.status || '', task.deadlineDate || '', task.actionDate || '', task.taskMemo || ''].forEach(value => {
-          const cell = document.createElement('span');
-          cell.className = 'project-tree-property';
-          cell.textContent = value;
-          row.appendChild(cell);
-        });
+        appendProjectTreeProperties(row,task,rootId);
+        row.appendChild(handle);
         row.addEventListener('dragover', e => {
           if (!projectTreeDrag) return;
           e.preventDefault(); e.dataTransfer.dropEffect = 'move';
@@ -3907,21 +4339,46 @@
         });
         // 親から子への線は、子の行では曲がり角を表示する。
         drawTreeBranches(row, ancestors.slice(0, -1), depth ? depth - 1 : null);
-        container.appendChild(row);
+        host.appendChild(row);
 
         if (projectTreeExpanded.has(id)) {
-          children.forEach(child => addNode(child, depth + 1, [...ancestors, depth]));
+          children.forEach(child => {
+            if(child.type==='group'&&taskParentIds(child)[0]!==id)addAliasNode(child,depth+1,[...ancestors,depth],new Set([id]),`alias:${id}/${child.pageID}`,host);
+            else addNode(child,depth+1,[...ancestors,depth],groupBlock,host);
+          });
           const add = document.createElement('button');
           add.type = 'button'; add.className = 'project-tree-add';
           add.style.paddingLeft = `${Math.min(depth + 1, 30) * 18 + 30}px`;
-          add.innerHTML = '<span class="project-tree-add-label">＋ 新規サブアイテム</span>';
-          add.onclick = () => createProjectChildInline(id, rootId);
+          add.innerHTML = '<span class="project-tree-add-label">＋ 新規サブタスク</span>';
+          if(groupBlock){add.classList.add('group-block-add');add.dataset.groupBlock=groupBlock;}
+          add.disabled=Boolean(groupSelection);add.onclick = () => createProjectChildInline(id, rootId);
           drawTreeBranches(add, ancestors, depth);
-          container.appendChild(add);
+          host.appendChild(add);
         }
       }
+      function addAliasNode(task,depth,ancestors,trail,aliasKey,host=container,referenceHost=false,groupColorId=null){
+        if(trail.has(task.pageID))return;
+        const nextTrail=new Set(trail);nextTrail.add(task.pageID);
+        if(task.type==='group')groupColorId=String(task.pageID);
+        if(!referenceHost){const frame=document.createElement('div');frame.className='project-group-reference';frame.style.setProperty('--group-toggle-left',`${20+Math.min(depth,30)*18}px`);host.appendChild(frame);host=frame;}
+        const row=document.createElement('div');row.className='project-tree-row group-alias-row';
+        row.dataset.aliasPageId=task.pageID;row.dataset.depth=String(depth);
+        const cell=document.createElement('div');cell.className='project-tree-title-cell';
+        const toggle=document.createElement('button');toggle.type='button';toggle.className='project-tree-toggle';
+        toggle.style.marginLeft=`${20+Math.min(depth,30)*18}px`;toggle.textContent=groupAliasExpanded.has(aliasKey)?'▼':'▶';
+        toggle.setAttribute('aria-label','共通タスクの展開・折りたたみ');
+        if(groupColors.has(groupColorId))toggle.style.color=groupColors.get(groupColorId).muted;
+        toggle.onclick=()=>{if(groupAliasExpanded.has(aliasKey))groupAliasExpanded.delete(aliasKey);else groupAliasExpanded.add(aliasKey);renderProjectTree(rootId);};
+        const title=document.createElement('span');title.className='project-tree-title group-alias-title';title.textContent=task.title||'（無題）';
+        toggle.setAttribute('aria-expanded',String(groupAliasExpanded.has(aliasKey)));
+        cell.append(toggle,title);row.appendChild(cell);
+        appendProjectTreeProperties(row,task,rootId,true);
+        drawTreeBranches(row,ancestors.slice(0,-1),depth?depth-1:null);host.appendChild(row);
+        if(groupAliasExpanded.has(aliasKey))projectTreeChildren(task,members).forEach(child=>addAliasNode(child,depth+1,[...ancestors,depth],nextTrail,`${aliasKey}/${child.pageID}`,host,true,groupColorId));
+      }
       projectTreeExpanded.add(String(root.pageID));
-      addNode(root, 0);
+      addNode(root,0);
+      requestAnimationFrame(()=>{if(container.isConnected){drawGroupConnections(container,members);watchProjectTreeColumns(container);}});
     }
 
     // タイトルタップはインライン編集。編集アイコンは簡易編集ポップアップ。
@@ -3942,6 +4399,8 @@
           if(String(currentEditingTaskId)===String(pageId)){
             updateCurrentTaskField('title',input.value.trim());
             document.getElementById('detail-title-input').value=currentEditingTaskDraft.title;
+          }else if(taskTreePendingDrafts.has(String(pageId))){
+            taskTreePendingDrafts.get(String(pageId)).title=input.value.trim();
           }else{
             if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));
             task.title=input.value.trim();
@@ -3985,7 +4444,7 @@
       if (!confirm('このタスクを削除しますか？')) return;
       const target = tasks.find(t => String(t.pageID) === id && !t.preDeleted);
       if (!target) return;
-      const parent = tasks.find(t => String(t.pageID) === String(target.parentID));
+      const parent = tasks.find(t => String(t.pageID) === taskParentIds(target)[0]);
       if (parent) parent.childID = (parent.childID || []).map(String).filter(childId => childId !== id);
       const now = new Date().toISOString();
       const stack = [id]; const visited = new Set();
@@ -3996,7 +4455,7 @@
         const item = tasks.find(t => String(t.pageID) === current);
         if (!item) continue;
         item.preDeleted = true; item.preDeletedAt = now;
-        tasks.filter(t => String(t.parentID) === current).forEach(child => stack.push(String(child.pageID)));
+        tasks.filter(t => taskHasParent(t,current)).forEach(child => stack.push(String(child.pageID)));
       }
       saveTasksToStorage(); closeProjectTreeOpenModal(); renderProjectTree(rootId);
     }
@@ -4065,7 +4524,7 @@
       if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));
       const id=String(nextIdCounter++);
       const child=normalizeRecord({pageID:id,type:'task',title:'',parentID:parent.pageID,
-        projectID:parent.projectID||parent.pageID,childID:[],path:`${parent.path||parent.pageID}/${id}`,
+        projectID:parent.projectID||parent.pageID,childID:[],
         category:[...normalizeTaskCategories(parent.category)],status:'todo',isSaved:false,createdAt:new Date().toISOString()},id);
       parent.childID=[...(parent.childID||[]),id];tasks.push(child);
       projectTreeExpanded.add(parent.pageID);renderProjectTree(rootId);
@@ -4076,7 +4535,7 @@
       if(!force){requestTaskEditorAction(()=>openNewProjectPage(true));return;}
       const newId = String(nextIdCounter++);
       const newProj = {
-        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: null, projectID: newId, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, deadlineDateCheck: [], actionDateCheck: [] }, newId)
       };
       tasks.push(newProj);
       openDetailView(newId,{force:true});
@@ -4096,7 +4555,7 @@
       const newId = String(nextIdCounter++);
       const parentTask = tasks.find(t => t.pageID === String(parentID));
       const newSub = {
-        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: String(parentID), projectID: parentTask ? (parentTask.projectID || parentTask.pageID) : null, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, path: parentTask ? `${parentTask.path || parentTask.pageID}/${newId}` : newId, deadlineDateCheck: [], actionDateCheck: [] }, newId)
+        ...normalizeRecord({ pageID: newId, type: 'task', title: '', parentID: String(parentID), projectID: parentTask ? (parentTask.projectID || parentTask.pageID) : null, childID: [], category: '', status: 'todo', actionDate: '', deadlineDate: '', completedAt: null, preDeleted: false, preDeletedAt: null, diaryMemo: '', taskMemo: '', createdAt: new Date().toISOString(), updatedAt: null, email: '', isSaved: false, deadlineDateCheck: [], actionDateCheck: [] }, newId)
       };
       if (parentTask) parentTask.childID.push(newId);
       tasks.push(newSub);
@@ -4444,7 +4903,7 @@
     }
 
     function checkDateConflicts(task) {
-      if (task.parentID === null || task.parentID === '') return { invalidDues: [], invalidPlans: [] };
+      if (!taskParentIds(task).length) return { invalidDues: [], invalidPlans: [] };
 
       const ancestorIds = getAncestorIds(task.pageID, tasks);
       const invalidDues = [];
@@ -4520,6 +4979,8 @@
 
     function executeFinalSave(task, silent = false) {
       if(!validateTaskSchedule(task))return false;
+      const previousDrafts=[...taskTreePendingDrafts].filter(([id])=>id!==String(currentEditingTaskId)&&tasks.some(item=>item.pageID===id&&!item.preDeleted));
+      if(previousDrafts.some(([,draft])=>!validateTaskSchedule(draft)))return false;
       const nowStr = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       const savedTask = tasks.find(t => t.pageID === String(currentEditingTaskId));
       if (!savedTask) return false;
@@ -4527,13 +4988,21 @@
       const before = cloneTaskForEditing(savedTask);
       
       const previousUpdatedAt = savedTask.updatedAt || null;
-      const hierarchy={parentID:savedTask.parentID,projectID:savedTask.projectID,childID:[...(savedTask.childID||[])],path:savedTask.path};
+      for(const [id,draft] of previousDrafts){
+        const saved=tasks.find(item=>item.pageID===id),old=cloneTaskForEditing(saved),first=!saved.isSaved;
+        const relation={type:saved.type,parentID:saved.parentID,projectID:saved.projectID,childID:[...saved.childID],preDeleted:saved.preDeleted,preDeletedAt:saved.preDeletedAt};
+        Object.assign(saved,draft,relation,{isSaved:true,previousUpdatedAt:saved.updatedAt||null,updatedAt:nowStr});
+        recordUserTaskSave(old,saved,first);
+      }
+      const hierarchy={type:savedTask.type,parentID:savedTask.parentID,projectID:savedTask.projectID,childID:[...(savedTask.childID||[])],preDeleted:savedTask.preDeleted,preDeletedAt:savedTask.preDeletedAt};
       Object.assign(savedTask, task, hierarchy, { isSaved: true, previousUpdatedAt, updatedAt: nowStr });
       if(taskTreeDraftSnapshot!==null){
         const originalIDs=new Set(taskTreeDraftSnapshot.map(item=>item.pageID));
         tasks.forEach(item=>{if(!originalIDs.has(item.pageID)){item.isSaved=true;item.updatedAt=nowStr;}});
         taskTreeDraftSnapshot=null;
       }
+      taskGroupEditorOriginalId=null;
+      taskTreePendingDrafts.clear();taskTreeSessionEntryId=null;
       recordUserTaskSave(before, savedTask, isFirstTime);
       currentEditingTaskDraft = cloneTaskForEditing(savedTask);
       referenceLinkEditingIndexes = new Set();
@@ -4542,6 +5011,7 @@
 
       const saveBtn = document.getElementById('global-save-btn');
       prepareTaskNotificationSync(savedTask);
+      previousDrafts.forEach(([id])=>prepareTaskNotificationSync(tasks.find(item=>item.pageID===id)));
       saveBtn.innerText = '更新';
       document.getElementById('task-editor-save').innerText='更新';
       
@@ -4554,6 +5024,9 @@
       renderHistoryMemoFields();
       renderProjectTree(getRootParentId(currentEditingTaskId,tasks));
       renderApp();
+      if(savedTask.preDeleted){
+        if(taskEditorIsOpen)closeTaskEditor(true);else {currentEditingTaskId=null;currentEditingTaskDraft=null;switchView('quickstatus');}
+      }
       if (!silent && isFirstTime) {
         alert('保存しました。');
       } else if (!silent) {
@@ -5136,20 +5609,32 @@
 
     function confirmDeleteCurrentTask() {
       if (currentEditingTaskId === null) return;
+      pendingTreeDelete=null;
+      document.querySelector('#delete-confirm-modal .modal-message').textContent='この項目をゴミ箱へ移動しますか？';
       document.getElementById('delete-confirm-modal').classList.remove('hidden');
     }
 
     function closeDeleteModal() {
+      pendingTreeDelete=null;
       document.getElementById('delete-confirm-modal').classList.add('hidden');
     }
 
     function executeDeleteCurrentTask() {
+      if(pendingTreeDelete){executeProjectTreeDelete();return;}
       if (currentEditingTaskId !== null) {
         const target = tasks.find(t => t.pageID === String(currentEditingTaskId));
         if (target) {
           target.preDeleted = true;
           target.preDeletedAt = new Date().toISOString();
-          tasks = tasks.filter(t => t.pageID === target.pageID || t.parentID !== target.pageID);
+          let changed=true;
+          while(changed){changed=false;tasks.forEach(item=>{
+            const parents=taskParentIds(item);
+            if(!item.preDeleted&&parents.length&&parents.every(id=>tasks.some(parent=>parent.pageID===id&&parent.preDeleted))){
+              item.preDeleted=true;item.preDeletedAt=target.preDeletedAt;changed=true;
+            }
+          });}
+          taskTreeDraftSnapshot=null;
+          taskTreePendingDrafts.clear();taskTreeSessionEntryId=null;taskTreeOpenDepth=0;taskTreeDeleteModeRoot=null;
           saveTasksToStorage();
         }
         currentEditingTaskId = null;
@@ -5178,7 +5663,7 @@
     switchCalendarMode('due');
     const linkedPageID=new URL(location.href).searchParams.get('pageID');
     if(linkedPageID&&tasks.some(task=>task.pageID===linkedPageID&&!task.preDeleted))openDetailView(linkedPageID,{standalone:true});
-    window.addEventListener('resize',updateTaskEditorBounds);
+    window.addEventListener('resize',()=>{updateTaskEditorBounds();const tree=document.getElementById('detail-tree-list');if(tree?.querySelector('.is-group'))drawGroupConnections(tree,getTaskDisplayRecords());});
     window.visualViewport?.addEventListener('resize',updateTaskEditorBounds);
     document.getElementById('task-editor-scroll').addEventListener('pointerdown',event=>{
       if(!event.target.closest('.task-status-control')){
@@ -5199,6 +5684,16 @@
         const first=focusable[0],last=focusable[focusable.length-1];
         if(!focusable.includes(document.activeElement)){event.preventDefault();(event.shiftKey?last:first)?.focus();}
         else if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+      }
+    });
+
+    document.getElementById('group-selection-modal').addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();event.stopPropagation();cancelGroupSelection();}
+      if(event.key==='Tab'){
+        const controls=[...document.getElementById('group-selection-modal').querySelectorAll('button,input')].filter(item=>!item.disabled);
+        const first=controls[0],last=controls[controls.length-1];
+        if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
         else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
       }
     });
@@ -5236,7 +5731,7 @@
       const deltaX = touch.clientX - touchStartX;
       const deltaY = touch.clientY - touchStartY;
 
-      // タスク一覧内の横スクロールはブラウザ標準動作に任せる。
+      // サブタスクの追加内の横スクロールはブラウザ標準動作に任せる。
       if (event.target.closest('#project-tree-scroll')) return;
 
       // 横方向のドラッグではページを動かさない。
@@ -5267,7 +5762,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.25 DEV118';
+  const BUILD_CREATED_AT = '2026.10.29 DEV128';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -5302,7 +5797,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.25 DEV118' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.29 DEV128' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

@@ -1556,7 +1556,7 @@
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
 
-    /* DEV143: group junctions keep ordinary task hierarchy intact. */
+    /* DEV152: group junctions keep ordinary task hierarchy intact. */
     .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
     #view-trash .trash-card { border-radius:0 0 16px 16px; }
     #detail-tree-list { position:relative; }
@@ -1568,7 +1568,7 @@
     .group-selection-tools span { flex:1; }
     .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
 
-    /* DEV143: fixed dialog controls outside the scrolling selection list. */
+    /* DEV152: fixed dialog controls outside the scrolling selection list. */
     #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
     .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
     .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
@@ -1584,19 +1584,19 @@
     .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
     .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
     .group-choice-spacer { width:18px;flex-shrink:0; }
-    /* DEV143: reference copies stay directly below each linked task. */
+    /* DEV152: reference copies stay directly below each linked task. */
     .group-alias-row { background:#f1f5f9; }
     .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
     .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
     .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
 
-    /* DEV143: editable group frame; read-only reference rows use independent toggles. */
+    /* DEV152: editable group frame; read-only reference rows use independent toggles. */
     .project-group-frame { box-sizing:border-box; }
     .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
     .project-group-frame>.group-block-row.is-group { border-top:0; }
     .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
 
-    /* DEV143: group selection is staged; decorations begin at the group title. */
+    /* DEV152: group selection is staged; decorations begin at the group title. */
     .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
     .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
     .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
@@ -1608,19 +1608,19 @@
     .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
     .project-group-reference .group-alias-row { background:transparent; }
     .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
-    /* DEV143: references are secondary; retain regular task typography in editable groups. */
+    /* DEV152: references are secondary; retain regular task typography in editable groups. */
     .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
     .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
     .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
     .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
-    /* DEV143: section actions replace per-row group controls. */
+    /* DEV152: section actions replace per-row group controls. */
     .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
     .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
     .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
     .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
     .project-tree-remove .app-icon { width:17px;height:17px; }
     #delete-confirm-modal { z-index:1450; }
-    /* DEV143: controls stay outside the horizontal task scroll area. */
+    /* DEV152: controls stay outside the horizontal task scroll area. */
     .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
     .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
     .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
@@ -1629,7 +1629,7 @@
     .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
     .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:153px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
     .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
-    /* DEV143: intrinsic, shared column widths; only the list's memo column is removed. */
+    /* DEV152: intrinsic, shared column widths; only the list's memo column is removed. */
     .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
     .project-tree-title-cell { width:max-content;max-width:none; }
     .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
@@ -1645,9 +1645,9 @@
     .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
     .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
     .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
-    /* DEV143: START, deepest hierarchy, then parents toward the right. */
+    /* DEV152: START, deepest hierarchy, then parents toward the right. */
     .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;width:120px;height:68px;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;font-size:14px;font-weight:700; }
-    /* DEV143: top-aligned columns, complete wrapped titles and schedules beneath cards. */
+    /* DEV152: top-aligned columns, complete wrapped titles and schedules beneath cards. */
     .project-roadmap-task { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:16px 40px 16px 14px;font-family:sans-serif; }
     .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;font-size:13px;font-weight:600;line-height:19px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
     .project-roadmap-open { position:absolute;right:13px;top:13px;color:#64748b; }
@@ -1656,7 +1656,7 @@
     .project-roadmap-task.project-roadmap-completed { background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8; }
     .project-roadmap-completed .project-roadmap-open { color:#94a3b8; }
     .project-roadmap-completed-label { font-size:10px;font-weight:600;line-height:16px;color:#94a3b8; }
-    /* DEV143: reserved title/status/date rows, routed edges and insertion controls. */
+    /* DEV152: reserved title/status/date rows, routed edges and insertion controls. */
     .project-roadmap-task { padding:14px;justify-content:flex-start;gap:4px; }
     .project-roadmap-task .project-roadmap-title { flex:0 0 57px;height:57px;max-height:57px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
     .project-roadmap-completed-label { flex:0 0 16px;height:16px; }
@@ -2545,18 +2545,23 @@
         records.filter(item=>taskHasParent(item,current)).forEach(item=>stack.push(String(item.pageID)));}
       return found;
     }
-    // The editable occurrence follows parentID[0]; shared references keep their own links.
+    // One canonical path per task: the deepest parent's path plus this ID.
+    // Parent links themselves retain their original order and membership.
     function getProjectTaskPaths(records){
-      const byId=new Map(records.map(item=>[String(item.pageID),item])),paths=new Map();
-      for(const task of records){
-        const chain=[],seen=new Set();let current=task;
-        while(current&&!seen.has(String(current.pageID))){
-          const id=String(current.pageID);seen.add(id);chain.push(id);
-          current=byId.get(taskParentIds(current)[0]);
+      const byId=new Map(records.map(item=>[String(item.pageID),item])),chains=new Map(),visiting=new Set();
+      function resolve(id){
+        if(chains.has(id))return chains.get(id);
+        if(visiting.has(id))return [];
+        visiting.add(id);
+        const item=byId.get(id);let deepest=[];
+        for(const parent of taskParentIds(item)){
+          if(!byId.has(parent)||byId.get(parent).preDeleted||visiting.has(parent))continue;
+          const chain=resolve(parent);if(chain.length>deepest.length)deepest=chain;
         }
-        paths.set(String(task.pageID),chain.reverse().join(','));
+        const chain=[...deepest,id];visiting.delete(id);chains.set(id,chain);return chain;
       }
-      return paths;
+      for(const id of byId.keys())resolve(id);
+      return new Map([...chains].map(([id,chain])=>[id,chain.join(',')]));
     }
     function refreshProjectProperties(){
       const byId=new Map(tasks.map(task=>[String(task.pageID),task]));
@@ -4217,7 +4222,8 @@
       for(const item of members){const level=depth(item);if(!layers.has(level))layers.set(level,[]);layers.get(level).push(item);}
       const maxDepth=Math.max(0,...members.map(depth)),positions=new Map(),columns=new Map();
       const cardHeight=153,rowStep=183,columnGap=64;
-      const start={x:16,y:16,width:156,height:153};let x=172+columnGap,height=185;
+      const maxRows=Math.max(1,...[...layers.values()].map(items=>items.length));
+      const start={x:16,y:16,width:156,height:maxRows*cardHeight+(maxRows-1)*(rowStep-cardHeight)};let x=172+columnGap,height=start.y+start.height+16;
       for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
         const titles=new Map(items.map(item=>[String(item.pageID),wrapRoadmapTitle(item.title)]));
         const width=Math.max(156,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
@@ -4228,15 +4234,42 @@
         positions.set(id,{x:column.x,y,width,height:cardHeight,titleLines:column.titles.get(id),deadlineLines:wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width),actionLines:wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width)});
         column.occupied.push(y);height=Math.max(height,y+cardHeight+16);
       }
-      // Depth determines X for every task. Leaf depth order determines only Y.
-      leaves.forEach((item,index)=>place(item,16+index*rowStep));
-      for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
-        const childCenter=item=>{const children=members.filter(child=>taskHasParent(child,item.pageID)).map(child=>positions.get(String(child.pageID))).filter(Boolean);return children.length?children.reduce((sum,p)=>sum+p.y+p.height/2,0)/children.length:0;};
-        const remaining=items.filter(item=>!leafIds.has(String(item.pageID))).sort((a,b)=>childCenter(a)-childCenter(b));
-        const column=columns.get(level);let y=16;
-        for(const item of remaining){while(column.occupied.some(top=>Math.abs(top-y)<rowStep-.001))y+=rowStep;place(item,y);y+=rowStep;}
+      // Build rows from the left-hand connections, independent of depth.
+      // START leaves supply only seed order; later columns reserve no rows.
+      const byId=new Map(members.map(item=>[String(item.pageID),item]));
+      const rows=new Map(),expanded=new Set(),connectionOrder=[];
+      let bottom=-1;
+      function assign(item,row){
+        const id=String(item.pageID),column=columns.get(depth(item));
+        while(column.occupied.includes(16+row*rowStep))row++;
+        rows.set(id,row);place(item,16+row*rowStep);bottom=Math.max(bottom,row);
+        return row;
       }
-      return {positions,width:x-columnGap+16,height,start,paths,maxDepth,leafIds};
+      function expand(child){
+        const childId=String(child.pageID);if(expanded.has(childId))return;
+        expanded.add(childId);
+        const parents=taskParentIds(child).filter(id=>byId.has(id));
+        // Commit sibling order before following the first branch to the root.
+        let row=rows.get(childId);
+        for(const id of parents){
+          if(rows.has(id)){row=Math.max(row,rows.get(id)+1);continue;}
+          row=assign(byId.get(id),row)+1;
+        }
+        for(const id of parents){
+          connectionOrder.push(childId+'>'+id);
+          expand(byId.get(id));
+        }
+      }
+      for(const leaf of leaves){
+        const id=String(leaf.pageID);
+        if(!rows.has(id))assign(leaf,bottom+1);
+        connectionOrder.push('START>'+id);
+        // Complete this START branch all the way to its topmost parent
+        // before assigning coordinates to the next START branch.
+        expand(leaf);
+      }
+      for(const item of members)if(!rows.has(String(item.pageID))){assign(item,bottom+1);expand(item);}
+      return {positions,width:x-columnGap+16,height,start,paths,maxDepth,leafIds,connectionOrder};
     }
     function openRoadmapInsert(from,to,opener){
       const records=getTaskDisplayRecords(),parent=records.find(item=>item.pageID===String(to)&&!item.preDeleted);
@@ -4271,18 +4304,41 @@
       for(const item of members){const id=String(item.pageID);if(layout.leafIds.has(id))edges.push({from:'START',to:id});for(const parent of taskParentIds(item))if(layout.positions.has(parent))edges.push({from:id,to:parent});}
       for(const edge of edges){if(!outgoing.has(edge.from))outgoing.set(edge.from,[]);outgoing.get(edge.from).push(edge);if(!incoming.has(edge.to))incoming.set(edge.to,[]);incoming.get(edge.to).push(edge);}
       for(const list of outgoing.values())list.sort((a,b)=>box(a.to).y-box(b.to).y);
-      for(const edge of edges){const source=box(edge.from),target=box(edge.to),list=outgoing.get(edge.from),index=list.indexOf(edge),sourceY=source.y+(list.length===1?source.height/2:16+(source.height-32)*index/(list.length-1)),targetY=Math.max(target.y+16,Math.min(target.y+target.height-16,sourceY));ports.set(edge.from+'>'+edge.to,{from:edge.from,to:edge.to,sourceY,targetY,bendOffset:16});}
-      // Reserve upper tasks' ports first; later arrivals cannot move them.
+      for(const edge of edges){
+        const source=box(edge.from),target=box(edge.to),list=outgoing.get(edge.from),index=list.indexOf(edge),center=source.y+source.height/2;
+        const step=list.length>1?Math.min(16,Math.max(0,source.height/2-16)/(list.length-1)):0;
+        const targetY=target.y+target.height/2;
+        const sourceY=edge.from==='START'?Math.max(source.y+16,Math.min(source.y+source.height-16,targetY)):center+index*step;
+        ports.set(edge.from+'>'+edge.to,{from:edge.from,to:edge.to,sourceY,targetY,bendOffset:16});
+      }
+      // Preserve the incoming order. Place ports downward from the center,
+      // then lift the ordered stack only by its overflow below the box.
       for(const list of incoming.values()){
         list.sort((a,b)=>box(a.from).y-box(b.from).y||ports.get(a.from+'>'+a.to).sourceY-ports.get(b.from+'>'+b.to).sourceY);
-        const target=box(list[0].to),low=target.y+16,high=target.y+target.height-16,spacing=list.length>1?Math.min(16,(high-low)/(list.length-1)):0;
-        let previous=low-spacing;
-        list.forEach((edge,index)=>{
-          const port=ports.get(edge.from+'>'+edge.to),source=box(edge.from);
-          port.targetY=Math.max(previous+spacing,Math.min(high-(list.length-1-index)*spacing,port.targetY));previous=port.targetY;
-          // A single outgoing wire stays horizontal whenever the box edges overlap.
-          if(outgoing.get(edge.from).length===1&&port.targetY>=source.y+16&&port.targetY<=source.y+source.height-16)port.sourceY=port.targetY;
-        });
+        const target=box(list[0].to),center=target.y+target.height/2,low=target.y+16,high=target.y+target.height-16;
+        const spacing=list.length>1?Math.min(16,(high-low)/(list.length-1)):16;
+        list.forEach((edge,index)=>{ports.get(edge.from+'>'+edge.to).targetY=center+index*spacing;});
+        const last=ports.get(list.at(-1).from+'>'+list.at(-1).to),lift=Math.max(0,last.targetY-high);
+        for(const edge of list){
+          const port=ports.get(edge.from+'>'+edge.to);port.targetY-=lift;
+          if(edge.from==='START'){
+            const source=layout.start;
+            port.sourceY=Math.max(source.y+16,Math.min(source.y+source.height-16,port.targetY));
+          }
+        }
+      }
+      // When an arriving horizontal line is lifted, move its departure point
+      // to that same height. Do not introduce a tiny vertical step in the gap.
+      for(const [from,list] of outgoing){
+        if(from==='START')continue;
+        const source=box(from),low=source.y+16,high=source.y+source.height-16;
+        const spacing=list.length>1?Math.min(16,(source.height/2-16)/(list.length-1)):0;
+        for(let index=0;index<list.length;index++){
+          const edge=list[index],port=ports.get(edge.from+'>'+edge.to),y=port.targetY;
+          const previous=index?ports.get(list[index-1].from+'>'+list[index-1].to).sourceY+spacing:low;
+          const next=index+1<list.length?ports.get(list[index+1].from+'>'+list[index+1].to).sourceY-spacing:high;
+          if(y>=Math.max(low,previous)&&y<=Math.min(high,next))port.sourceY=y;
+        }
       }
       return ports;
     }
@@ -4431,7 +4487,9 @@
     function buildRoadmapConnections(members,layout){
       // 1: the layout already contains top-aligned hierarchy columns.
       const box=id=>id==='START'?layout.start:layout.positions.get(id),ports=getRoadmapEdgePorts(members,layout);
-      const ordered=[...ports.values()].sort((a,b)=>box(a.from).x-box(b.from).x||box(a.from).y-box(b.from).y||a.sourceY-b.sourceY);
+      const branchOrder=new Map((layout.connectionOrder||[]).map((key,index)=>[key,index]));
+      const ordered=[...ports.values()].sort((a,b)=>
+        (branchOrder.get(a.from+'>'+a.to)??Infinity)-(branchOrder.get(b.from+'>'+b.to)??Infinity));
       // 2: shortest box-avoiding connections, with upper tasks committed first.
       const connections=ordered.map(port=>({...port,points:routeRoadmapEdge(box(port.from),box(port.to),layout,[],port.sourceY,port.targetY),plus:null}));
       for(const edge of connections)if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
@@ -6171,7 +6229,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.29 DEV143';
+  const BUILD_CREATED_AT = '2026.10.29 DEV152';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -6206,7 +6264,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.29 DEV143' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.29 DEV152' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

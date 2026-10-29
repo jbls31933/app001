@@ -1668,10 +1668,13 @@
     .project-roadmap-completed .project-roadmap-title { color:#94a3b8; }
     .project-roadmap-task.project-roadmap-goal { border-color:#1e4f91; }
     .project-roadmap-goal-label { position:absolute;left:12px;top:-15px;height:12px;color:#1e4f91;font:700 10px/12px sans-serif;letter-spacing:1px;pointer-events:none; }
-    .project-roadmap-vertical .project-roadmap-task { padding:8px 6px; }
-    .project-roadmap-vertical .project-roadmap-title { width:100%;font-size:var(--vertical-title-size,16px);line-height:22px; }
-    .project-roadmap-vertical .project-roadmap-schedule { font-size:var(--vertical-date-size,12px); }
-    .project-roadmap-vertical .project-roadmap-open { display:none; }
+    .project-roadmap .project-roadmap-task { padding:8px 6px; }
+    .project-roadmap .project-roadmap-title { width:100%;font-size:var(--roadmap-title-size,16px);line-height:22px; }
+    .project-roadmap .project-roadmap-schedule { font-size:var(--roadmap-date-size,12px); }
+    .project-roadmap .project-roadmap-open { display:none; }
+    .project-roadmap-horizontal .project-roadmap-task { padding:calc(8px * var(--roadmap-card-scale,1)) 6px;gap:calc(4px * var(--roadmap-card-scale,1)); }
+    .project-roadmap-horizontal .project-roadmap-title { flex-basis:calc(44px * var(--roadmap-card-scale,1));height:calc(44px * var(--roadmap-card-scale,1));max-height:calc(44px * var(--roadmap-card-scale,1));font-size:calc(16px * var(--roadmap-card-scale,1));line-height:calc(22px * var(--roadmap-card-scale,1)); }
+    .project-roadmap-horizontal .project-roadmap-schedule { flex-basis:calc(36px * var(--roadmap-card-scale,1));font-size:calc(12px * var(--roadmap-card-scale,1));line-height:calc(18px * var(--roadmap-card-scale,1)); }
     .project-roadmap-vertical .project-roadmap-goal-label { left:6px;top:auto;bottom:-15px; }
     .project-roadmap-vertical .project-roadmap-goal .project-roadmap-title { font-size:16px; }
     .project-roadmap-vertical .project-roadmap-goal .project-roadmap-schedule { font-size:12px; }
@@ -4242,15 +4245,18 @@
       // Route both orientations in the same coordinate system, then transpose
       // the vertical view. Card text remains upright in ordinary DOM elements.
       const viewportWidth=options.viewportWidth||window.innerWidth||390;
-      const cardHeight=vertical?Math.max(34,(viewportWidth-4*2)/5):106,columnGap=64;
       const viewport=document.getElementById('task-editor-scroll')||document.querySelector('.main-scroll-area');
-      const startHeight=Math.max(32,vertical?viewportWidth:(viewport?.clientHeight||window.innerHeight)-32);
+      const viewportHeight=options.viewportHeight||viewport?.clientHeight||window.innerHeight||600;
+      // Horizontal: six rows including 2px gaps and the existing top/bottom
+      // clearance. Reserve the maximum six-lane gap between two task columns.
+      const cardHeight=vertical?Math.max(34,(viewportWidth-4*2)/5):Math.max(34,(viewportHeight-32-5*2)/6),columnGap=64;
+      const startHeight=Math.max(32,vertical?viewportWidth:viewportHeight-32);
       if(context)context.font='700 14px sans-serif';
       const startWidth=vertical?36:Math.ceil(context?context.measureText('START').width:5*14*.65)+24;
       const start={x:vertical?16:0,y:vertical?0:16,width:startWidth,height:startHeight};let x=start.x+start.width+columnGap,height=start.y+start.height+(vertical?0:16);
       for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
         const titles=new Map(items.map(item=>[String(item.pageID),wrapRoadmapTitle(item.title)]));
-        const width=vertical?106:Math.max(196,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
+        const width=vertical?106:Math.max(34,(viewportWidth-112)/2);
         columns.set(level,{x,width,titles});x+=width+columnGap;
       }
       // Prepare only X and card dimensions. No task owns a Y coordinate yet.
@@ -4266,7 +4272,7 @@
       for(const leaf of leaves){const id=String(leaf.pageID);connectionOrder.push('START>'+id);visit(id);}
       for(const id of byId.keys())visit(id);
       const goalIds=new Set(members.filter(item=>!taskParentIds(item).some(id=>activeIds.has(id))).map(item=>String(item.pageID)));
-      return {positions,width:x-columnGap+(vertical?16:0),height,start,paths,maxDepth,leafIds,connectionOrder,vertical,viewportWidth,goalIds,rowStart:vertical?0:16,rowGap:vertical?2:30};
+      return {positions,width:x-columnGap+(vertical?16:0),height,start,paths,maxDepth,leafIds,connectionOrder,vertical,viewportWidth,goalIds,rowStart:vertical?0:16,rowGap:2};
     }
     function openRoadmapInsert(from,to,opener){
       const records=getTaskDisplayRecords(),parent=records.find(item=>item.pageID===String(to)&&!item.preDeleted);
@@ -4350,11 +4356,11 @@
       const clear=points=>!roadmapVerticalConflict(points,earlier)&&points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,boxes.filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect).concat(extraRects)));
       // Compare all box-clear bends against already committed wires.
       const fixed=[];
-      const rank=points=>{const c=roadmapRouteConflicts(points,earlier),first=points[0],last=points.at(-1);return [c.overlap>0?1:0,c.crossings,c.overlap,Math.abs(first.y-last.y)+Math.abs(first.y-sy)+Math.abs(last.y-ty),points.length>2?Math.abs(points[1].x-left-bendOffset):0];};
+      const rank=points=>{const c=roadmapRouteConflicts(points,earlier),first=points[0],last=points.at(-1);return [c.overlap>0?1:0,c.crossings,c.overlap,Math.abs(first.y-last.y)+Math.abs(first.y-sy)+Math.abs(last.y-ty),points.length>2?Math.abs(points[1].x-(left+right)/2):0];};
       const compare=(a,b)=>{for(let i=0;i<a.rank.length;i++)if(a.rank[i]!==b.rank[i])return a.rank[i]-b.rank[i];return 0;};
       if(sy===ty){const straight=[{x:left,y:sy},{x:right,y:ty}];if(clear(straight)){const score=rank(straight);if(!score[0]&&!score[1])return straight;fixed.push({points:straight,rank:score});}}
       const minX=left+16,maxX=right-16;if(maxX<minX)return [];
-      const preferred=Math.max(minX,Math.min(maxX,left+bendOffset));
+      const preferred=(left+right)/2;
       const xs=[...new Set([preferred,minX,maxX,...boxes.flatMap(r=>[r.x-16,r.x+r.width+16]),...earlier.flatMap(edge=>edge.points.flatMap(p=>[p.x-16,p.x+16])),...extraRects.flatMap(r=>[r.left,r.right])])].filter(x=>x>=minX&&x<=maxX).sort((a,b)=>Math.abs(a-preferred)-Math.abs(b-preferred));
       for(const x of xs){const points=simplifyRoadmapRoute([{x:left,y:sy},{x,y:sy},{x,y:ty},{x:right,y:ty}]);if(clear(points))fixed.push({points,rank:rank(points)});}
       if(fixed.length){fixed.sort(compare);if(!fixed[0].rank[0]&&!fixed[0].rank[1])return fixed[0].points;}
@@ -4574,8 +4580,9 @@
           const edge=connections[n];if(edge.points.length<2)continue;
           const source=box(edge.from),target=box(edge.to),sy=edge.points[0].y,ty=edge.points.at(-1).y,min=source.x+source.width+16,max=target.x-16;
           const others=connections.filter(other=>other!==edge),current=roadmapRouteConflicts(edge.points,others);
-          let best=edge.points,bestScore=[current.overlap>0?1:0,current.crossings,current.overlap,edge.points.length>2?Math.abs(edge.points[1].x-min):0];
-          const xs=[...new Set([min,max,...connections.flatMap(other=>other.points.flatMap(p=>[p.x-16,p.x+16])),...layout.positions.values()].flatMap(value=>typeof value==='number'?[value]:[value.x-16,value.x+value.width+16]))].filter(x=>x>=min&&x<=max);
+          const middle=(source.x+source.width+target.x)/2;
+          let best=edge.points,bestScore=[current.overlap>0?1:0,current.crossings,current.overlap,edge.points.length>2?Math.abs(edge.points[1].x-middle):0];
+          const xs=[...new Set([middle,min,max,...connections.flatMap(other=>other.points.flatMap(p=>[p.x-16,p.x+16])),...layout.positions.values()].flatMap(value=>typeof value==='number'?[value]:[value.x-16,value.x+value.width+16]))].filter(x=>x>=min&&x<=max);
           for(const x of xs){
             const points=simplifyRoadmapRoute([{x:source.x+source.width,y:sy},{x,y:sy},{x,y:ty},{x:target.x,y:ty}]);
             const vertical=points.length>2?points[1].x:null;
@@ -4588,7 +4595,7 @@
             }))continue;
             if(roadmapVerticalConflict(points,others))continue;
             if(!points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,[layout.start,...layout.positions.values()].filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect))))continue;
-            const conflict=roadmapRouteConflicts(points,others),score=[conflict.overlap>0?1:0,conflict.crossings,conflict.overlap,Math.abs(x-min)];
+            const conflict=roadmapRouteConflicts(points,others),score=[conflict.overlap>0?1:0,conflict.crossings,conflict.overlap,Math.abs(x-middle)];
             const better=score.some((value,index)=>value<bestScore[index]&&score.slice(0,index).every((v,k)=>v===bestScore[k]));
             if(better){best=points;bestScore=score;}
           }
@@ -4636,9 +4643,57 @@
       }
       return connections;
     }
+    function centerRoadmapBends(connections,layout){
+      const box=id=>id==='START'?layout.start:layout.positions.get(id);
+      const bends=connections.filter(edge=>edge.points.length===4);
+      const overlap=(a,b)=>Math.min(Math.max(a.sourceY,a.targetY),Math.max(b.sourceY,b.targetY))>=Math.max(Math.min(a.sourceY,a.targetY),Math.min(b.sourceY,b.targetY));
+      const direction=edge=>Math.sign(edge.targetY-edge.sourceY);
+      const order=(a,b)=>(direction(a)>0?-1:1)*(box(a.from).y-box(b.from).y||a.sourceY-b.sourceY||a.targetY-b.targetY);
+      const desired=new Map(),unassigned=new Set(bends);
+      for(const first of bends){
+        if(!unassigned.has(first))continue;
+        const cluster=[first];unassigned.delete(first);
+        for(let i=0;i<cluster.length;i++)for(const edge of unassigned)if(box(edge.from).x===box(first.from).x&&direction(edge)===direction(first)&&overlap(cluster[i],edge)){cluster.push(edge);unassigned.delete(edge);}
+        cluster.sort(order);
+        cluster.forEach((edge,index)=>{const source=box(edge.from),target=box(edge.to),middle=(source.x+source.width+target.x)/2;
+          desired.set(edge,Math.max(source.x+source.width+16,Math.min(target.x-16,middle+16*(index-(cluster.length-1)/2))));
+        });
+      }
+      const arrowClear=(points,others)=>{
+        for(const route of [points,...others.map(edge=>edge.points)]){
+          if(route.length<2)continue;const end=route.at(-1),a=route.at(-2);if(a.y!==end.y)continue;
+          for(const vertical of route===points?others.map(edge=>edge.points):[points])for(let i=1;i<vertical.length;i++){
+            const c=vertical[i-1],d=vertical[i];if(c.x===d.x&&c.x>a.x&&c.x<end.x&&end.y>Math.min(c.y,d.y)&&end.y<Math.max(c.y,d.y)&&end.x-c.x<16-.001)return false;
+          }
+        }
+        return true;
+      };
+      for(let pass=0;pass<Math.max(1,bends.length*2);pass++){
+        let changed=false;
+        const ordered=[...bends].sort((a,b)=>{
+          const movingLeft=edge=>desired.get(edge)<edge.points[1].x;
+          return Number(movingLeft(b))-Number(movingLeft(a))||(movingLeft(a)?a.points[1].x-b.points[1].x:b.points[1].x-a.points[1].x);
+        });
+        for(const edge of ordered){
+          const source=box(edge.from),target=box(edge.to),others=connections.filter(other=>other!==edge),goal=desired.get(edge);
+          const conflict=roadmapRouteConflicts(edge.points,others);
+          let best=edge.points,score=[conflict.overlap>0?1:0,conflict.crossings,conflict.overlap,Math.abs(edge.points[1].x-goal)];
+          const xs=[...new Set([goal,(source.x+source.width+target.x)/2,source.x+source.width+16,target.x-16,...bends.filter(other=>other!==edge).flatMap(other=>[other.points[1].x-16,other.points[1].x+16])])].filter(x=>x>=source.x+source.width+16&&x<=target.x-16);
+          for(const x of xs){
+            if(bends.some(other=>other!==edge&&box(other.from).x===source.x&&direction(other)===direction(edge)&&overlap(edge,other)&&(order(edge,other)<0?x>other.points[1].x-16:order(edge,other)>0&&x<other.points[1].x+16)))continue;
+            const points=edge.points.map(p=>({...p}));points[1].x=x;points[2].x=x;
+            if(!roadmapRouteBoxClear(edge,points,layout)||roadmapVerticalConflict(points,others)||!arrowClear(points,others))continue;
+            const found=roadmapRouteConflicts(points,others),next=[found.overlap>0?1:0,found.crossings,found.overlap,Math.abs(x-goal)];
+            if(next.some((value,index)=>value<score[index]&&next.slice(0,index).every((v,k)=>v===score[k]))){best=points;score=next;}
+          }
+          if(best!==edge.points){edge.points=best;edge.bendOffset=best[1].x-source.x-source.width;changed=true;}
+        }
+        if(!changed)break;
+      }
+    }
     function prepareRoadmapConnections(members,layout){
       const byId=new Map(members.map(item=>[String(item.pageID),item])),positions=layout.positions;
-      const rowStart=layout.rowStart??16,rowGap=layout.rowGap??30,compactGap=layout.vertical?2:16;
+      const rowStart=layout.rowStart??16,rowGap=layout.rowGap??30,compactGap=layout.rowGap===2?2:16;
       const fullGoal=id=>layout.vertical&&layout.goalIds.has(id);
       const seedIds=layout.connectionOrder.filter(key=>key.startsWith('START>')).map(key=>key.slice(6));
       const placed=new Set(),expanded=new Set(),order=[];
@@ -4775,6 +4830,9 @@
         }
       }
       for(const [cut,amount] of [...deficits].sort((a,b)=>b[0]-a[0]))expandRoadmapRight(layout,connections,cut+.001,amount);
+      // Keep midpoint bends in the final geometry, after all lane/order and
+      // card movements. Plus buttons use these final routes as well.
+      centerRoadmapBends(connections,layout);
       const used=[];for(const edge of connections){edge.plus=roadmapPlusPosition(edge.points,layout,used,connections.filter(other=>other!==edge).map(other=>other.points));if(edge.plus)used.push(edge.plus);}
       layout.width=Math.max(layout.start.x+layout.start.width+(layout.vertical?16:0),...[...positions.values()].map(r=>r.x+r.width+(layout.vertical?16:0)),...connections.flatMap(e=>e.points.map(p=>p.x+(layout.vertical?16:0))));
       layout.height=Math.max(layout.start.y+layout.start.height+(layout.vertical?0:16),...[...positions.values()].map(r=>r.y+r.height+(layout.vertical?0:16)),...connections.flatMap(e=>e.points.map(p=>p.y+(layout.vertical?0:16))));
@@ -4880,8 +4938,9 @@
       const displayBox=box=>vertical?{...box,x:box.y,y:box.x,width:box.height,height:box.width}:box;
       const displayPoint=point=>vertical?{x:point.y,y:point.x}:point;
       const width=vertical?layout.height:layout.width,height=vertical?layout.width:layout.height;
-      const graph=document.createElement('div');graph.className='project-roadmap'+(vertical?' project-roadmap-vertical':'');graph.style.width=`${width}px`;graph.style.height=`${height}px`;
-      if(vertical){const card=[...layout.positions].find(([id])=>!layout.goalIds.has(id))?.[1];graph.style.setProperty('--vertical-title-size',card?.height<100?'12px':'16px');graph.style.setProperty('--vertical-date-size',card?.height<100?'9px':'12px');}
+      const graph=document.createElement('div');graph.className='project-roadmap'+(vertical?' project-roadmap-vertical':' project-roadmap-horizontal');graph.style.width=`${width}px`;graph.style.height=`${height}px`;
+      if(!vertical){const card=[...layout.positions.values()][0];graph.style.setProperty('--roadmap-card-scale',String(Math.min(1,((card?.height||106)-2)/104)));}
+      {const entry=[...layout.positions].find(([id])=>!layout.goalIds.has(id)),size=entry?(vertical?entry[1].height:entry[1].width):layout.viewportWidth;graph.style.setProperty('--roadmap-title-size',size<100?'12px':'16px');graph.style.setProperty('--roadmap-date-size',size<100?'9px':'12px');}
       const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));svg.classList.add('project-roadmap-lines');svg.setAttribute('aria-hidden','true');graph.appendChild(svg);
       const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');svg.appendChild(defs);
       const lines=document.createElementNS('http://www.w3.org/2000/svg','g');if(vertical)lines.setAttribute('transform','matrix(0 1 1 0 0 0)');svg.appendChild(lines);
@@ -4977,17 +5036,17 @@
       const members = displayTasks.filter(t => !t.preDeleted && String(t.projectID || (t.pageID === root.pageID ? root.pageID : '')) === projectId);
       syncTaskProjectLabel();
       const groupColors=getProjectGroupColors(displayTasks,projectId);
-      if(taskTreeViewMode==='roadmap'){renderProjectRoadmap(container,members,groupColors);return;}
-      if(taskTreeViewMode==='roadmap-vertical'){
-        renderProjectRoadmap(container,members,groupColors,true);
+      if(taskTreeViewMode==='roadmap'||taskTreeViewMode==='roadmap-vertical'){
+        renderProjectRoadmap(container,members,groupColors,taskTreeViewMode==='roadmap-vertical');
         if(typeof ResizeObserver!=='undefined'&&container.parentElement){
-          const viewport=container.parentElement;let width=viewport.clientWidth;
+          const viewport=container.parentElement,editor=document.getElementById('task-editor-scroll')||document.querySelector('.main-scroll-area');let width=viewport.clientWidth,height=editor?.clientHeight||window.innerHeight;
           projectTreeColumnObserver=new ResizeObserver(()=>{
-            if(taskTreeViewMode!=='roadmap-vertical'||!container.isConnected)return;
-            const next=viewport.clientWidth;if(Math.abs(next-width)<1)return;
-            width=next;renderProjectTree(rootId);
+            if(!['roadmap','roadmap-vertical'].includes(taskTreeViewMode)||!container.isConnected)return;
+            const next=viewport.clientWidth,nextHeight=editor?.clientHeight||window.innerHeight;if(Math.abs(next-width)<1&&Math.abs(nextHeight-height)<1)return;
+            width=next;height=nextHeight;renderProjectTree(rootId);
           });
           projectTreeColumnObserver.observe(viewport);
+          if(editor&&editor!==viewport)projectTreeColumnObserver.observe(editor);
         }
         return;
       }
@@ -6561,7 +6620,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.30 DEV165';
+  const BUILD_CREATED_AT = '2026.10.30 DEV167';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -6596,7 +6655,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.30 DEV165' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.30 DEV167' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

@@ -1556,7 +1556,7 @@
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
 
-    /* DEV141: group junctions keep ordinary task hierarchy intact. */
+    /* DEV143: group junctions keep ordinary task hierarchy intact. */
     .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
     #view-trash .trash-card { border-radius:0 0 16px 16px; }
     #detail-tree-list { position:relative; }
@@ -1568,7 +1568,7 @@
     .group-selection-tools span { flex:1; }
     .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
 
-    /* DEV141: fixed dialog controls outside the scrolling selection list. */
+    /* DEV143: fixed dialog controls outside the scrolling selection list. */
     #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
     .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
     .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
@@ -1584,19 +1584,19 @@
     .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
     .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
     .group-choice-spacer { width:18px;flex-shrink:0; }
-    /* DEV141: reference copies stay directly below each linked task. */
+    /* DEV143: reference copies stay directly below each linked task. */
     .group-alias-row { background:#f1f5f9; }
     .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
     .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
     .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
 
-    /* DEV141: editable group frame; read-only reference rows use independent toggles. */
+    /* DEV143: editable group frame; read-only reference rows use independent toggles. */
     .project-group-frame { box-sizing:border-box; }
     .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
     .project-group-frame>.group-block-row.is-group { border-top:0; }
     .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
 
-    /* DEV141: group selection is staged; decorations begin at the group title. */
+    /* DEV143: group selection is staged; decorations begin at the group title. */
     .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
     .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
     .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
@@ -1608,19 +1608,19 @@
     .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
     .project-group-reference .group-alias-row { background:transparent; }
     .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
-    /* DEV141: references are secondary; retain regular task typography in editable groups. */
+    /* DEV143: references are secondary; retain regular task typography in editable groups. */
     .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
     .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
     .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
     .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
-    /* DEV141: section actions replace per-row group controls. */
+    /* DEV143: section actions replace per-row group controls. */
     .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
     .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
     .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
     .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
     .project-tree-remove .app-icon { width:17px;height:17px; }
     #delete-confirm-modal { z-index:1450; }
-    /* DEV141: controls stay outside the horizontal task scroll area. */
+    /* DEV143: controls stay outside the horizontal task scroll area. */
     .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
     .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
     .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
@@ -1629,7 +1629,7 @@
     .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
     .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:153px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
     .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
-    /* DEV141: intrinsic, shared column widths; only the list's memo column is removed. */
+    /* DEV143: intrinsic, shared column widths; only the list's memo column is removed. */
     .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
     .project-tree-title-cell { width:max-content;max-width:none; }
     .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
@@ -1645,9 +1645,9 @@
     .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
     .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
     .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
-    /* DEV141: START, deepest hierarchy, then parents toward the right. */
+    /* DEV143: START, deepest hierarchy, then parents toward the right. */
     .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;width:120px;height:68px;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;font-size:14px;font-weight:700; }
-    /* DEV141: top-aligned columns, complete wrapped titles and schedules beneath cards. */
+    /* DEV143: top-aligned columns, complete wrapped titles and schedules beneath cards. */
     .project-roadmap-task { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:16px 40px 16px 14px;font-family:sans-serif; }
     .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;font-size:13px;font-weight:600;line-height:19px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
     .project-roadmap-open { position:absolute;right:13px;top:13px;color:#64748b; }
@@ -1656,7 +1656,7 @@
     .project-roadmap-task.project-roadmap-completed { background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8; }
     .project-roadmap-completed .project-roadmap-open { color:#94a3b8; }
     .project-roadmap-completed-label { font-size:10px;font-weight:600;line-height:16px;color:#94a3b8; }
-    /* DEV141: reserved title/status/date rows, routed edges and insertion controls. */
+    /* DEV143: reserved title/status/date rows, routed edges and insertion controls. */
     .project-roadmap-task { padding:14px;justify-content:flex-start;gap:4px; }
     .project-roadmap-task .project-roadmap-title { flex:0 0 57px;height:57px;max-height:57px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
     .project-roadmap-completed-label { flex:0 0 16px;height:16px; }
@@ -1665,6 +1665,9 @@
     .project-roadmap-completed .project-roadmap-schedule { color:#94a3b8; }
     .project-roadmap-insert { position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:1px solid #cbd5e1;border-radius:50%;background:#fff;color:#64748b;font-size:16px;line-height:20px;cursor:pointer;z-index:3; }
     #roadmap-insert-modal { z-index:1450; }
+    .task-memo-links { white-space:pre-wrap;overflow-wrap:anywhere;min-height:90px;cursor:text; }
+    .task-memo-links a { color:#167d8d;text-decoration:underline;cursor:pointer; }
+    .task-memo-links.is-empty { color:#94a3b8; }
 </style>
 </head>
 <body>
@@ -1954,7 +1957,8 @@
               <button type="button" id="memo-toggle-button" class="memo-expand-button" onclick="toggleMemoExpanded()" aria-label="メモを閉じる" aria-expanded="true"><svg class="app-icon" aria-hidden="true"><use href="icons.svg#chevron-up"></use></svg></button>
             </div>
             <div id="memo-content">
-              <textarea class="memo-textarea" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)"></textarea>
+              <div class="memo-textarea task-memo-links" id="detail-memo-links" tabindex="0" aria-label="メモ。本文を選ぶと編集できます" onclick="if(!event.target.closest('a'))editTaskMemo()" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();editTaskMemo();}"></div>
+              <textarea class="memo-textarea hidden" id="detail-memo-input" placeholder="ここに詳細メモを入力..." oninput="updateCurrentTaskField('taskMemo', this.value)" onblur="renderTaskMemoLinks()"></textarea>
               <div class="memo-help">※入力のコツ・チュートリアルは[ヘルプ]へ <svg class="app-icon" aria-hidden="true"><use href="icons.svg#help"></use></svg></div>
             </div>
           </div>
@@ -3905,6 +3909,7 @@
 
       document.getElementById('detail-title-input').value = task.title || '';
       document.getElementById('detail-memo-input').value = task.taskMemo || '';
+      renderTaskMemoLinks();
       updateScheduleButton('deadline');
       updateScheduleButton('action');
       renderReferenceLinkFields();
@@ -4209,27 +4214,27 @@
       const activeIds=new Set(members.filter(item=>!item.preDeleted).map(item=>String(item.pageID)));
       const leaves=members.filter(item=>!item.preDeleted&&!(item.childID||[]).some(id=>activeIds.has(String(id)))).sort((a,b)=>depth(b)-depth(a));
       const leafIds=new Set(leaves.map(item=>String(item.pageID)));
-      for(const item of members){if(leafIds.has(String(item.pageID)))continue;const level=depth(item);if(!layers.has(level))layers.set(level,[]);layers.get(level).push(item);}
-      const maxDepth=Math.max(0,...members.map(depth)),positions=new Map();
-      const cardHeightNeeded=153,columnGap=64;
+      for(const item of members){const level=depth(item);if(!layers.has(level))layers.set(level,[]);layers.get(level).push(item);}
+      const maxDepth=Math.max(0,...members.map(depth)),positions=new Map(),columns=new Map();
+      const cardHeight=153,rowStep=183,columnGap=64;
       const start={x:16,y:16,width:156,height:153};let x=172+columnGap,height=185;
-      const columns=[{items:leaves,leafColumn:true},...[...layers].sort((a,b)=>b[0]-a[0]).map(([level,items])=>({items,leafColumn:false}))].filter(column=>column.items.length);
-      for(const {items,leafColumn} of columns){
-        const childCenter=item=>{const children=members.filter(child=>taskHasParent(child,item.pageID)).map(child=>positions.get(String(child.pageID))).filter(Boolean);return children.length?children.reduce((sum,p)=>sum+p.y+p.height/2,0)/children.length:0;};
-        if(!leafColumn)items.sort((a,b)=>childCenter(a)-childCenter(b));
+      for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
         const titles=new Map(items.map(item=>[String(item.pageID),wrapRoadmapTitle(item.title)]));
         const width=Math.max(156,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
-        let y=16;
-        for(const item of items){
-          const titleLines=titles.get(String(item.pageID));
-          const cardHeight=cardHeightNeeded;
-          const deadlineLines=wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width);
-          const actionLines=wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width);
-          const metaHeight=0;
-          positions.set(String(item.pageID),{x,y,width,height:cardHeight,titleLines,deadlineLines,actionLines});
-          y+=cardHeight+metaHeight+30;
-        }
-        height=Math.max(height,y-30+16);x+=width+columnGap;
+        columns.set(level,{x,width,titles,occupied:[]});x+=width+columnGap;
+      }
+      function place(item,y){
+        const id=String(item.pageID),column=columns.get(depth(item)),width=column.width;
+        positions.set(id,{x:column.x,y,width,height:cardHeight,titleLines:column.titles.get(id),deadlineLines:wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width),actionLines:wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width)});
+        column.occupied.push(y);height=Math.max(height,y+cardHeight+16);
+      }
+      // Depth determines X for every task. Leaf depth order determines only Y.
+      leaves.forEach((item,index)=>place(item,16+index*rowStep));
+      for(const [level,items] of [...layers].sort((a,b)=>b[0]-a[0])){
+        const childCenter=item=>{const children=members.filter(child=>taskHasParent(child,item.pageID)).map(child=>positions.get(String(child.pageID))).filter(Boolean);return children.length?children.reduce((sum,p)=>sum+p.y+p.height/2,0)/children.length:0;};
+        const remaining=items.filter(item=>!leafIds.has(String(item.pageID))).sort((a,b)=>childCenter(a)-childCenter(b));
+        const column=columns.get(level);let y=16;
+        for(const item of remaining){while(column.occupied.some(top=>Math.abs(top-y)<rowStep-.001))y+=rowStep;place(item,y);y+=rowStep;}
       }
       return {positions,width:x-columnGap+16,height,start,paths,maxDepth,leafIds};
     }
@@ -4389,7 +4394,41 @@
       }
       for(const edge of connections)edge.points=simplifyRoadmapRoute(edge.points);
     }
+    function findRoadmapBlockingTask(edge,layout){
+      const source=edge.from==='START'?layout.start:layout.positions.get(edge.from),target=layout.positions.get(edge.to);
+      if(!source||!target||target.x<=source.x+source.width+32)return null;
+      const left=source.x+source.width,right=target.x,sy=edge.sourceY,ty=edge.targetY;
+      const candidates=[...layout.positions.entries()].filter(([id,r])=>id!==edge.from&&id!==edge.to&&r.x+r.width+16>left&&r.x-16<right);
+      const xs=[...new Set([left+16,right-16,...candidates.flatMap(([,r])=>[r.x-16,r.x+r.width+16])])].filter(x=>x>=left+16&&x<=right-16);
+      let best=null;
+      for(const x of xs){
+        const points=simplifyRoadmapRoute([{x:left,y:sy},{x,y:sy},{x,y:ty},{x:right,y:ty}]);
+        const blockers=candidates.filter(([,r])=>{const rect={left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16};return points.some((p,i)=>i&&!roadmapSegmentClear(points[i-1],p,[rect]));});
+        if(!blockers.length)continue;
+        const score=blockers.length*1000000+Math.abs(sy-ty)+Math.abs(x-left-16)*.001;
+        if(!best||score<best.score)best={score,blockers};
+      }
+      // Move only a card actually intersecting a permitted two-bend route.
+      return best?.blockers.sort((a,b)=>a[1].x-b[1].x||a[1].y-b[1].y)[0]?.[0]||null;
+    }
     function prepareRoadmapConnections(members,layout){
+      const maxMoves=Math.max(1,members.length*members.length);
+      for(let move=0;move<=maxMoves;move++){
+        const connections=buildRoadmapConnections(members,layout);
+        const missing=connections.filter(edge=>!edge.points.length);
+        if(!missing.length||move===maxMoves)return connections;
+        let blockerId=null;
+        for(const edge of missing){blockerId=findRoadmapBlockingTask(edge,layout);if(blockerId)break;}
+        if(!blockerId)return connections;
+        const blocked=layout.positions.get(blockerId),x=blocked.x,y=blocked.y,step=blocked.height+30;
+        // Insert one empty row at the blocked position. Carry lower cards down
+        // to keep them from colliding with the moved card; X and path stay fixed.
+        for(const position of layout.positions.values())if(position.x===x&&position.y>=y)position.y+=step;
+        layout.height=Math.max(layout.height,...[...layout.positions.values()].map(r=>r.y+r.height+16));
+        // Recalculate every affected port and wire from the new card positions.
+      }
+    }
+    function buildRoadmapConnections(members,layout){
       // 1: the layout already contains top-aligned hierarchy columns.
       const box=id=>id==='START'?layout.start:layout.positions.get(id),ports=getRoadmapEdgePorts(members,layout);
       const ordered=[...ports.values()].sort((a,b)=>box(a.from).x-box(b.from).x||box(a.from).y-box(b.from).y||a.sourceY-b.sourceY);
@@ -4910,6 +4949,26 @@
       openDetailView(newId,{force:true});
     }
 
+    function renderTaskMemoLinks(){
+      const input=document.getElementById('detail-memo-input'),view=document.getElementById('detail-memo-links');if(!input||!view)return;
+      view.replaceChildren();const text=input.value||'';
+      const pattern=/(?:https?:\/\/|www\.)[^\s<>「」『』【】]+/gi;let offset=0;
+      for(const match of text.matchAll(pattern)){
+        const raw=match[0],urlText=raw.replace(/[。、，．！？.,!?;:）)\]｝}]+$/u,'');
+        view.appendChild(document.createTextNode(text.slice(offset,match.index)));
+        try{const url=new URL(/^www\./i.test(urlText)?'https://'+urlText:urlText);if(!['http:','https:'].includes(url.protocol))throw new Error('scheme');
+          const link=document.createElement('a');link.href=url.href;link.textContent=urlText;link.target='_blank';link.rel='noopener noreferrer';view.appendChild(link);
+          view.appendChild(document.createTextNode(raw.slice(urlText.length)));
+        }catch{view.appendChild(document.createTextNode(raw));}
+        offset=match.index+raw.length;
+      }
+      view.appendChild(document.createTextNode(text.slice(offset)||(!text?'ここに詳細メモを入力...':'')));
+      view.classList.toggle('is-empty',!text);input.classList.add('hidden');view.classList.remove('hidden');
+    }
+    function editTaskMemo(){
+      const input=document.getElementById('detail-memo-input'),view=document.getElementById('detail-memo-links');if(!input||!view)return;
+      view.classList.add('hidden');input.classList.remove('hidden');resizeMemoTextarea();input.focus();
+    }
     function resizeMemoTextarea() {
       const memoInput = document.getElementById('detail-memo-input');
       if (!memoInput) return;
@@ -6112,7 +6171,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.29 DEV141';
+  const BUILD_CREATED_AT = '2026.10.29 DEV143';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -6147,7 +6206,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.29 DEV141' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.29 DEV143' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }

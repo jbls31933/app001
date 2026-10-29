@@ -1556,7 +1556,7 @@
     #reference-link-edit-modal { z-index:1250; }
     #reference-link-icon-input { width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155; }
 
-    /* DEV128: group junctions keep ordinary task hierarchy intact. */
+    /* DEV141: group junctions keep ordinary task hierarchy intact. */
     .app-container:has(#view-trash:not(.hidden))>.main-content { padding-top:0; }
     #view-trash .trash-card { border-radius:0 0 16px 16px; }
     #detail-tree-list { position:relative; }
@@ -1568,7 +1568,7 @@
     .group-selection-tools span { flex:1; }
     .group-selection-tools button { border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;padding:6px 10px; }
 
-    /* DEV128: fixed dialog controls outside the scrolling selection list. */
+    /* DEV141: fixed dialog controls outside the scrolling selection list. */
     #group-selection-modal { z-index:1400;padding:16px;box-sizing:border-box; }
     .group-selection-dialog { width:min(600px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;min-height:0;overflow:hidden;background:#fff;border-radius:18px;box-shadow:0 14px 34px rgba(15,23,42,.2); }
     .group-selection-header { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:12px;border-bottom:1px solid #e2e8f0; }
@@ -1584,19 +1584,19 @@
     .group-name-field { display:flex;flex-direction:column;gap:10px;padding:12px;color:#334155;font-size:14px; }
     .group-merge-notice { margin:0;padding:10px 12px;color:#475569;overflow-wrap:anywhere;font-size:13px;border-bottom:1px solid #e2e8f0; }
     .group-choice-spacer { width:18px;flex-shrink:0; }
-    /* DEV128: reference copies stay directly below each linked task. */
+    /* DEV141: reference copies stay directly below each linked task. */
     .group-alias-row { background:#f1f5f9; }
     .group-alias-row .group-alias-title,.group-alias-row .project-tree-property,.group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { color:#94a3b8; }
     .group-alias-row .group-alias-title { background:#f1f5f9;cursor:default; }
     .group-alias-row .project-tree-toggle,.group-alias-row .project-tree-edit { background:#f1f5f9; }
 
-    /* DEV128: editable group frame; read-only reference rows use independent toggles. */
+    /* DEV141: editable group frame; read-only reference rows use independent toggles. */
     .project-group-frame { box-sizing:border-box; }
     .project-group-frame>.group-block-row,.project-group-frame>.group-block-add { border-left:0; }
     .project-group-frame>.group-block-row.is-group { border-top:0; }
     .group-alias-row .project-tree-title { pointer-events:none;user-select:text; }
 
-    /* DEV128: group selection is staged; decorations begin at the group title. */
+    /* DEV141: group selection is staged; decorations begin at the group title. */
     .group-draft-add { display:flex;align-items:center;gap:6px;padding:8px 12px;box-sizing:border-box; }
     .group-draft-add button,.group-step-back { border:1px solid #cbd5e1;border-radius:7px;background:#f1f5f9;color:#475569;padding:7px;font-size:12px;cursor:pointer; }
     .group-draft-add button:disabled { color:#94a3b8;cursor:default;opacity:.55; }
@@ -1608,28 +1608,28 @@
     .project-group-reference::before { content:'';position:absolute;inset:0 0 0 var(--group-toggle-left,38px);background:#f1f5f9;pointer-events:none;z-index:0; }
     .project-group-reference .group-alias-row { background:transparent; }
     .project-group-reference .group-alias-row .group-alias-title,.project-group-reference .group-alias-row .project-tree-toggle { background:transparent; }
-    /* DEV128: references are secondary; retain regular task typography in editable groups. */
+    /* DEV141: references are secondary; retain regular task typography in editable groups. */
     .project-group-reference .group-alias-row { min-height:32px;font-size:12px; }
     .project-group-reference .group-alias-title { font-size:12px;font-weight:400;line-height:1.4;padding:4px 2px; }
     .project-group-reference .project-tree-toggle { font-size:10px;min-height:32px;padding:4px 0; }
     .project-group-reference .project-tree-property { font-size:12px;line-height:1.4;padding:4px 8px; }
-    /* DEV128: section actions replace per-row group controls. */
+    /* DEV141: section actions replace per-row group controls. */
     .project-tree-columns>.project-tree-heading-tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
     .project-tree-heading-button { border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;background:#f1f5f9;color:#475569;font-size:11px;cursor:pointer; }
     .project-tree-heading-button[aria-pressed="true"] { background:#e2e8f0; }
     .project-tree-remove { border:0;background:transparent;color:#dc2626;padding:4px;cursor:pointer;position:relative;z-index:2; }
     .project-tree-remove .app-icon { width:17px;height:17px; }
     #delete-confirm-modal { z-index:1450; }
-    /* DEV128: controls stay outside the horizontal task scroll area. */
+    /* DEV141: controls stay outside the horizontal task scroll area. */
     .project-tree-toolbar { display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 10px; }
     .project-tree-toolbar .project-tree-heading-button { flex:0 1 auto;white-space:nowrap;font-size:11px; }
     .project-tree-toolbar .project-tree-delete-toggle { margin-left:auto;flex:0 0 30px;font-size:17px;padding:4px;color:#dc2626; }
     .project-tree-drag.project-tree-remove { color:#dc2626;opacity:1;cursor:pointer;font-size:16px;padding:4px 0;min-height:30px; }
     .project-roadmap { position:relative;min-width:100%; }
     .project-roadmap-lines { position:absolute;left:0;top:0;pointer-events:none;overflow:visible; }
-    .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:68px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
+    .project-roadmap-task { position:absolute;display:flex;align-items:center;gap:8px;width:176px;height:153px;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;text-align:left;cursor:pointer; }
     .project-roadmap-title { flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
-    /* DEV128: intrinsic, shared column widths; only the list's memo column is removed. */
+    /* DEV141: intrinsic, shared column widths; only the list's memo column is removed. */
     .project-tree-columns,.project-tree-row { grid-template-columns:var(--tree-columns,max-content max-content max-content max-content);min-width:0;width:100%; }
     .project-tree-title-cell { width:max-content;max-width:none; }
     .project-tree-title { white-space:nowrap;overflow-wrap:normal;flex:0 0 auto; }
@@ -1645,6 +1645,26 @@
     .project-tree-toolbar .project-tree-heading-button[aria-pressed="true"] { border-color:#2563eb;background:#eff6ff;color:#1d4ed8; }
     .project-tree-toolbar .project-tree-delete-toggle { padding:0;flex:0 0 30px;color:#dc2626; }
     .project-tree-delete-toggle .app-icon { width:17px;height:17px;display:block; }
+    /* DEV141: START, deepest hierarchy, then parents toward the right. */
+    .project-roadmap-start { position:absolute;display:flex;align-items:center;justify-content:center;width:120px;height:68px;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;background:#f1f5f9;color:#334155;font-size:14px;font-weight:700; }
+    /* DEV141: top-aligned columns, complete wrapped titles and schedules beneath cards. */
+    .project-roadmap-task { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:16px 40px 16px 14px;font-family:sans-serif; }
+    .project-roadmap-task .project-roadmap-title { display:block;flex:none;width:100%;font-size:13px;font-weight:600;line-height:19px;white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;-webkit-line-clamp:unset; }
+    .project-roadmap-open { position:absolute;right:13px;top:13px;color:#64748b; }
+    .project-roadmap-schedule { position:absolute;color:#64748b;font:11px/16px sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;pointer-events:none; }
+    .project-roadmap-schedule>div+div { margin-top:3px; }
+    .project-roadmap-task.project-roadmap-completed { background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8; }
+    .project-roadmap-completed .project-roadmap-open { color:#94a3b8; }
+    .project-roadmap-completed-label { font-size:10px;font-weight:600;line-height:16px;color:#94a3b8; }
+    /* DEV141: reserved title/status/date rows, routed edges and insertion controls. */
+    .project-roadmap-task { padding:14px;justify-content:flex-start;gap:4px; }
+    .project-roadmap-task .project-roadmap-title { flex:0 0 57px;height:57px;max-height:57px;width:calc(100% - 24px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
+    .project-roadmap-completed-label { flex:0 0 16px;height:16px; }
+    .project-roadmap-task .project-roadmap-schedule { position:static;display:flex;flex-direction:column;flex:0 0 32px;width:100%;margin-top:auto;font-size:10px;line-height:16px;white-space:nowrap; }
+    .project-roadmap-schedule>span { display:block;overflow:hidden;text-overflow:ellipsis; }
+    .project-roadmap-completed .project-roadmap-schedule { color:#94a3b8; }
+    .project-roadmap-insert { position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:1px solid #cbd5e1;border-radius:50%;background:#fff;color:#64748b;font-size:16px;line-height:20px;cursor:pointer;z-index:3; }
+    #roadmap-insert-modal { z-index:1450; }
 </style>
 </head>
 <body>
@@ -2188,6 +2208,17 @@
     </div>
   </div>
 
+  <div id="roadmap-insert-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="roadmap-insert-title">
+    <div class="group-selection-dialog">
+      <div class="group-selection-header">
+        <button type="button" class="schedule-editor-icon-button" onclick="closeRoadmapInsertDialog()" aria-label="追加を取り消す">×</button>
+        <strong id="roadmap-insert-title">タスクを追加</strong>
+        <button type="button" class="btn-save" onclick="confirmRoadmapInsert()">追加</button>
+      </div>
+      <label class="group-name-field">タスク名<input id="roadmap-insert-name" class="task-input" type="text" placeholder="タスク名を入力"></label>
+    </div>
+  </div>
+
   <div id="task-editor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="task-editor-title">
     <div class="task-editor-dialog">
       <div class="task-editor-toolbar">
@@ -2208,6 +2239,7 @@
     let taskTreeDeleteModeRoot = null;
     let taskTreeViewMode = 'list';
     let pendingTreeDelete = null;
+    let pendingRoadmapInsert = null;
     let taskEditorIsOpen = false;
     let taskEditorOrigin = null;
     let pendingTaskEditorAction = null;
@@ -2442,6 +2474,7 @@
         title: record.title ?? '',
         parentID,
         projectID: record.projectID == null ? null : String(record.projectID),
+        path: typeof record.path==='string'?record.path:'',
         childID,
         category: normalizeTaskCategories(record.category),
         status: record.status === 'uncompleted' ? 'todo' : (record.status ?? 'todo'),
@@ -2508,6 +2541,19 @@
         records.filter(item=>taskHasParent(item,current)).forEach(item=>stack.push(String(item.pageID)));}
       return found;
     }
+    // The editable occurrence follows parentID[0]; shared references keep their own links.
+    function getProjectTaskPaths(records){
+      const byId=new Map(records.map(item=>[String(item.pageID),item])),paths=new Map();
+      for(const task of records){
+        const chain=[],seen=new Set();let current=task;
+        while(current&&!seen.has(String(current.pageID))){
+          const id=String(current.pageID);seen.add(id);chain.push(id);
+          current=byId.get(taskParentIds(current)[0]);
+        }
+        paths.set(String(task.pageID),chain.reverse().join(','));
+      }
+      return paths;
+    }
     function refreshProjectProperties(){
       const byId=new Map(tasks.map(task=>[String(task.pageID),task]));
       const done=new Set(),active=new Set();
@@ -2519,9 +2565,10 @@
         task.parentID=task.type==='group'?parents:(parents[0]||null);
         parents.forEach(id=>resolve(byId.get(id)));
         task.projectID=parents.length?(byId.get(parents[0]).projectID||parents[0]):task.pageID;
-        delete task.path;active.delete(task.pageID);done.add(task.pageID);
+        active.delete(task.pageID);done.add(task.pageID);
       }
       tasks.forEach(resolve);
+      const paths=getProjectTaskPaths(tasks);tasks.forEach(task=>{task.path=paths.get(String(task.pageID));});
       tasks.forEach(parent=>{
         const actual=tasks.filter(child=>taskHasParent(child,parent.pageID)).map(child=>child.pageID);
         parent.childID=[...new Set([...(parent.childID||[]).map(String).filter(id=>actual.includes(id)),...actual])];
@@ -3755,7 +3802,7 @@
     function closeTaskEditor(force=false){
       if(!taskEditorIsOpen)return;
       if(!force){requestTaskEditorAction(()=>closeTaskEditor(true));return;}
-      const origin=taskEditorOrigin;closeGroupSelectionDialog();
+      const origin=taskEditorOrigin;closeGroupSelectionDialog();closeRoadmapInsertDialog();
       closeScheduleEditor();cancelCategoryManagement();cancelCategorySelection();
       discardTaskEditorDraft();currentEditingTaskId=null;currentEditingTaskDraft=null;
       const view=document.getElementById('view-task-page');
@@ -4127,38 +4174,339 @@
       const remove=document.createElement('button');remove.type='button';remove.className='project-tree-heading-button project-tree-delete-toggle';remove.innerHTML='<svg class="app-icon" aria-hidden="true"><use href="icons.svg#trash"></use></svg>';
       const deleting=taskTreeDeleteModeRoot===String(rootId);remove.title=deleting?'削除モードを終了':'タスクを削除';remove.setAttribute('aria-label',remove.title);remove.setAttribute('aria-pressed',String(deleting));remove.onclick=()=>toggleProjectTreeDelete(rootId);toolbar.appendChild(remove);
     }
+    function roadmapCharacters(text){
+      return typeof Intl.Segmenter==='function'?Array.from(new Intl.Segmenter('ja',{granularity:'grapheme'}).segment(text),item=>item.segment):Array.from(text);
+    }
+    function wrapRoadmapTitle(text){
+      const lines=[];
+      for(const paragraph of String(text||'（無題）').split(/\r?\n/)){
+        let line='',units=0;
+        for(const char of roadmapCharacters(paragraph)){
+          const size=/^[\u0000-\u00ff]+$/.test(char)?.5:1;
+          if(units+size>15&&line){lines.push(line);line='';units=0;}
+          line+=char;units+=size;
+        }
+        lines.push(line);
+      }
+      return lines;
+    }
+    function formatRoadmapSchedule(task,field){
+      const format=value=>String(value||'').slice(0,10).replace(/-/g,'/');
+      const date=format(task[field+'Date']);if(!date)return '—';
+      const time=task[field+'Time']||String(task[field+'Date']).slice(11,16);
+      const end=format(task[field+'EndDate']),endTime=task[field+'EndTime']||'';
+      return date+(time?' '+time:'')+(end?' ～ '+(end!==date?end:'')+(endTime?' '+endTime:''):'');
+    }
     function getProjectRoadmapLayout(members){
-      const byId=new Map(members.map(item=>[String(item.pageID),item])),depths=new Map(),visiting=new Set();
-      function depth(id){
-        if(depths.has(id))return depths.get(id);if(visiting.has(id))return 0;
-        visiting.add(id);const parents=taskParentIds(byId.get(id)).filter(parent=>byId.has(parent)&&parent!==id);
-        const level=parents.length?Math.max(...parents.map(parent=>depth(parent)+1)):0;
-        visiting.delete(id);depths.set(id,level);return level;
+      const paths=getProjectTaskPaths(members),layers=new Map();
+      const context=document.createElement('canvas').getContext?.('2d');
+      function measure(text,small=false){
+        if(context){context.font=small?'11px sans-serif':'600 13px sans-serif';return Math.ceil(context.measureText(text).width);}
+        return roadmapCharacters(text).reduce((sum,char)=>sum+(/^[\u0000-\u00ff]+$/.test(char)?.55:1)*(small?11:13),0);
       }
-      members.forEach(item=>depth(String(item.pageID)));
-      const layers=new Map();for(const item of members){const d=depths.get(String(item.pageID));if(!layers.has(d))layers.set(d,[]);layers.get(d).push(item);}
-      const rows=Math.max(1,...[...layers.values()].map(items=>items.length)),height=32+rows*96;
-      const positions=new Map(),width=32+(Math.max(0,...layers.keys())+1)*240-64;
-      for(const [d,items] of [...layers].sort((a,b)=>a[0]-b[0])){
-        const parentCenter=item=>{const parents=taskParentIds(item).map(id=>positions.get(id)).filter(Boolean);return parents.length?parents.reduce((sum,p)=>sum+p.y,0)/parents.length:height/2;};
-        items.sort((a,b)=>parentCenter(a)-parentCenter(b));
-        items.forEach((item,index)=>positions.set(String(item.pageID),{x:16+d*240,y:(height-items.length*96)/2+index*96+14,width:176,height:68}));
+      function wrap(text,width){const lines=[];let line='';for(const char of roadmapCharacters(text)){if(line&&measure(line+char,true)>width){lines.push(line);line='';}line+=char;}lines.push(line);return lines;}
+      const depth=item=>paths.get(String(item.pageID)).split(',').length-1;
+      const activeIds=new Set(members.filter(item=>!item.preDeleted).map(item=>String(item.pageID)));
+      const leaves=members.filter(item=>!item.preDeleted&&!(item.childID||[]).some(id=>activeIds.has(String(id)))).sort((a,b)=>depth(b)-depth(a));
+      const leafIds=new Set(leaves.map(item=>String(item.pageID)));
+      for(const item of members){if(leafIds.has(String(item.pageID)))continue;const level=depth(item);if(!layers.has(level))layers.set(level,[]);layers.get(level).push(item);}
+      const maxDepth=Math.max(0,...members.map(depth)),positions=new Map();
+      const cardHeightNeeded=153,columnGap=64;
+      const start={x:16,y:16,width:156,height:153};let x=172+columnGap,height=185;
+      const columns=[{items:leaves,leafColumn:true},...[...layers].sort((a,b)=>b[0]-a[0]).map(([level,items])=>({items,leafColumn:false}))].filter(column=>column.items.length);
+      for(const {items,leafColumn} of columns){
+        const childCenter=item=>{const children=members.filter(child=>taskHasParent(child,item.pageID)).map(child=>positions.get(String(child.pageID))).filter(Boolean);return children.length?children.reduce((sum,p)=>sum+p.y+p.height/2,0)/children.length:0;};
+        if(!leafColumn)items.sort((a,b)=>childCenter(a)-childCenter(b));
+        const titles=new Map(items.map(item=>[String(item.pageID),wrapRoadmapTitle(item.title)]));
+        const width=Math.max(156,...[...titles.values()].flatMap(lines=>lines.map(line=>measure(line)+54)));
+        let y=16;
+        for(const item of items){
+          const titleLines=titles.get(String(item.pageID));
+          const cardHeight=cardHeightNeeded;
+          const deadlineLines=wrap('期限：'+formatRoadmapSchedule(item,'deadline'),width);
+          const actionLines=wrap('対応予定日：'+formatRoadmapSchedule(item,'action'),width);
+          const metaHeight=0;
+          positions.set(String(item.pageID),{x,y,width,height:cardHeight,titleLines,deadlineLines,actionLines});
+          y+=cardHeight+metaHeight+30;
+        }
+        height=Math.max(height,y-30+16);x+=width+columnGap;
       }
-      return {positions,width,height};
+      return {positions,width:x-columnGap+16,height,start,paths,maxDepth,leafIds};
+    }
+    function openRoadmapInsert(from,to,opener){
+      const records=getTaskDisplayRecords(),parent=records.find(item=>item.pageID===String(to)&&!item.preDeleted);
+      if(!parent||(from!=='START'&&!records.some(item=>item.pageID===String(from)&&!item.preDeleted&&taskHasParent(item,to))))return;
+      pendingRoadmapInsert={from:String(from),to:String(to),rootId:getRootParentId(to,records),opener};
+      document.getElementById('roadmap-insert-name').value='';document.getElementById('roadmap-insert-modal').classList.remove('hidden');document.getElementById('roadmap-insert-name').focus();
+    }
+    function closeRoadmapInsertDialog(){
+      const opener=pendingRoadmapInsert?.opener;pendingRoadmapInsert=null;document.getElementById('roadmap-insert-modal').classList.add('hidden');if(opener?.isConnected)opener.focus();
+    }
+    function confirmRoadmapInsert(){
+      const selection=pendingRoadmapInsert;if(!selection)return;
+      const input=document.getElementById('roadmap-insert-name'),title=input.value.trim();if(!title){input.focus();return;}
+      const parent=tasks.find(item=>item.pageID===selection.to&&!item.preDeleted),child=tasks.find(item=>item.pageID===selection.from&&!item.preDeleted);
+      if(!parent||(selection.from!=='START'&&(!child||!taskHasParent(child,parent.pageID)))){closeRoadmapInsertDialog();return;}
+      if(taskTreeDraftSnapshot===null)taskTreeDraftSnapshot=JSON.parse(JSON.stringify(tasks));
+      const id=String(nextIdCounter++),task=normalizeRecord({pageID:id,type:'task',title,parentID:parent.pageID,projectID:parent.projectID||parent.pageID,category:[...normalizeTaskCategories(parent.category)],childID:child?[child.pageID]:[],isSaved:false},id);
+      if(child){
+        const parents=taskParentIds(child).map(value=>value===parent.pageID?id:value);child.parentID=child.type==='group'?parents:parents[0];
+        parent.childID=(parent.childID||[]).map(value=>String(value)===child.pageID?id:String(value));
+      }else parent.childID=[...(parent.childID||[]),id];
+      tasks.push(task);refreshProjectProperties();
+      const edited=tasks.find(item=>item.pageID===String(currentEditingTaskId));
+      if(edited&&currentEditingTaskDraft)Object.assign(currentEditingTaskDraft,{parentID:Array.isArray(edited.parentID)?[...edited.parentID]:edited.parentID,childID:[...edited.childID],projectID:edited.projectID,path:edited.path});
+      closeRoadmapInsertDialog();renderProjectTree(selection.rootId);syncTaskProjectLabel();
+    }
+    function roadmapSegmentClear(a,b,rects){
+      return !rects.some(r=>a.x===b.x?a.x>r.left&&a.x<r.right&&Math.max(a.y,b.y)>r.top&&Math.min(a.y,b.y)<r.bottom:a.y>r.top&&a.y<r.bottom&&Math.max(a.x,b.x)>r.left&&Math.min(a.x,b.x)<r.right);
+    }
+    function getRoadmapEdgePorts(members,layout){
+      const edges=[],outgoing=new Map(),incoming=new Map(),ports=new Map(),box=id=>id==='START'?layout.start:layout.positions.get(id);
+      for(const item of members){const id=String(item.pageID);if(layout.leafIds.has(id))edges.push({from:'START',to:id});for(const parent of taskParentIds(item))if(layout.positions.has(parent))edges.push({from:id,to:parent});}
+      for(const edge of edges){if(!outgoing.has(edge.from))outgoing.set(edge.from,[]);outgoing.get(edge.from).push(edge);if(!incoming.has(edge.to))incoming.set(edge.to,[]);incoming.get(edge.to).push(edge);}
+      for(const list of outgoing.values())list.sort((a,b)=>box(a.to).y-box(b.to).y);
+      for(const edge of edges){const source=box(edge.from),target=box(edge.to),list=outgoing.get(edge.from),index=list.indexOf(edge),sourceY=source.y+(list.length===1?source.height/2:16+(source.height-32)*index/(list.length-1)),targetY=Math.max(target.y+16,Math.min(target.y+target.height-16,sourceY));ports.set(edge.from+'>'+edge.to,{from:edge.from,to:edge.to,sourceY,targetY,bendOffset:16});}
+      // Reserve upper tasks' ports first; later arrivals cannot move them.
+      for(const list of incoming.values()){
+        list.sort((a,b)=>box(a.from).y-box(b.from).y||ports.get(a.from+'>'+a.to).sourceY-ports.get(b.from+'>'+b.to).sourceY);
+        const target=box(list[0].to),low=target.y+16,high=target.y+target.height-16,spacing=list.length>1?Math.min(16,(high-low)/(list.length-1)):0;
+        let previous=low-spacing;
+        list.forEach((edge,index)=>{
+          const port=ports.get(edge.from+'>'+edge.to),source=box(edge.from);
+          port.targetY=Math.max(previous+spacing,Math.min(high-(list.length-1-index)*spacing,port.targetY));previous=port.targetY;
+          // A single outgoing wire stays horizontal whenever the box edges overlap.
+          if(outgoing.get(edge.from).length===1&&port.targetY>=source.y+16&&port.targetY<=source.y+source.height-16)port.sourceY=port.targetY;
+        });
+      }
+      return ports;
+    }
+    function routeRoadmapEdge(source,target,layout,earlier=[],sourceY=null,targetY=null,extraRects=[],bendOffset=16){
+      const left=source.x+source.width,right=target.x,sy=sourceY??source.y+source.height/2,ty=targetY??target.y+target.height/2;
+      if(right<=left)return [];
+      const boxes=[layout.start,...layout.positions.values()];
+      const rect=r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16});
+      const clear=points=>points.every((p,i)=>!i||roadmapSegmentClear(points[i-1],p,boxes.filter(r=>!(i===1&&r===source)&&!(i===points.length-1&&r===target)).map(rect).concat(extraRects)));
+      // Only these forms exist: right, or right / up-or-down / right.
+      if(sy===ty){const straight=[{x:left,y:sy},{x:right,y:ty}];if(clear(straight))return straight;}
+      const minX=left+16,maxX=right-16;if(maxX<minX)return [];
+      const preferred=Math.max(minX,Math.min(maxX,left+bendOffset));
+      const xs=[...new Set([preferred,minX,maxX,...boxes.flatMap(r=>[r.x-16,r.x+r.width+16]),...extraRects.flatMap(r=>[r.left,r.right])])].filter(x=>x>=minX&&x<=maxX).sort((a,b)=>Math.abs(a-preferred)-Math.abs(b-preferred));
+      for(const x of xs){const points=simplifyRoadmapRoute([{x:left,y:sy},{x,y:sy},{x,y:ty},{x:right,y:ty}]);if(clear(points))return points;}
+      // If a port is blocked, choose another port; never add a detour or reverse.
+      const ys=(box,desired)=>[...new Set([desired,box.y+16,box.y+box.height-16,...boxes.flatMap(r=>[r.y-16,r.y+r.height+16])])].filter(y=>y>=box.y+16&&y<=box.y+box.height-16).sort((a,b)=>Math.abs(a-desired)-Math.abs(b-desired));
+      const candidates=[];
+      for(const startY of ys(source,sy))for(const endY of ys(target,ty))for(const x of xs){
+        const points=simplifyRoadmapRoute([{x:left,y:startY},{x,y:startY},{x,y:endY},{x:right,y:endY}]);
+        if(clear(points))candidates.push({points,score:Math.abs(startY-endY)+Math.abs(startY-sy)+Math.abs(endY-ty)+(points.length-2)*.001});
+      }
+      candidates.sort((a,b)=>a.score-b.score);return candidates[0]?.points||[];
+    }
+    function simplifyRoadmapRoute(points){
+      const result=[];for(const p of points){if(result.length&&Math.abs(p.x-result.at(-1).x)<.001&&Math.abs(p.y-result.at(-1).y)<.001)continue;while(result.length>1){const a=result.at(-2),b=result.at(-1);if(!((a.x===b.x&&b.x===p.x&&(b.y-a.y)*(p.y-b.y)>=0)||(a.y===b.y&&b.y===p.y&&(b.x-a.x)*(p.x-b.x)>=0)))break;result.pop();}result.push({...p});}return result;
+    }
+    function roadmapPointDistance(p,a,b){const x=Math.max(Math.min(a.x,b.x),Math.min(Math.max(a.x,b.x),p.x)),y=Math.max(Math.min(a.y,b.y),Math.min(Math.max(a.y,b.y),p.y));return Math.hypot(x-p.x,y-p.y);}
+    function roadmapPlusPosition(points,layout,used=[],otherRoutes=[]){
+      const boxes=[layout.start,...layout.positions.values()],candidates=[];
+      for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],length=Math.abs(b.x-a.x)+Math.abs(b.y-a.y);if(length<24)continue;
+        const distances=[length/2];for(let n=12;n<=length-12;n+=8)distances.push(n);
+        for(const distance of distances){const p={x:a.x+Math.sign(b.x-a.x)*distance,y:a.y+Math.sign(b.y-a.y)*distance,segment:i};if(boxes.some(r=>p.x+12>r.x&&p.x-12<r.x+r.width&&p.y+12>r.y&&p.y-12<r.y+r.height))continue;
+          let crossings=0;for(const route of otherRoutes)for(let j=1;j<route.length;j++){const c=route[j-1],d=route[j];if(roadmapPointDistance(p,c,d)<12)crossings++;}
+          const crowded=used.filter(q=>Math.hypot(q.x-p.x,q.y-p.y)<24).length;candidates.push({...p,score:crossings*1000000+crowded*100000-(a.x===b.x?10000:0)-length+Math.abs(distance-length/2)*.01});
+        }
+      }
+      candidates.sort((a,b)=>a.score-b.score);return candidates[0]||null;
+    }
+    function expandRoadmapRight(layout,connections,cut,amount){
+      if(amount<=0)return;
+      const boxes=[layout.start,...layout.positions.values()];
+      for(const box of boxes)if(box.x<cut&&box.x+box.width>cut){cut=box.x+box.width+.001;}
+      for(const box of boxes)if(box.x>=cut)box.x+=amount;
+      for(const edge of connections){for(const p of edge.points)if(p.x>=cut)p.x+=amount;if(edge.plus?.x>=cut)edge.plus.x+=amount;}
+      layout.width+=amount;
+    }
+    function alignRoadmapBends(layout,connections){
+      const box=id=>id==='START'?layout.start:layout.positions.get(id),columns=new Map();
+      for(const edge of connections){
+        const source=box(edge.from),i=edge.points.findIndex((p,n)=>n&&p.x===edge.points[n-1].x&&p.y!==edge.points[n-1].y);
+        if(i<1||box(edge.to).x<=source.x+source.width)continue;
+        const down=edge.points[i].y>edge.points[i-1].y;
+        if(!columns.has(source.x))columns.set(source.x,[]);
+        columns.get(source.x).push({edge,i,down});
+      }
+      for(const [,entries] of [...columns].sort((a,b)=>a[0]-b[0])){
+        const assigned=[];
+        for(const down of [false,true]){
+          const group=entries.filter(r=>r.down===down).sort((a,b)=>{
+            const direction=down?-1:1;
+            return direction*(box(a.edge.from).y-box(b.edge.from).y)||direction*(a.edge.sourceY-b.edge.sourceY)||direction*(a.edge.targetY-b.edge.targetY);
+          });
+          let previous=-Infinity;
+          for(const record of group){
+            const {edge,i}=record,source=box(edge.from),a=edge.points[i-1],b=edge.points[i];
+            let x=Math.max(source.x+source.width+16,previous+16);
+            const overlaps=r=>Math.max(Math.min(a.y,b.y),Math.min(r.edge.sourceY,r.edge.targetY))<Math.min(Math.max(a.y,b.y),Math.max(r.edge.sourceY,r.edge.targetY));
+            for(const other of assigned.filter(overlaps).sort((a,b)=>a.x-b.x))if(Math.abs(x-other.x)<16-.001)x=other.x+16;
+            // Keep the left half-circle clear of boxes at actual crossings.
+            for(const other of connections)if(other!==edge)for(let j=1;j<other.points.length;j++){
+              const c=other.points[j-1],d=other.points[j];
+              if(c.y!==d.y||x<=Math.min(c.x,d.x)||x>=Math.max(c.x,d.x)||c.y<=Math.min(a.y,b.y)||c.y>=Math.max(a.y,b.y))continue;
+              for(const r of [layout.start,...layout.positions.values()])if(r.x+r.width<=x&&c.y+5>r.y&&c.y-5<r.y+r.height)x=Math.max(x,r.x+r.width+21);
+            }
+            record.x=x;assigned.push(record);previous=x;
+          }
+        }
+        // Calculate the required gap once, then move the right-hand columns once.
+        const source=box(entries[0].edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
+        const right=Math.max(...assigned.map(r=>r.x))+16;
+        if(Number.isFinite(next)&&right>next)expandRoadmapRight(layout,connections,next,right-next);
+        for(const {edge,i,x} of assigned){edge.points[i-1].x=x;edge.points[i].x=x;edge.bendOffset=x-box(edge.from).x-box(edge.from).width;}
+      }
+    }
+    function separateRoadmapHorizontalOverlaps(connections,layout){
+      const box=id=>id==='START'?layout.start:layout.positions.get(id),depth=edge=>edge.from==='START'?-1:(layout.paths.get(edge.from)||'').split(',').length;
+      const segments=[];
+      for(const edge of connections)for(let i=1;i<edge.points.length;i++)if(edge.points[i-1].y===edge.points[i].y)segments.push({edge,i});
+      // Keep the arriving horizontal section; lift the overlapping outgoing
+      // section, including wires whose source tasks share the same depth.
+      const priority=r=>r.edge.points.length===2?0:r.i===r.edge.points.length-1?1:2;
+      segments.sort((a,b)=>priority(a)-priority(b)||depth(a.edge)-depth(b.edge)||box(b.edge.from).y-box(a.edge.from).y);
+      const committed=[];
+      for(const record of segments){
+        const {edge,i}=record,a=edge.points[i-1],b=edge.points[i],left=Math.min(a.x,b.x),right=Math.max(a.x,b.x),levels=[];
+        for(const other of committed){if(other.edge===edge)continue;const c=other.edge.points[other.i-1],d=other.edge.points[other.i];
+          if(Math.min(right,Math.max(c.x,d.x))-Math.max(left,Math.min(c.x,d.x))>.001)levels.push(c.y);
+        }
+        if(levels.some(y=>Math.abs(y-a.y)<.001)){
+          let y=a.y;for(const level of levels.sort((a,b)=>b-a))if(y<=level&&y>level-16)y=level-16;
+          const candidate=edge.points.map(p=>({...p}));candidate[i-1].y=y;candidate[i].y=y;
+          const source=box(edge.from),target=box(edge.to),first=candidate[0],last=candidate.at(-1);
+          const endpoints=first.y>=source.y+16&&first.y<=source.y+source.height-16&&last.y>=target.y+16&&last.y<=target.y+target.height-16;
+          const clear=endpoints&&candidate.every((p,k)=>!k||roadmapSegmentClear(candidate[k-1],p,[layout.start,...layout.positions.values()].filter(r=>!(k===1&&r===source)&&!(k===candidate.length-1&&r===target)).map(r=>({left:r.x-16,right:r.x+r.width+16,top:r.y-16,bottom:r.y+r.height+16}))));
+          if(clear){edge.points[i-1].y=y;edge.points[i].y=y;edge.sourceY=first.y;edge.targetY=last.y;}
+        }
+        committed.push(record);
+      }
+      for(const edge of connections)edge.points=simplifyRoadmapRoute(edge.points);
+    }
+    function prepareRoadmapConnections(members,layout){
+      // 1: the layout already contains top-aligned hierarchy columns.
+      const box=id=>id==='START'?layout.start:layout.positions.get(id),ports=getRoadmapEdgePorts(members,layout);
+      const ordered=[...ports.values()].sort((a,b)=>box(a.from).x-box(b.from).x||box(a.from).y-box(b.from).y||a.sourceY-b.sourceY);
+      // 2: shortest box-avoiding connections, with upper tasks committed first.
+      const connections=ordered.map(port=>({...port,points:routeRoadmapEdge(box(port.from),box(port.to),layout,[],port.sourceY,port.targetY),plus:null}));
+      for(const edge of connections)if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
+      // 3: put one insertion button on each connection.
+      function placePluses(){const used=[];for(const edge of connections){edge.plus=roadmapPlusPosition(edge.points,layout,used,connections.filter(other=>other!==edge).map(other=>other.points));if(edge.plus)used.push(edge.plus);}}
+      placePluses();
+      // 4: set bend order once across each whole hierarchy column.
+      alignRoadmapBends(layout,connections);placePluses();
+      // 5: keep committed upper wires straight. Only separate interfering bends.
+      // Each pair is handled once; no return to step 4 and no repeated rerouting.
+      const verticals=[];
+      for(const edge of connections)for(let i=1;i<edge.points.length;i++)if(edge.points[i-1].x===edge.points[i].x&&edge.points[i-1].y!==edge.points[i].y)verticals.push({edge,i});
+      verticals.sort((a,b)=>a.edge.points[a.i].x-b.edge.points[b.i].x||ordered.indexOf(a.edge)-ordered.indexOf(b.edge));
+      for(let n=0;n<verticals.length;n++){
+        const current=verticals[n],{edge,i}=current,a=edge.points[i-1],b=edge.points[i];let x=a.x;
+        for(let k=0;k<n;k++){
+          const earlier=verticals[k],c=earlier.edge.points[earlier.i-1],d=earlier.edge.points[earlier.i];
+          if(Math.max(Math.min(a.y,b.y),Math.min(c.y,d.y))>=Math.min(Math.max(a.y,b.y),Math.max(c.y,d.y)))continue;
+          const p=edge.plus,q=earlier.edge.plus;
+          const touches=p&&p.segment===i&&roadmapPointDistance(p,c,d)<12-.001||q&&q.segment===earlier.i&&roadmapPointDistance(q,a,b)<12-.001;
+          const buttons=p&&q&&p.segment===i&&q.segment===earlier.i&&Math.abs(p.y-q.y)<24;
+          const required=buttons?Math.sqrt(24*24-(p.y-q.y)**2):touches?12:0;
+          if(required)x=Math.max(x,c.x+required);
+        }
+        if(x>a.x+.001){
+          const old=a.x,source=box(edge.from),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
+          a.x=x;b.x=x;if(edge.plus?.segment===i)edge.plus.x+=x-old;
+          // Preserve the order already assigned in step 4.
+          for(let k=n+1;k<verticals.length;k++){
+            const later=verticals[k],c=later.edge.points[later.i-1],d=later.edge.points[later.i];
+            if(box(later.edge.from).x!==source.x||Math.sign(d.y-c.y)!==Math.sign(b.y-a.y)||c.x>=x+16)continue;
+            const shift=x+16-c.x;c.x+=shift;d.x+=shift;if(later.edge.plus?.segment===later.i)later.edge.plus.x+=shift;
+          }
+        }
+      }
+      // Accommodate the final bend positions with one expansion per column.
+      const sources=[...new Set(verticals.map(r=>r.edge.from))].sort((a,b)=>box(a).x-box(b).x);
+      for(const id of sources){const source=box(id),next=Math.min(...[...layout.positions.values()].filter(r=>r.x>source.x).map(r=>r.x));
+        const right=Math.max(...verticals.filter(r=>box(r.edge.from).x===source.x).map(r=>r.edge.points[r.i].x))+16;
+        if(Number.isFinite(next)&&right>next){
+          const fixed=verticals.filter(r=>box(r.edge.from).x<next).map(r=>({r,x:r.edge.points[r.i].x,plusX:r.edge.plus?.x}));
+          expandRoadmapRight(layout,connections,next,right-next);
+          for(const {r,x,plusX} of fixed){r.edge.points[r.i-1].x=x;r.edge.points[r.i].x=x;if(r.edge.plus?.segment===r.i)r.edge.plus.x=plusX;}
+        }
+      }
+      // 6: shift the arrow side only by the missing crossing clearance.
+      const deficits=new Map();
+      for(const edge of connections){const end=edge.points.at(-1),a=edge.points.at(-2);if(!a||a.y!==end.y||end.x<=a.x)continue;
+        for(const other of connections)if(other!==edge)for(let j=1;j<other.points.length;j++){
+          const c=other.points[j-1],d=other.points[j];if(c.x!==d.x||c.x<=a.x||c.x>=end.x||end.y<=Math.min(c.y,d.y)||end.y>=Math.max(c.y,d.y))continue;
+          const missing=16-(end.x-c.x);if(missing>0)deficits.set(c.x,Math.max(deficits.get(c.x)||0,missing));
+        }
+      }
+      // Apply from right to left; a later cut cannot recreate a cleared deficit.
+      for(const [cut,amount] of [...deficits].sort((a,b)=>b[0]-a[0]))expandRoadmapRight(layout,connections,cut+.001,amount);
+      // Rebuild from the final boxes after insertion/spacing, using the same
+      // monotone, two-bend router. No previous detour is carried forward.
+      for(const edge of connections){
+        const source=box(edge.from),target=box(edge.to),first=edge.points[0],last=edge.points.at(-1);
+        const bend=edge.points.length>2?edge.points[1].x-source.x-source.width:16;
+        edge.points=routeRoadmapEdge(source,target,layout,[],first?.y??edge.sourceY,last?.y??edge.targetY,[],bend);
+        if(edge.points.length){edge.sourceY=edge.points[0].y;edge.targetY=edge.points.at(-1).y;}
+      }
+      // Final adjustment: only the lower-hierarchy horizontal line moves up.
+      separateRoadmapHorizontalOverlaps(connections,layout);placePluses();
+      layout.width=Math.max(layout.start.x+layout.start.width+16,...[...layout.positions.values()].map(r=>r.x+r.width+16),...connections.flatMap(e=>e.points.map(p=>p.x+16)));
+      layout.height=Math.max(layout.height,...connections.flatMap(e=>e.points.map(p=>p.y+16)));
+      return connections;
+    }
+    function roadmapBridgePath(points,others){
+      if(!points.length)return '';let path=`M ${points[0].x} ${points[0].y}`;
+      // 7: every crossing bends the vertical wire to the left, regardless of draw order.
+      for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i];if(a.x===b.x){const sign=Math.sign(b.y-a.y),values=[];
+          for(const route of others){if(route===points)continue;for(let j=1;j<route.length;j++){const c=route[j-1],d=route[j];if(c.y===d.y&&a.x>Math.min(c.x,d.x)&&a.x<Math.max(c.x,d.x)&&c.y>Math.min(a.y,b.y)&&c.y<Math.max(a.y,b.y))values.push(c.y);}}
+          const sorted=[...new Set(values)].sort((x,y)=>(x-y)*sign);sorted.forEach((y,index)=>{const radius=Math.min(5,Math.abs(y-a.y)/2,Math.abs(b.y-y)/2,index?Math.abs(y-sorted[index-1])/2:5,index+1<sorted.length?Math.abs(y-sorted[index+1])/2:5);if(radius<.01)return;path+=` L ${a.x} ${y-sign*radius} A ${radius} ${radius} 0 0 ${sign>0?0:1} ${a.x} ${y+sign*radius}`;});
+        }path+=` L ${b.x} ${b.y}`;}return path;
     }
     function renderProjectRoadmap(container,members,groupColors){
-      const layout=getProjectRoadmapLayout(members),graph=document.createElement('div');graph.className='project-roadmap';graph.style.width=`${layout.width}px`;graph.style.height=`${layout.height}px`;
+      const layout=getProjectRoadmapLayout(members),connections=prepareRoadmapConnections(members,layout);
+      const graph=document.createElement('div');graph.className='project-roadmap';graph.style.width=`${layout.width}px`;graph.style.height=`${layout.height}px`;
       const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',String(layout.width));svg.setAttribute('height',String(layout.height));svg.classList.add('project-roadmap-lines');svg.setAttribute('aria-hidden','true');graph.appendChild(svg);
+      const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');svg.appendChild(defs);
+      const routes=connections.map(edge=>edge.points),insertions=[];
+      function connect(from,to,source,target,color='#b7c0cc'){
+        const connection=connections.find(edge=>edge.from===from&&edge.to===to),points=connection?.points||[];if(!points.length)return;
+        const d=roadmapBridgePath(points,routes),markerID=`roadmap-arrow-${insertions.length}`;
+        const marker=document.createElementNS('http://www.w3.org/2000/svg','marker');marker.setAttribute('id',markerID);marker.setAttribute('viewBox','0 0 8 8');marker.setAttribute('refX','8');marker.setAttribute('refY','4');marker.setAttribute('markerWidth','8');marker.setAttribute('markerHeight','8');marker.setAttribute('markerUnits','userSpaceOnUse');marker.setAttribute('orient','auto');
+        const arrow=document.createElementNS('http://www.w3.org/2000/svg','path');arrow.setAttribute('d','M 0 0 L 8 4 L 0 8 Z');arrow.setAttribute('fill',color);marker.appendChild(arrow);defs.appendChild(marker);
+        const halo=document.createElementNS('http://www.w3.org/2000/svg','path');halo.setAttribute('d',d);halo.setAttribute('fill','none');halo.setAttribute('stroke','#fff');halo.setAttribute('stroke-width','4.5');svg.appendChild(halo);
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke',color);path.setAttribute('stroke-width','1.5');path.setAttribute('marker-end',`url(#${markerID})`);path.dataset.from=from;path.dataset.to=to;svg.appendChild(path);
+        insertions.push(connection);
+      }
+      const start=document.createElement('div');start.className='project-roadmap-start';start.textContent='START';start.style.left=`${layout.start.x}px`;start.style.top=`${layout.start.y}px`;start.style.width=`${layout.start.width}px`;start.style.height=`${layout.start.height}px`;graph.appendChild(start);
       for(const item of members){
         const position=layout.positions.get(String(item.pageID));
-        for(const parent of taskParentIds(item)){
-          const start=layout.positions.get(parent);if(!start)continue;
-          const x1=start.x+start.width,y1=start.y+start.height/2,x2=position.x,y2=position.y+position.height/2,mid=(x1+x2)/2;
-          const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',`M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`);path.setAttribute('fill','none');path.setAttribute('stroke',groupColors.get(String(item.pageID))?.normal||'#b7c0cc');path.setAttribute('stroke-width','1.5');svg.appendChild(path);
-        }
-        const node=document.createElement('button');node.type='button';node.className='project-roadmap-task';node.dataset.pageId=String(item.pageID);node.style.left=`${position.x}px`;node.style.top=`${position.y}px`;node.title=`${item.title||'無題のタスク'}を開く`;node.setAttribute('aria-label',node.title);node.onclick=()=>openProjectTreeTask(item.pageID);
-        const title=document.createElement('span');title.className='project-roadmap-title';title.textContent=item.title||'（無題）';if(item.status==='completed')title.classList.add('project-tree-completed');node.appendChild(title);
-        const open=document.createElement('span');open.textContent='↗';open.setAttribute('aria-hidden','true');node.appendChild(open);graph.appendChild(node);
+        if(layout.leafIds.has(String(item.pageID)))connect('START',String(item.pageID),layout.start,position);
+        for(const parent of taskParentIds(item)){const target=layout.positions.get(parent);if(target)connect(String(item.pageID),parent,position,target,groupColors.get(String(item.pageID))?.normal||'#b7c0cc');}
+        const node=document.createElement('button');node.type='button';node.className='project-roadmap-task';node.dataset.pageId=String(item.pageID);node.style.left=`${position.x}px`;node.style.top=`${position.y}px`;node.style.width=`${position.width}px`;node.style.height=`${position.height}px`;node.title=`${item.title||'無題のタスク'}を開く`;node.setAttribute('aria-label',node.title);node.onclick=()=>openProjectTreeTask(item.pageID);
+        const title=document.createElement('span');title.className='project-roadmap-title';title.textContent=position.titleLines.join('\n');node.appendChild(title);
+        const badge=document.createElement('span');badge.className='project-roadmap-completed-label';badge.textContent=item.status==='completed'?'完了済み':'\u00a0';node.appendChild(badge);if(item.status==='completed')node.classList.add('project-roadmap-completed');
+        const open=document.createElement('span');open.className='project-roadmap-open';open.textContent='↗';open.setAttribute('aria-hidden','true');node.appendChild(open);
+        const schedule=document.createElement('span');schedule.className='project-roadmap-schedule';
+        for(const text of ['期限：'+formatRoadmapSchedule(item,'deadline'),'対応予定日：'+formatRoadmapSchedule(item,'action')]){const line=document.createElement('span');line.textContent=text;line.title=text;schedule.appendChild(line);}node.appendChild(schedule);graph.appendChild(node);
+      }
+      // Draw vertical bridges last so a later horizontal wire cannot erase the semicircle.
+      for(const connection of connections)for(let i=1;i<connection.points.length;i++){
+        const a=connection.points[i-1],b=connection.points[i];if(a.x!==b.x)continue;
+        const d=roadmapBridgePath([a,b],routes);if(!d.includes(' A '))continue;
+        const color=groupColors.get(connection.from)?.normal||'#b7c0cc';
+        for(const [stroke,width] of [['#fff','4.5'],[color,'1.5']]){const bridge=document.createElementNS('http://www.w3.org/2000/svg','path');bridge.setAttribute('d',d);bridge.setAttribute('fill','none');bridge.setAttribute('stroke',stroke);bridge.setAttribute('stroke-width',width);bridge.setAttribute('data-roadmap-bridge','vertical-left');svg.appendChild(bridge);}
+      }
+      for(const insertion of insertions){
+        const {from,to}=insertion,p=insertion.plus;
+        if(p){const add=document.createElement('button');add.type='button';add.className='project-roadmap-insert';add.textContent='＋';add.style.left=`${p.x}px`;add.style.top=`${p.y}px`;add.setAttribute('aria-label','この接続にタスクを追加');add.onclick=()=>openRoadmapInsert(from,to,add);graph.appendChild(add);}
       }
       container.appendChild(graph);
     }
@@ -5698,6 +6046,8 @@
       }
     });
 
+    document.getElementById('roadmap-insert-modal').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeRoadmapInsertDialog();}if(event.key==='Enter'&&event.target.id==='roadmap-insert-name'){event.preventDefault();confirmRoadmapInsert();}});
+
     // メイン領域に収まるページは動かさず、長いページだけ縦スクロールする。
     const mainContent = document.querySelector('.main-scroll-area');
     const appContainer = document.querySelector('.app-container');
@@ -5762,7 +6112,7 @@
 
     // 開発確認用：このファイルを作成・更新した時刻を固定で表示する。
     const devBadge = document.createElement('div');
-  const BUILD_CREATED_AT = '2026.10.29 DEV128';
+  const BUILD_CREATED_AT = '2026.10.29 DEV141';
 
     devBadge.textContent = `DEV ${BUILD_CREATED_AT}`;
     devBadge.setAttribute('aria-label', `開発用表示。ファイル作成時刻 ${BUILD_CREATED_AT}`);
@@ -5797,7 +6147,7 @@
         if(!response.ok)return;
         const html=await response.text();
         const build=html.match(/const BUILD_CREATED_AT = '([^']+)'/);
-        if(build && build[1]!=='2026.10.29 DEV128' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
+        if(build && build[1]!=='2026.10.29 DEV141' && !document.querySelector('#unsaved-task-modal:not(.hidden)')){
           if(typeof hasTaskDraftChanges==='function'&&hasTaskDraftChanges())return;
           location.replace(url.href);
         }
